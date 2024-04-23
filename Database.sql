@@ -47,8 +47,6 @@ SELECT * FROM users WHERE UserID = 1;
 UPDATE users SET FirstName='sadeem' WHERE UserID = 2;
 DELETE FROM users WHERE UserID = 1;
 
-
-
 -- Product 
 CREATE TABLE Product(
 ProductID SERIAL PRIMARY KEY,
@@ -63,7 +61,7 @@ FOREIGN KEY (CategoryID) REFERENCES Category(CategoryID)
 INSERT INTO Product (ProductName, ProductDescription, ProductPrice, ProductQuantityInStock, CategoryID)
 VALUES
 ('Perfume', 'Elegant fragrance for all occasions', 59.99, 50, 2),
- ('Sunscreen', 'Protect your skin from harmful UV rays', 100.98, 89, 2),
+('Sunscreen', 'Protect your skin from harmful UV rays', 100.98, 89, 2),
 ('Lipstick', 'Add a pop of color to your lips with our creamy lipstick.', 25.55, 15, 2),
 ('Sunglasses', 'Stay stylish and protected from the sun with our fashionable sunglasses.', 45.75, 25, 3);
 
@@ -79,8 +77,6 @@ SET ProductPrice = 70.99, ProductQuantityInStock = 150
 WHERE ProductID = 4;
 SELECT * FROM Product;
 DELETE FROM Product WHERE ProductID = 2;
-
-
 
 --Order
 CREATE TABLE Orders( 
