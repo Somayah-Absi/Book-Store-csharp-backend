@@ -46,3 +46,34 @@ SELECT CustomerID, CustomerFirstName, CustomerLastName FROM Customer;
 SELECT * FROM Customer WHERE CustomerID = 1;
 UPDATE Customer SET CustomerFirstName='sadeem' WHERE CustomerID = 2;
 DELETE FROM Customer WHERE CustomerID = 1;
+
+
+-- Product 
+CREATE TABLE Product(
+ProductID SERIAL PRIMARY KEY,
+ProductName VARCHAR(50) NOT NULL,
+ProductDescription TEXT NOT NULL,
+ProductPrice NUMERIC(10, 2) NOT NULL,
+ProductQuantityInStock INTEGER NOT NULL, 
+CategoryID INTEGER,
+FOREIGN KEY (CategoryID) REFERENCES Category(CategoryID)
+);
+
+INSERT INTO Product (ProductName, ProductDescription, ProductPrice, ProductQuantityInStock, CategoryID)
+VALUES
+('Perfume', 'Elegant fragrance for all occasions', 59.99, 50, 2),
+ ('Sunscreen', 'Protect your skin from harmful UV rays', 100.98, 89, 2),
+('Lipstick', 'Add a pop of color to your lips with our creamy lipstick.', 25.55, 15, 2);
+
+SELECT * FROM Product;
+SELECT ProductID, ProductName, ProductPrice FROM Product;
+SELECT * FROM Product WHERE CategoryID = 2;
+SELECT * FROM Product WHERE ProductName = 'Sunscreen';
+UPDATE Product 
+SET ProductPrice = 90.00 
+WHERE ProductID = 2;
+UPDATE Product 
+SET ProductPrice = 70.99, ProductQuantityInStock = 150 
+WHERE ProductID = 4;
+SELECT * FROM Product;
+DELETE FROM Product WHERE ProductID = 2;
