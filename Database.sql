@@ -42,11 +42,7 @@ VALUES
 
 
 SELECT * FROM Customer; 
-
 SELECT CustomerID, CustomerFirstName, CustomerLastName FROM Customer;
-
 SELECT * FROM Customer WHERE CustomerID = 1;
-
 UPDATE Customer SET CustomerFirstName='sadeem' WHERE CustomerID = 2;
-
 DELETE FROM Customer WHERE CustomerID = 1;
