@@ -63,7 +63,8 @@ INSERT INTO Product (ProductName, ProductDescription, ProductPrice, ProductQuant
 VALUES
 ('Perfume', 'Elegant fragrance for all occasions', 59.99, 50, 2),
  ('Sunscreen', 'Protect your skin from harmful UV rays', 100.98, 89, 2),
-('Lipstick', 'Add a pop of color to your lips with our creamy lipstick.', 25.55, 15, 2);
+('Lipstick', 'Add a pop of color to your lips with our creamy lipstick.', 25.55, 15, 2),
+('Sunglasses', 'Stay stylish and protected from the sun with our fashionable sunglasses.', 45.75, 25, 3);
 
 SELECT * FROM Product;
 SELECT ProductID, ProductName, ProductPrice FROM Product;
