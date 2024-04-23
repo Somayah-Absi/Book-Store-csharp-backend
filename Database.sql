@@ -79,3 +79,40 @@ SET ProductPrice = 70.99, ProductQuantityInStock = 150
 WHERE ProductID = 4;
 SELECT * FROM Product;
 DELETE FROM Product WHERE ProductID = 2;
+
+
+
+--Order
+CREATE TABLE Orders( 
+OrderID SERIAL PRIMARY KEY, 
+OrderDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
+OrderStatus VARCHAR(50) NOT NULL,UserID INTEGER,
+FOREIGN KEY (UserID) REFERENCES Users(UserID)
+);
+
+INSERT INTO Orders(OrderDate, OrderStatus, UserID)
+VALUES
+    ( '2024-02-24', 'Processing', 3),
+    ('2024-01-22', 'Closure', 2),
+    ( '2024-04-23', 'Canceled', 4);
+
+SELECT
+    CONCAT(c.FirstName, ' ', c.LastName) AS CustomerName,
+    b.OrderID,
+    b.OrderStatus,
+    b.OrderDate
+FROM  
+    Orders b
+INNER JOIN 
+    Users c ON c.UserID = b.UserID;
+
+SELECT  CONCAT(c.FirstName, ' ', c.LastName) AS CustomerName , b.OrderDate AS "Last Orders :"
+FROM Orders b
+INNER JOIN Users c ON c.UserID = b.UserID
+ORDER BY b.OrderDate DESC;
+
+DELETE FROM Orders
+WHERE OrderStatus = 'Canceled';
+
+INSERT INTO Orders( OrderDate, OrderStatus, UserID)
+VALUES ('2024-04-23','Processing ',4);
