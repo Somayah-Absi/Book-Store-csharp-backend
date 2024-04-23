@@ -23,29 +23,30 @@ UPDATE Category
 SET CategoryName = 'Beauty Products' 
 WHERE CategoryID = 2;
 
--- Customer
-CREATE TABLE Customer( 
-CustomerID SERIAL PRIMARY KEY, 
-CustomerFirstName VARCHAR(50) NOT NULL, 
-CustomerLastName VARCHAR(50) NOT NULL,
-CustomerEmail VARCHAR(100) UNIQUE NOT NULL, 
-CustomerPassword VARCHAR(100) NOT NULL,  
-CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+-- User
+CREATE TABLE users( 
+UserID SERIAL PRIMARY KEY, 
+FirstName VARCHAR(50) NOT NULL, 
+LastName VARCHAR(50) NOT NULL,
+Email VARCHAR(100) UNIQUE NOT NULL, 
+Password VARCHAR(100) NOT NULL,  
+CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+Role VARCHAR(10) NOT NULL CHECK (Role IN ('User', 'Admin'))
 );
 
-INSERT INTO Customer (CustomerFirstName, CustomerLastName, CustomerEmail, CustomerPassword)
+INSERT INTO users (FirstName, LastName, Email, Password , Role)
 VALUES
-    ('Raghad', 'Alotaibi', 'Raghad@gmail.com', '11112'),
-    ('Somayah', 'Absi', 'somayah@gmail.com', '222221'),
-    ('Nada', 'Yhaya', 'Nada@gmail.com', '333311'),
-    ('Albandri', 'Alotaibi', 'Albandri@gmail.com', '11442');
+    ('Raghad', 'Alotaibi', 'Raghad@gmail.com', '11112','Admin'),
+    ('Somayah', 'Absi', 'somayah@gmail.com', '222221','User'),
+    ('Nada', 'Yhaya', 'Nada@gmail.com', '333311','User'),
+    ('Albandri', 'Alotaibi', 'Albandri@gmail.com', '11442','User');
 
+SELECT * FROM users; 
+SELECT UserID, FirstName, LastName FROM users;
+SELECT * FROM users WHERE UserID = 1;
+UPDATE users SET FirstName='sadeem' WHERE UserID = 2;
+DELETE FROM users WHERE UserID = 1;
 
-SELECT * FROM Customer; 
-SELECT CustomerID, CustomerFirstName, CustomerLastName FROM Customer;
-SELECT * FROM Customer WHERE CustomerID = 1;
-UPDATE Customer SET CustomerFirstName='sadeem' WHERE CustomerID = 2;
-DELETE FROM Customer WHERE CustomerID = 1;
 
 
 -- Product 
