@@ -178,20 +178,41 @@ VALUES
     ( '2024-02-24', 'Processing', 3),
     ('2024-01-22', 'Closure', 2),
     ( '2024-04-23', 'Canceled', 4);
-SELECT
-    CONCAT(c.FirstName, ' ', c.LastName) AS CustomerName,
+ 
+
+SELECT CONCAT(c.FirstName, ' ', c.LastName) AS CustomerName ,
     b.OrderID,
     b.OrderStatus,
     b.OrderDate
-FROM  
-    Orders b
-INNER JOIN 
-    Users c ON c.UserID = b.UserID;
+FROM  Orders b
+INNER JOIN Users c USING(UserID);
+
 SELECT  CONCAT(c.FirstName, ' ', c.LastName) AS CustomerName , b.OrderDate AS "Last Orders :"
 FROM Orders b
-INNER JOIN Users c ON c.UserID = b.UserID
+INNER JOIN Users c USING(UserID)
 ORDER BY b.OrderDate DESC;
+
 DELETE FROM Orders
 WHERE OrderStatus = 'Canceled';
+
 INSERT INTO Orders( OrderDate, OrderStatus, UserID)
 VALUES ('2024-04-23','Processing ',4);
+
+
+-- Add columns to Order table & update them & add constrain
+ALTER TABLE Orders ADD COLUMN Payment JSONB ;
+
+UPDATE Orders
+SET Payment = '{"method ": "Credit Card" }'
+WHERE OrderID =1;
+
+UPDATE Orders
+SET Payment = '{"method ": "Credit Card" }'
+WHERE OrderID =2;
+
+UPDATE Orders
+SET Payment = '{"method ": "Cash On Delivery" }'
+WHERE OrderID =4;
+
+ALTER TABLE Orders 
+ALTER COLUMN OrderStatus SET DEFAULT 'Pending';
