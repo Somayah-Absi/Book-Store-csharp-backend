@@ -80,6 +80,29 @@ SELECT * FROM users WHERE UserID = 1;
 UPDATE users SET FirstName='sadeem' WHERE UserID = 2;
 DELETE FROM users WHERE UserID = 1;
 
+-- Add columns to User table & update them
+ALTER TABLE users ADD COLUMN Mobile varchar(50) UNIQUE ;
+ALTER TABLE users
+RENAME COLUMN Password TO UserPassword;
+ALTER TABLE users
+RENAME COLUMN Role TO UserRole;
+
+UPDATE users
+SET Mobile= '0539482044'
+WHERE UserID=3;
+
+UPDATE users
+SET Mobile= '0539444478'
+WHERE UserID=4;
+
+UPDATE users
+SET Mobile= '0556677343'
+WHERE UserID=2;
+
+ALTER TABLE users
+ALTER COLUMN Mobile SET NOT NULL;
+
+
 -- Product 
 CREATE TABLE Product(
 ProductID SERIAL PRIMARY KEY,
