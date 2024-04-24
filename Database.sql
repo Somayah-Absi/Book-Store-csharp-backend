@@ -134,7 +134,32 @@ WHERE ProductID = 4;
 SELECT * FROM Product;
 DELETE FROM Product WHERE ProductID = 2;
 
---Order
+-- Add columns to Product table & update them
+
+ALTER TABLE Product
+ADD COLUMN CreateDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+ADD COLUMN Productslug VARCHAR(100);
+
+UPDATE Product
+SET
+    Productslug = 
+        CASE
+            WHEN ProductName = 'Perfume' THEN 'perfume'
+            WHEN ProductName = 'Lipstick' THEN 'lipstick'
+            WHEN ProductName = 'Sunglasses' THEN 'sunglasses'
+        END,
+    ProductDescription =
+        CASE
+            WHEN  ProductName = 'Perfume' THEN 'Elegant fragrance for all occasions'
+            WHEN ProductName = 'Lipstick' THEN 'Add a pop of color to your lips with our creamy lipstick.'
+            WHEN ProductName = 'Sunglasses' THEN 'Stay stylish and protected from the sun with our fashionable sunglasses’
+        END;
+\x
+
+SELECT * FROM Product;
+
+
+-- Order
 CREATE TABLE Orders( 
 OrderID SERIAL PRIMARY KEY, 
 OrderDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
