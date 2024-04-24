@@ -339,14 +339,5 @@ $$ LANGUAGE plpgsql;
 
 SELECT delete_order_product(1);
 
---  * Function To Delete All Order
-CREATE OR REPLACE FUNCTION delete_all_order(
-    order_id INT
-) RETURNS VOID AS $$
-BEGIN
-    DELETE FROM OrderProduct WHERE OrderID = order_id;
-END;
-$$ LANGUAGE plpgsql;
 
-SELECT delete_all_order(1);
 
