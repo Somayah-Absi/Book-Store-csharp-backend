@@ -78,3 +78,7 @@ SET ProductPrice = 70.99, ProductQuantityInStock = 150
 WHERE ProductID = 4;
 SELECT * FROM Product;
 DELETE FROM Product WHERE ProductID = 2;
+
+
+
+
