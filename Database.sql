@@ -23,6 +23,39 @@ UPDATE Category
 SET CategoryName = 'Beauty Products' 
 WHERE CategoryID = 2;
 
+-- Add columns to Category table & update them
+ALTER TABLE Category
+ADD COLUMN CategorySlug VARCHAR(100) UNIQUE,
+ADD COLUMN CategoryDescription TEXT,
+ADD COLUMN CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+
+UPDATE Category
+SET
+    CategorySlug = 
+        CASE
+            WHEN CategoryName = 'Clothing' THEN 'clothing'
+            WHEN CategoryName = 'Beauty Products' THEN 'beauty-products'
+            WHEN CategoryName = 'Shoes & Accessories' THEN 'shoes-and-accessories'
+            WHEN CategoryName = 'Toys & Games' THEN 'toys-and-games'
+            WHEN CategoryName = 'Arts & Crafts' THEN 'arts-and-crafts'
+            WHEN CategoryName = 'Electronics' THEN 'electronics'
+        END,
+    CategoryDescription =
+        CASE
+            WHEN CategoryName = 'Clothing' THEN 'Discover the latest trends in fashion with our Clothing category. From casual wear to elegant attire, find the perfect outfit for any occasion.'
+            WHEN CategoryName = 'Beauty Products' THEN 'Enhance your natural beauty and pamper yourself with our Beauty & Personal Care products. Explore a range of skincare, cosmetics, and grooming essentials.'
+            WHEN CategoryName = 'Shoes & Accessories' THEN 'Step out in style with our Shoes & Accessories collection. Whether you''re looking for trendy footwear or statement accessories, we''ve got you covered.'
+            WHEN CategoryName = 'Toys & Games' THEN 'Spark imagination and endless fun with our Toys & Games selection. From educational toys to exciting games, there''s something for every age and interest.'
+            WHEN CategoryName = 'Arts & Crafts' THEN 'Unleash your creativity with our Arts & Crafts supplies. Dive into a world of colors, textures, and possibilities to bring your artistic visions to life.'
+            WHEN CategoryName = 'Electronics' THEN 'Stay connected and up-to-date with our Electronics category. Discover the latest gadgets, devices, and tech innovations to elevate your digital lifestyle.'
+        END;
+
+\x
+SELECT * FROM Category;
+
+ALTER TABLE Category
+ALTER COLUMN CategorySlug SET NOT NULL;
+
 -- User
 CREATE TABLE users( 
 UserID SERIAL PRIMARY KEY, 
@@ -47,6 +80,27 @@ SELECT * FROM users WHERE UserID = 1;
 UPDATE users SET FirstName='sadeem' WHERE UserID = 2;
 DELETE FROM users WHERE UserID = 1;
 
+-- Add columns to User table & update them
+ALTER TABLE users ADD COLUMN Mobile varchar(50) UNIQUE ;
+ALTER TABLE users
+RENAME COLUMN Password TO UserPassword;
+ALTER TABLE users
+RENAME COLUMN Role TO UserRole;
+
+UPDATE users
+SET Mobile= '0539482044'
+WHERE UserID=3;
+
+UPDATE users
+SET Mobile= '0539444478'
+WHERE UserID=4;
+
+UPDATE users
+SET Mobile= '0556677343'
+WHERE UserID=2;
+
+ALTER TABLE users
+ALTER COLUMN Mobile SET NOT NULL;
 
 
 -- Product 
@@ -63,7 +117,7 @@ FOREIGN KEY (CategoryID) REFERENCES Category(CategoryID)
 INSERT INTO Product (ProductName, ProductDescription, ProductPrice, ProductQuantityInStock, CategoryID)
 VALUES
 ('Perfume', 'Elegant fragrance for all occasions', 59.99, 50, 2),
- ('Sunscreen', 'Protect your skin from harmful UV rays', 100.98, 89, 2),
+('Sunscreen', 'Protect your skin from harmful UV rays', 100.98, 89, 2),
 ('Lipstick', 'Add a pop of color to your lips with our creamy lipstick.', 25.55, 15, 2),
 ('Sunglasses', 'Stay stylish and protected from the sun with our fashionable sunglasses.', 45.75, 25, 3);
 
@@ -79,8 +133,6 @@ SET ProductPrice = 70.99, ProductQuantityInStock = 150
 WHERE ProductID = 4;
 SELECT * FROM Product;
 DELETE FROM Product WHERE ProductID = 2;
-
-
 
 --Order
 CREATE TABLE Orders( 
