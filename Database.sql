@@ -259,9 +259,9 @@ ALTER COLUMN OrderStatus SET DEFAULT 'Pending';
 
   INSERT INTO OrderProduct (Quantity, OrderID, ProductID)
   VALUES 
-  (2, 1, 2),
+  (2, 1, 3),
   (2, 1, 4),
-  (2, 1, 5);
+  (2, 1, 4);
 
 ---------------------------- Add columns to OrderProduct table & update them
 
