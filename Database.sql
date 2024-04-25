@@ -21,7 +21,6 @@ CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 Role VARCHAR(10) NOT NULL CHECK (Role IN ('User', 'Admin'))
 );
 
-
 --------------------------------- Create Product Table
 
 CREATE TABLE Product(
@@ -165,7 +164,6 @@ UPDATE Users
 SET isBanned= FALSE
 WHERE UserID=2;
 
-
 ---------------------------- Insert into Product Table
 
 INSERT INTO Product (ProductName, ProductDescription, ProductPrice, ProductQuantityInStock, CategoryID)
@@ -216,7 +214,6 @@ VALUES
     ( '2024-02-24', 'Processing', 3),
     ('2024-01-22', 'Closure', 2),
     ( '2024-04-23', 'Canceled', 4);
- 
 
 SELECT CONCAT(c.FirstName, ' ', c.LastName) AS CustomerName ,
     b.OrderID,
@@ -235,7 +232,6 @@ WHERE OrderStatus = 'Canceled';
 
 INSERT INTO Orders( OrderDate, OrderStatus, UserID)
 VALUES ('2024-04-23','Processing ',4);
-
 
 ---------------------------- Add columns to Order table & update them & add constrain
 ALTER TABLE Orders ADD COLUMN Payment JSONB ;
@@ -257,11 +253,11 @@ ALTER COLUMN OrderStatus SET DEFAULT 'Pending';
 
 ---------------------------- Insert into OrderProduct Table
 
-  INSERT INTO OrderProduct (Quantity, OrderID, ProductID)
-  VALUES 
-  (2, 1, 3),
-  (2, 1, 4),
-  (2, 1, 4);
+INSERT INTO OrderProduct (Quantity, OrderID, ProductID)
+VALUES 
+    (2, 1, 3),
+    (2, 1, 4),
+    (2, 1, 4);
 
 ---------------------------- Add columns to OrderProduct table & update them
 
@@ -290,7 +286,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-
 SELECT
     op.OrderProductID,
     op.Quantity,
@@ -315,7 +310,7 @@ GROUP BY
     p.ProductName;
 
 -- * CR(U)D Update operations
- --  ? Function To Update Values
+--  ? Function To Update Values
 CREATE OR REPLACE FUNCTION update_order_product(
     order_product_id INT,
     new_quantity INT
