@@ -142,27 +142,8 @@ DROP UserRole;
 
 ALTER TABLE users ADD COLUMN isAdmin BOOLEAN DEFAULT FALSE ;
 
-UPDATE Users
-SET isAdmin= FALSE
-WHERE UserID=3;
-UPDATE Users
-SET isAdmin= FALSE
-WHERE UserID=4;
-UPDATE Users
-SET isAdmin= FALSE
-WHERE UserID=2;
-
 ALTER TABLE users ADD COLUMN isBanned BOOLEAN DEFAULT FALSE ;
 
-UPDATE Users
-SET isBanned= FALSE
-WHERE UserID=3;
-UPDATE Users
-SET isBanned= FALSE
-WHERE UserID=4;
-UPDATE Users
-SET isBanned= FALSE
-WHERE UserID=2;
 
 ---------------------------- Insert into Product Table
 
