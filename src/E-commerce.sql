@@ -72,3 +72,28 @@ VALUES
     ('Sunscreen', 'sunscreen', 'Protect your skin from harmful UV rays', 100.98, 'image', 89, 2),
     ('Lipstick',  'lipstick', 'Add a pop of color to your lips with our creamy lipstick.', 25.55, 'image', 15, 2),
     ('Sunglasses', 'sunglasses', 'Stay stylish and protected from the sun with our fashionable sunglasses.', 45.75, 'image', 25, 3);
+
+
+
+
+--------------------------------- Create Order Table
+
+
+CREATE TABLE "order"( 
+order_id SERIAL PRIMARY KEY, 
+order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
+order_status VARCHAR(50)   NOT NULL DEFAULT 'Pending' ,payment JSONB
+,user_id INTEGER,
+FOREIGN KEY (user_id) REFERENCES "user"(user_id)
+);
+
+
+
+---------------------------- Insert into Order Table
+
+
+INSERT INTO "order"(order_date, order_status, payment, user_id)
+VALUES
+    ('2024-02-24', 'Processing', '{"method": "Credit Card" }', 3),
+    ('2024-01-22', 'Closure', '{"method": "Credit Card" }', 2),
+    ('2024-04-23', 'Canceled', '{"method": "Cash On Delivery" }', 4);
