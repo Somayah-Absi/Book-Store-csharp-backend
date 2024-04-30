@@ -25,5 +25,33 @@ VALUES
 
 --------------------------------- Create User Table
 
+CREATE TABLE "user"( 
+user_id SERIAL PRIMARY KEY,
+first_name VARCHAR(50) NOT NULL,
+last_name VARCHAR(50) NOT NULL,
+email VARCHAR(100) UNIQUE NOT NULL,
+mobile VARCHAR(50) UNIQUE ,
+password VARCHAR(100) NOT NULL,
+created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+is_admin BOOLEAN DEFAULT FALSE,
+is_banned BOOLEAN DEFAULT FALSE
+);
+
 
 ---------------------------- Insert into User Table
+
+INSERT INTO "user" (first_name, last_name, email, mobile, password, is_admin, is_banned)
+VALUES
+    ('Raghad', 'Alotaibi', 'Raghad@gmail.com','0539482044','11112',TRUE , FALSE),
+    ('Somayah', 'Absi', 'somayah@gmail.com','0556677343','222221',FALSE , FALSE),
+    ('Nada', 'Yhaya', 'Nada@gmail.com','0539444478','333311', FALSE , FALSE),
+    ('Sadeem', 'Alghamdi','Sadeem@gmail.com','0556678553', '15542', FALSE, FALSE),
+    ('Albandri', 'Alotaibi','Albandri@gmail.com','0556677223','11442', FALSE, FALSE);
+
+--------------------------------- Create Product Table
+
+
+
+
+
+---------------------------- Insert into Product Table
