@@ -97,3 +97,20 @@ VALUES
     ('2024-02-24', 'Processing', '{"method": "Credit Card" }', 3),
     ('2024-01-22', 'Closure', '{"method": "Credit Card" }', 2),
     ('2024-04-23', 'Canceled', '{"method": "Cash On Delivery" }', 4);
+    
+
+-- Retrieve customer name, order ID, status, and date from orders table joined with users table.
+
+SELECT CONCAT(c.first_name, ' ', c.last_name) AS customer_name ,
+    b.order_id,
+    b.order_status,
+    b.order_date
+FROM  "order" b
+INNER JOIN "user" c USING(user_id);
+
+-- Retrieve customer name and last order date, sorted by order date in descending order.
+
+SELECT  CONCAT(c.first_name, ' ', c.last_name) AS customer_name , b.order_date AS "last_orders "
+FROM "order" b
+INNER JOIN "user" c USING(user_id)
+ORDER BY b.order_date DESC;
