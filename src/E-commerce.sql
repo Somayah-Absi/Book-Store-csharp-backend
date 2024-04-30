@@ -40,7 +40,6 @@ CREATE TABLE "user"
     is_banned BOOLEAN DEFAULT FALSE
 );
 
-
 ---------------------------- Insert into User Table
 
 INSERT INTO "user"
@@ -68,19 +67,15 @@ CREATE TABLE product
     FOREIGN KEY (category_id) REFERENCES category(category_id)
 );
 
-
-
 ---------------------------- Insert into Product Table
 INSERT INTO product
     (product_name, product_slug, product_description, product_price, product_image, product_quantity_in_stock, category_id)
 VALUES
+
     ('Perfume', 'perfume', 'Elegant fragrance for all occasions', 59.99, 'image', 50, 2),
     ('Sunscreen', 'sunscreen', 'Protect your skin from harmful UV rays', 100.98, 'image', 89, 2),
     ('Lipstick', 'lipstick', 'Add a pop of color to your lips with our creamy lipstick.', 25.55, 'image', 15, 2),
     ('Sunglasses', 'sunglasses', 'Stay stylish and protected from the sun with our fashionable sunglasses.', 45.75, 'image', 25, 3);
-
-
-
 
 --------------------------------- Create Order Table
 
@@ -96,19 +91,16 @@ CREATE TABLE "order"
     FOREIGN KEY (user_id) REFERENCES "user"(user_id)
 );
 
-
-
 ---------------------------- Insert into Order Table
 
 
 INSERT INTO "order"
     (order_date, order_status, payment, user_id)
+
 VALUES
     ('2024-02-24', 'Processing', '{"method": "Credit Card" }', 3),
     ('2024-01-22', 'Closure', '{"method": "Credit Card" }', 2),
     ('2024-04-23', 'Canceled', '{"method": "Cash On Delivery" }', 4);
-
-
 
 
 --------------------------------- Create Order Product Table
@@ -220,3 +212,21 @@ GROUP BY
     op.product_id,
     p.product_name,
     op.quantity;
+
+
+-- Retrieve customer name, order ID, status, and date from orders table joined with users table.
+
+SELECT CONCAT(c.first_name, ' ', c.last_name) AS customer_name ,
+    b.order_id,
+    b.order_status,
+    b.order_date
+FROM  "order" b
+INNER JOIN "user" c USING(user_id);
+
+-- Retrieve customer name and last order date, sorted by order date in descending order.
+
+SELECT  CONCAT(c.first_name, ' ', c.last_name) AS customer_name , b.order_date AS "last_orders "
+FROM "order" b
+INNER JOIN "user" c USING(user_id)
+ORDER BY b.order_date DESC;
+
