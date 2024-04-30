@@ -50,8 +50,25 @@ VALUES
 
 --------------------------------- Create Product Table
 
-
+CREATE TABLE product(
+    product_id SERIAL PRIMARY KEY,
+    product_name VARCHAR(50) NOT NULL,
+    product_slug VARCHAR(100),
+    product_description TEXT NOT NULL,
+    product_price NUMERIC(10, 2) NOT NULL,
+    product_image VARCHAR(255) DEFAULT '',
+    product_quantity_in_stock INTEGER NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
+    category_id INTEGER,
+    FOREIGN KEY (category_id) REFERENCES category(category_id)
+);
 
 
 
 ---------------------------- Insert into Product Table
+INSERT INTO product (product_name, product_slug, product_description, product_price, product_image, product_quantity_in_stock, category_id)
+VALUES 
+    ('Perfume', 'perfume', 'Elegant fragrance for all occasions', 59.99, 'image', 50, 2),
+    ('Sunscreen', 'sunscreen', 'Protect your skin from harmful UV rays', 100.98, 'image', 89, 2),
+    ('Lipstick',  'lipstick', 'Add a pop of color to your lips with our creamy lipstick.', 25.55, 'image', 15, 2),
+    ('Sunglasses', 'sunglasses', 'Stay stylish and protected from the sun with our fashionable sunglasses.', 45.75, 'image', 25, 3);
