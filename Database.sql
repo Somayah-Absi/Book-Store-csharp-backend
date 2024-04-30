@@ -1,14 +1,3 @@
---------------------------------- Create Database
-
-CREATE DATABASE ecommerce_sda; 
-
---------------------------------- Create Category Table
-
-CREATE TABLE Category(
-CategoryID SERIAL PRIMARY KEY,
-CategoryName VARCHAR(50) UNIQUE NOT NULL
-);
-
 --------------------------------- Create User Table
 
 CREATE TABLE users( 
@@ -52,57 +41,6 @@ CREATE TABLE OrderProduct (
     FOREIGN KEY (OrderID) REFERENCES Orders(OrderID),
     FOREIGN KEY (ProductID) REFERENCES Product(ProductID)
 );
-
----------------------------- Insert into Category Table
-
-INSERT INTO Category (CategoryName)
-VALUES 
-    ('Clothing'),
-    ('Beauty & Personal Care'),
-    ('Shoes & Accessories'),
-    ('Sports & Outdoors'),
-    ('Toys & Games'),
-    ('Arts & Crafts'),
-    ('Home & Kitchen'),
-    ('Electronics');
-SELECT * FROM Category;
-DELETE FROM Category
-WHERE CategoryName = 'Sports & Outdoors'
-OR CategoryName = 'Home & Kitchen';
-UPDATE Category 
-SET CategoryName = 'Beauty Products' 
-WHERE CategoryID = 2;
-
----------------------------- Add columns to Category table & update them
-
-ALTER TABLE Category
-ADD COLUMN CategorySlug VARCHAR(100) UNIQUE,
-ADD COLUMN CategoryDescription TEXT,
-ADD COLUMN CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
-UPDATE Category
-SET
-    CategorySlug = 
-        CASE
-            WHEN CategoryName = 'Clothing' THEN 'clothing'
-            WHEN CategoryName = 'Beauty Products' THEN 'beauty-products'
-            WHEN CategoryName = 'Shoes & Accessories' THEN 'shoes-and-accessories'
-            WHEN CategoryName = 'Toys & Games' THEN 'toys-and-games'
-            WHEN CategoryName = 'Arts & Crafts' THEN 'arts-and-crafts'
-            WHEN CategoryName = 'Electronics' THEN 'electronics'
-        END,
-    CategoryDescription =
-        CASE
-            WHEN CategoryName = 'Clothing' THEN 'Discover the latest trends in fashion with our Clothing category. From casual wear to elegant attire, find the perfect outfit for any occasion.'
-            WHEN CategoryName = 'Beauty Products' THEN 'Enhance your natural beauty and pamper yourself with our Beauty & Personal Care products. Explore a range of skincare, cosmetics, and grooming essentials.'
-            WHEN CategoryName = 'Shoes & Accessories' THEN 'Step out in style with our Shoes & Accessories collection. Whether you''re looking for trendy footwear or statement accessories, we''ve got you covered.'
-            WHEN CategoryName = 'Toys & Games' THEN 'Spark imagination and endless fun with our Toys & Games selection. From educational toys to exciting games, there''s something for every age and interest.'
-            WHEN CategoryName = 'Arts & Crafts' THEN 'Unleash your creativity with our Arts & Crafts supplies. Dive into a world of colors, textures, and possibilities to bring your artistic visions to life.'
-            WHEN CategoryName = 'Electronics' THEN 'Stay connected and up-to-date with our Electronics category. Discover the latest gadgets, devices, and tech innovations to elevate your digital lifestyle.'
-        END;
-\x
-SELECT * FROM Category;
-ALTER TABLE Category
-ALTER COLUMN CategorySlug SET NOT NULL;
 
 ---------------------------- Insert into User Table
 
