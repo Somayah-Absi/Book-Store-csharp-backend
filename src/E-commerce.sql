@@ -37,7 +37,6 @@ is_admin BOOLEAN DEFAULT FALSE,
 is_banned BOOLEAN DEFAULT FALSE
 );
 
-
 ---------------------------- Insert into User Table
 
 INSERT INTO "user" (first_name, last_name, email, mobile, password, is_admin, is_banned)
@@ -63,9 +62,8 @@ CREATE TABLE product(
     FOREIGN KEY (category_id) REFERENCES category(category_id)
 );
 
-
-
 ---------------------------- Insert into Product Table
+
 INSERT INTO product (product_name, product_slug, product_description, product_price, product_image, product_quantity_in_stock, category_id)
 VALUES 
     ('Perfume', 'perfume', 'Elegant fragrance for all occasions', 59.99, 'image', 50, 2),
@@ -73,11 +71,7 @@ VALUES
     ('Lipstick',  'lipstick', 'Add a pop of color to your lips with our creamy lipstick.', 25.55, 'image', 15, 2),
     ('Sunglasses', 'sunglasses', 'Stay stylish and protected from the sun with our fashionable sunglasses.', 45.75, 'image', 25, 3);
 
-
-
-
 --------------------------------- Create Order Table
-
 
 CREATE TABLE "order"( 
 order_id SERIAL PRIMARY KEY, 
@@ -87,10 +81,7 @@ order_status VARCHAR(50)   NOT NULL DEFAULT 'Pending' ,payment JSONB
 FOREIGN KEY (user_id) REFERENCES "user"(user_id)
 );
 
-
-
 ---------------------------- Insert into Order Table
-
 
 INSERT INTO "order"(order_date, order_status, payment, user_id)
 VALUES
