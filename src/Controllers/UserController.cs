@@ -3,6 +3,7 @@ using Backend.Services;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Backend.Controllers
 {
@@ -18,11 +19,11 @@ namespace Backend.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAllUsers()
+        public async Task<IActionResult> GetAllUsers()
         {
             try
             {
-                var users = _userService.GetAllUsers();
+                var users = await _userService.GetAllUsersAsync();
                 return Ok(users);
             }
             catch (Exception ex)
@@ -32,11 +33,11 @@ namespace Backend.Controllers
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetUser(int id)
+        public async Task<IActionResult> GetUser(int id)
         {
             try
             {
-                var user = _userService.GetUserById(id);
+                var user = await _userService.GetUserByIdAsync(id);
                 if (user != null)
                 {
                     return Ok(user);
@@ -53,11 +54,11 @@ namespace Backend.Controllers
         }
 
         [HttpPost]
-        public IActionResult CreateUser(User user)
+        public async Task<IActionResult> CreateUser(User user)
         {
             try
             {
-                var createdUser = _userService.CreateUser(user);
+                var createdUser = await _userService.CreateUserAsync(user);
                 return CreatedAtAction(nameof(GetUser), new { id = createdUser.UserId }, createdUser);
             }
             catch (Exception ex)
@@ -67,11 +68,11 @@ namespace Backend.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult UserCategory(int id, User user)
+        public async Task<IActionResult> UpdateUser(int id, User user)
         {
             try
             {
-                var updateduser = _userService.UpdateUser(id, user);
+                var updateduser = await _userService.UpdateUserAsync(id, user);
                 if (updateduser == null)
                 {
                     return NotFound();
@@ -88,11 +89,11 @@ namespace Backend.Controllers
         }
 
         [HttpDelete("{id}")]
-        public IActionResult DeleteUser(int id)
+        public async Task<IActionResult> DeleteUser(int id)
         {
             try
             {
-                var result = _userService.DeleteUser(id);
+                var result = await _userService.DeleteUserAsync(id);
                 if (!result)
                 {
                     return NoContent();

@@ -22,6 +22,11 @@ namespace Backend
              // Register the services
             services.AddScoped<UserService>();
 
+            // Register the services
+            services.AddScoped<OrderService>();
+            
+            
+
 
             services.AddControllers();
         }
