@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using Backend.Models;
 
+namespace Backend.Services
+{
 public class OrderService
 {
 
@@ -142,3 +144,5 @@ public class OrderService
 
 }
 
+
+}
