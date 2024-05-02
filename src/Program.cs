@@ -13,6 +13,7 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddScoped<CategoryService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<OrderService>();
+builder.Services.AddScoped<ProductService>();
 builder.Services.AddControllers();
 builder.Services.AddDbContext<EcommerceSdaContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
