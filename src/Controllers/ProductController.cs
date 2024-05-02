@@ -1,21 +1,20 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Backend.Models;
+using Backend.Services;
 using Microsoft.AspNetCore.Mvc;
-using api.Helpers;
+using System;
+using System.Threading.Tasks;
 
-namespace api.Controllers
+namespace Backend.Controllers
 {
     [ApiController]
-    [Route("/api/products")]
+    [Route("api/products")]
     public class ProductController : ControllerBase
     {
         private readonly ProductService _productService;
 
         public ProductController(ProductService productService)
         {
-            _productService = productService;
+            _productService = productService ?? throw new ArgumentNullException(nameof(productService));
         }
 
         [HttpGet]
@@ -23,163 +22,97 @@ namespace api.Controllers
         {
             try
             {
-                var products = await _productService.GetAllProducts();
-
-                if (products.Count() == 0)
-                {
-                    return NotFound(new ErrorResponse
-                    {
-                        Success = false,
-                        Message = "No products found"
-                    });
-                }
-
-                return Ok(new SuccessResponse<IEnumerable<Product>>
-                {
-                    Success = true,
-                    Message = "All products retrieved successfully",
-                    Data = products
-                });
+                var products = await _productService.GetAllProductsAsync();
+                return Ok(products);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error occurred while fetching products: {ex.Message}");
-                return StatusCode(500, new ErrorResponse
-                {
-                    Success = false,
-                    Message = ex.Message
-                });
+                return StatusCode(500, ex.Message);
             }
         }
 
-        [HttpGet("{productId}")]
-        public async Task<IActionResult> GetProductById(Guid productId)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetProduct(int id)
         {
             try
             {
-                var product = await _productService.GetProductById(productId);
+                var product = await _productService.GetProductByIdAsync(id);
+                if (product != null)
+                {
+                    return Ok(product);
+                }
+                else
+                {
+                    return NotFound();
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
 
+        [HttpPost]
+        public async Task<IActionResult> CreateProduct(Product product)
+        {
+            try
+            {
                 if (product == null)
                 {
-                    return NotFound(new ErrorResponse
-                    {
-                        Success = false,
-                        Message = "Product not found"
-                    });
+                    return BadRequest("Product data is null");
                 }
 
-                return Ok(new SuccessResponse<Product>
-                {
-                    Success = true,
-                    Message = "Product retrieved successfully",
-                    Data = product
-                });
+                var createdProduct = await _productService.CreateProductAsync(product);
+                return CreatedAtAction(nameof(GetProduct), new { id = createdProduct.ProductId }, createdProduct);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error occurred while fetching product: {ex.Message}");
-                return StatusCode(500, new ErrorResponse
-                {
-                    Success = false,
-                    Message = ex.Message
-                });
+                return StatusCode(500, ex.Message);
             }
         }
-        
-        [HttpPost]
-public async Task<IActionResult> CreateProduct(Product newProduct)
-{
-    try
-    {
-        var createdProduct = await _productService.CreateProduct(newProduct);
 
-        if (createdProduct == null)
-        {
-            return StatusCode(500, new ErrorResponse
-            {
-                Success = false,
-                Message = "Failed to create product"
-            });
-        }
-
-        return CreatedAtAction(nameof(GetProductById), new { productId = createdProduct.ProductId }, new SuccessResponse<Product>
-        {
-            Success = true,
-            Message = "Product created successfully",
-            Data = createdProduct
-        });
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"Error occurred while creating product: {ex.Message}");
-        return StatusCode(500, new ErrorResponse
-        {
-            Success = false,
-            Message = ex.Message
-        });
-    }
-}
-
-        [HttpPut("{productId}")]
-        public async Task<IActionResult> UpdateProduct(Guid productId, Product updateProduct)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateProduct(int id, Product product)
         {
             try
             {
-                var updatedProduct = await _productService.UpdateProduct(productId, updateProduct);
+                if (product == null || product.ProductId != id)
+                {
+                    return BadRequest("Invalid product data");
+                }
 
+                var updatedProduct = await _productService.UpdateProductAsync(id, product);
                 if (updatedProduct == null)
                 {
-                    return NotFound(new ErrorResponse
-                    {
-                        Success = false,
-                        Message = "Product not found"
-                    });
+                    return NotFound();
                 }
 
-                return Ok(new SuccessResponse<Product>
-                {
-                    Success = true,
-                    Message = "Product updated successfully",
-                    Data = updatedProduct
-                });
+                return Ok(updatedProduct);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error occurred while updating product: {ex.Message}");
-                return StatusCode(500, new ErrorResponse
-                {
-                    Success = false,
-                    Message = ex.Message
-                });
+                return StatusCode(500, ex.Message);
             }
         }
 
-        [HttpDelete("{productId}")]
-        public async Task<IActionResult> DeleteProduct(Guid productId)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteProduct(int id)
         {
             try
             {
-                var result = await _productService.DeleteProduct(productId);
-
-                if (!result)
+                var result = await _productService.DeleteProductAsync(id);
+                if (result)
                 {
-                    return NotFound(new ErrorResponse
-                    {
-                        Success = false,
-                        Message = "Product not found"
-                    });
+                    return NoContent();
                 }
-
-                return NoContent();
+                else
+                {
+                    return NotFound();
+                }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error occurred while deleting product: {ex.Message}");
-                return StatusCode(500, new ErrorResponse
-                {
-                    Success = false,
-                    Message = ex.Message
-                });
+                return StatusCode(500, ex.Message);
             }
         }
     }

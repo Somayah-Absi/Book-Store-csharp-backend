@@ -1,74 +1,114 @@
+using Backend.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-public class ProductService
+namespace Backend.Services
 {
-    public static List<Product> Products = new List<Product>()
+    public class ProductService
     {
-        new Product
+        private readonly EcommerceSdaContext _dbContext;
+
+        public ProductService(EcommerceSdaContext dbContext)
         {
-            ProductId = Guid.Parse("abcdeabc-deab-cdea-bcad-abcdefabcdef"),
-            ProductName = "Sample Product",
-            ProductSlug = "sample-product",
-            ProductDescription = "This is a sample product",
-            ProductPrice = 99.99m,
-            ProductImage = "sample.jpg",
-            ProductQuantityInStock = 10,
-            CategoryId = Guid.NewGuid(),
-            CreatedAt = DateTime.Now
-        },
-        // Add more sample products here if needed
-    };
-
-    public async Task<IEnumerable<Product>> GetAllProducts()
-    {
-        await Task.CompletedTask;
-        return Products.AsEnumerable();
-    }
-
-    public async Task<Product?> GetProductById(Guid productId)
-    {
-        await Task.CompletedTask;
-        return Products.Find(product => product.ProductId == productId);
-    }
-
-    public async Task<Product?> CreateProduct(Product newProduct)
-    {
-        await Task.CompletedTask;
-        newProduct.ProductId = Guid.NewGuid();
-        newProduct.CreatedAt = DateTime.Now;
-        Products.Add(newProduct);
-        return newProduct;
-    }
-
-    public async Task<Product?> UpdateProduct(Guid productId, Product updateProduct)
-    {
-        await Task.CompletedTask;
-        var existingProduct = Products.FirstOrDefault(product => product.ProductId == productId);
-        if (existingProduct != null)
-        {
-            existingProduct.ProductName = updateProduct.ProductName ?? existingProduct.ProductName;
-            existingProduct.ProductSlug = updateProduct.ProductSlug ?? existingProduct.ProductSlug;
-            existingProduct.ProductDescription = updateProduct.ProductDescription ?? existingProduct.ProductDescription;
-            existingProduct.ProductPrice = updateProduct.ProductPrice;
-            existingProduct.ProductImage = updateProduct.ProductImage ?? existingProduct.ProductImage;
-            existingProduct.ProductQuantityInStock = updateProduct.ProductQuantityInStock;
-            existingProduct.CategoryId = updateProduct.CategoryId;
+            _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
-        return existingProduct;
-    }
 
-    public async Task<bool> DeleteProduct(Guid productId)
-    {
-        await Task.CompletedTask;
-        var productToRemove = Products.FirstOrDefault(product => product.ProductId == productId);
-        if (productToRemove != null)
+        public async Task<IEnumerable<Product>> GetAllProductsAsync()
         {
-            Products.Remove(productToRemove);
-            return true;
+            try
+            {
+                return await _dbContext.Products.ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                // Handle exception or log error
+                throw new ApplicationException("An error occurred while retrieving products.", ex);
+            }
         }
-        return false;
+
+        public async Task<Product?> GetProductByIdAsync(int id)
+        {
+            try
+            {
+                return await _dbContext.Products.FindAsync(id);
+            }
+            catch (Exception ex)
+            {
+                // Handle exception or log error
+                throw new ApplicationException($"An error occurred while retrieving product with ID {id}.", ex);
+            }
+        }
+
+        public async Task<Product> CreateProductAsync(Product product)
+        {
+            try
+            {
+                _dbContext.Products.Add(product);
+                await _dbContext.SaveChangesAsync();
+                return product;
+            }
+            catch (Exception ex)
+            {
+                // Handle exception or log error
+                throw new ApplicationException("An error occurred while creating product.", ex);
+            }
+        }
+
+        public async Task<Product?> UpdateProductAsync(int id, Product product)
+        {
+            try
+            {
+                var existingProduct = await _dbContext.Products.FindAsync(id);
+                if (existingProduct != null)
+                {
+                    existingProduct.ProductName = product.ProductName;
+                    existingProduct.ProductSlug = product.ProductSlug;
+                    existingProduct.ProductDescription = product.ProductDescription;
+                    existingProduct.ProductPrice = product.ProductPrice;
+                    existingProduct.ProductImage = product.ProductImage;
+                    existingProduct.ProductQuantityInStock = product.ProductQuantityInStock;
+                    existingProduct.CreatedAt = product.CreatedAt;
+                    existingProduct.CategoryId = product.CategoryId;
+
+                    await _dbContext.SaveChangesAsync();
+                    return existingProduct;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                // Handle exception or log error
+                throw new ApplicationException($"An error occurred while updating product with ID {id}.", ex);
+            }
+        }
+
+        public async Task<bool> DeleteProductAsync(int id)
+        {
+            try
+            {
+                var productToDelete = await _dbContext.Products.FindAsync(id);
+                if (productToDelete != null)
+                {
+                    _dbContext.Products.Remove(productToDelete);
+                    await _dbContext.SaveChangesAsync();
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                // Handle exception or log error
+                throw new ApplicationException($"An error occurred while deleting product with ID {id}.", ex);
+            }
+        }
     }
 }
