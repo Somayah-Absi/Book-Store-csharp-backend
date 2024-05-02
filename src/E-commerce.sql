@@ -84,9 +84,8 @@ CREATE TABLE "order"
 (
     order_id SERIAL PRIMARY KEY,
     order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    order_status VARCHAR(50) NOT NULL DEFAULT 'Pending' ,
-    payment JSONB
-,
+    order_status VARCHAR(50) NOT NULL DEFAULT 'Pending',
+    payment JSONB,
     user_id INTEGER,
     FOREIGN KEY (user_id) REFERENCES "user"(user_id)
 );
@@ -216,7 +215,7 @@ GROUP BY
 
 -- Retrieve customer name, order ID, status, and date from orders table joined with users table.
 
-SELECT CONCAT(c.first_name, ' ', c.last_name) AS customer_name ,
+SELECT CONCAT(c.first_name, ' ', c.last_name) AS customer_name,
     b.order_id,
     b.order_status,
     b.order_date
@@ -225,7 +224,7 @@ INNER JOIN "user" c USING(user_id);
 
 -- Retrieve customer name and last order date, sorted by order date in descending order.
 
-SELECT  CONCAT(c.first_name, ' ', c.last_name) AS customer_name , b.order_date AS "last_orders "
+SELECT  CONCAT(c.first_name, ' ', c.last_name) AS customer_name, b.order_date AS "last_orders"
 FROM "order" b
 INNER JOIN "user" c USING(user_id)
 ORDER BY b.order_date DESC;
