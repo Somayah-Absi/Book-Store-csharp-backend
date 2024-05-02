@@ -2,7 +2,8 @@ using Backend.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 namespace Backend.Services
 {
     public class UserService
@@ -14,12 +15,12 @@ namespace Backend.Services
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
 
-        public IEnumerable<User> GetAllUsers()
+        public async Task<IEnumerable<User>> GetAllUsersAsync()
         {
             try
             {
                 List<User> users = new List<User>();
-                var dataList = _dbContext.Users.ToList();
+                var dataList = await _dbContext.Users.ToListAsync();
                 dataList.ForEach(row => users.Add(new User
                 {
                     UserId = row.UserId,
@@ -39,11 +40,11 @@ namespace Backend.Services
             }
         }
 
-        public User? GetUserById(int id)
+        public async Task<User?> GetUserByIdAsync(int id)
         {
             try
             {
-                return _dbContext.Users.Find(id);
+                return await _dbContext.Users.FindAsync(id);
             }
             catch (Exception ex)
             {
@@ -52,12 +53,12 @@ namespace Backend.Services
             }
         }
 
-        public User CreateUser(User user)
+        public async Task<User> CreateUserAsync(User user)
         {
             try
             {
                 _dbContext.Users.Add(user);
-                _dbContext.SaveChanges();
+                await _dbContext.SaveChangesAsync();
                 return user;
             }
             catch (Exception ex)
@@ -67,11 +68,11 @@ namespace Backend.Services
             }
         }
 
-        public User? UpdateUser(int id, User user)
+        public async Task<User?> UpdateUserAsync(int id, User user)
         {
             try
             {
-                var existingUser = _dbContext.Users.Find(id);
+                var existingUser = await _dbContext.Users.FindAsync(id);
                 if (existingUser != null)
                 {
                     existingUser.FirstName = user.FirstName ?? existingUser.FirstName;
@@ -82,7 +83,7 @@ namespace Backend.Services
                     existingUser.IsAdmin = user.IsAdmin;
                     existingUser.IsBanned = user.IsBanned;
                     // Update other properties as needed
-                    _dbContext.SaveChanges();
+                    await _dbContext.SaveChangesAsync();
                     return existingUser;
                 }
                 else
@@ -97,15 +98,15 @@ namespace Backend.Services
             }
         }
 
-        public bool DeleteUser(int id)
+        public async Task<bool> DeleteUserAsync(int id)
         {
             try
             {
-                var userToDelete = _dbContext.Users.Find(id);
+                var userToDelete = await _dbContext.Users.FindAsync(id);
                 if (userToDelete != null)
                 {
                     _dbContext.Users.Remove(userToDelete);
-                    _dbContext.SaveChanges();
+                    await _dbContext.SaveChangesAsync();
                     return true;
                 }
                 else
