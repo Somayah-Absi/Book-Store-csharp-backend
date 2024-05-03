@@ -1,5 +1,6 @@
 using System.Text.RegularExpressions;
 
+// - written by Nada, commited by Sadeem.
 public class SlugGenerator
 {
     public static string GenerateSlug(string name)
