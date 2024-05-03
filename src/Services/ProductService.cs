@@ -16,11 +16,14 @@ namespace Backend.Services
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
 
-        public async Task<IEnumerable<Product>> GetAllProductsAsync()
+        public async Task<IEnumerable<Product>> GetAllProductsAsync(int pageNumber, int pageSize)
         {
             try
             {
-                return await _dbContext.Products.ToListAsync();
+                return await _dbContext.Products
+                             .Skip((pageNumber - 1) * pageSize)
+                             .Take(pageSize)
+                             .ToListAsync();
             }
             catch (Exception ex)
             {
