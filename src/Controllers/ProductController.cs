@@ -18,11 +18,11 @@ namespace Backend.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllProducts()
+        public async Task<IActionResult> GetAllProducts(int pageNumber = 1, int pageSize = 10)
         {
             try
             {
-                var products = await _productService.GetAllProductsAsync();
+                var products = await _productService.GetAllProductsAsync(pageNumber, pageSize);
                 return Ok(products);
             }
             catch (Exception ex)
