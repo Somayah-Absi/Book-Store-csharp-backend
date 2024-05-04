@@ -1,8 +1,11 @@
+using api.Controllers;
 using Backend.Models;
 using Backend.Services;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc.Rendering;
+
 
 namespace Backend.Controllers
 {
@@ -18,16 +21,39 @@ namespace Backend.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllProducts(int pageNumber = 1, int pageSize = 10)
+
+        public async Task<IActionResult> GetAllProducts(
+    [FromQuery] string productName = null,
+    [FromQuery] decimal? minPrice = null,
+    [FromQuery] decimal? maxPrice = null,
+    [FromQuery] DateTime? CreateDate = null,
+    [FromQuery] int pageNumber = 1,
+    [FromQuery] int pageSize = 10,
+    [FromQuery] string sortBy = "id",
+    [FromQuery] bool ascending = true)
         {
             try
             {
-                var products = await _productService.GetAllProductsAsync(pageNumber, pageSize);
-                return ApiResponse.Success(products, "all products are returned successfully");
+
+
+
+                var sortOptions = new List<string> { "id", "price", "title", "product name", "create date" };
+
+                // Check if the sortBy value is valid, if not, return bad request
+                if (!sortOptions.Contains(sortBy.ToLower()))
+                {
+                    return BadRequest("Invalid value for sortBy. Valid options are: id, price, productName, createDate (Make sure to the lower and capital letters)");
+                }
+
+
+                var products = await _productService.GetAllProductsAsync(
+                    productName, minPrice, maxPrice, CreateDate, sortBy, ascending, pageNumber, pageSize);
+
+                return Ok(products);
             }
             catch (Exception ex)
             {
-                return ApiResponse.ServerError(ex.Message);
+                return StatusCode(500, ex.Message);
             }
         }
 
