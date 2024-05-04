@@ -1,8 +1,8 @@
+using api.Controllers;
 using Backend.Models;
 using Backend.Services;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Threading.Tasks;
+
 
 namespace Backend.Controllers
 {
@@ -24,11 +24,15 @@ namespace Backend.Controllers
             try
             {
                 var orderProducts = await _orderProductService.GetAllOrderProductAsync();
-                return Ok(orderProducts);
+                return ApiResponse
+                .Success(
+                    orderProducts,
+                    "OrderProduct retrieved successfully"
+                       );
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                return ApiResponse.ServerError(ex.Message);
             }
         }
 
@@ -38,7 +42,7 @@ namespace Backend.Controllers
             try
             {
                 var orderProduct = await _orderProductService.GetOrderProductByIdAsync(orderId);
-                if (orderProduct != null)
+                if (orderProduct.Count() != 0)
                 {
                     var totalOrderPrice = 0.0m;
                     foreach (int order in orderProduct.Select(op => op.OrderId).Distinct())
@@ -50,16 +54,21 @@ namespace Backend.Controllers
                         orderProduct,
                         totalOrderPrice
                     };
-                    return Ok(response);
+
+                    return ApiResponse
+                   .Success(
+                       response,
+                       $"Order product By ID: {orderId} retrieved successfully"
+                          );
                 }
                 else
                 {
-                    return NotFound();
+                    return ApiResponse.NotFound("Order not found");
                 }
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                return ApiResponse.ServerError(ex.Message);
             }
         }
 
@@ -70,15 +79,20 @@ namespace Backend.Controllers
             {
                 if (product == null)
                 {
-                    return BadRequest("Product data is null");
+                    return ApiResponse.BadRequest("Order Product data is null");
                 }
 
                 var createdOrderProduct = await _orderProductService.AddOrUpdateProductQuantity(product);
-                return CreatedAtAction(nameof(GetOrderProductById), new { orderId = createdOrderProduct.ProductId }, createdOrderProduct);
+                return CreatedAtAction(nameof(GetOrderProductById), new { orderId = createdOrderProduct.ProductId },
+                 ApiResponse
+                 .Created(
+                    createdOrderProduct,
+                    "OrderProduct created successfully"
+                    ));
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                return ApiResponse.ServerError(ex.Message);
             }
         }
 
@@ -87,22 +101,20 @@ namespace Backend.Controllers
         {
             try
             {
-                // if (orderProduct == null || orderProduct.ProductId != OrderProductId)
-                // {
-                //     return BadRequest("Invalid Order product data");
-                // }
-
-                var updatedOrderProduct = await _orderProductService.UpdateProductQuantity(OrderId,ProductId,numberQuantity);
-                if (updatedOrderProduct == null)
+                var updatedOrderProduct = await _orderProductService.UpdateProductQuantity(OrderId, ProductId, numberQuantity);                
+                if (updatedOrderProduct.Count() == 0)
                 {
-                    return NotFound();
+                    return ApiResponse.NotFound("Order not found");
                 }
-
-                return Ok(updatedOrderProduct);
+                return ApiResponse
+                       .Success(
+                         updatedOrderProduct,
+                         "OrderProduct updated successfully"
+                             );
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                return ApiResponse.ServerError(ex.Message);
             }
         }
 
@@ -114,16 +126,19 @@ namespace Backend.Controllers
                 var result = await _orderProductService.DeleteOrderProduct(OrderProductId);
                 if (result)
                 {
-                    return NotFound();
+                      return ApiResponse
+                             .Success(
+                               "OrderProduct Deleted successfully"
+                                  );
                 }
                 else
                 {
-                    return Ok("Deleted Successful");
+                     return ApiResponse.NotFound("Order Product not found");
                 }
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                return ApiResponse.ServerError(ex.Message);
             }
         }
     }

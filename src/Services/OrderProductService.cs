@@ -1,7 +1,6 @@
 using Backend.Models;
 using Microsoft.EntityFrameworkCore;
 
-
 namespace Backend.Services
 {
     public class OrderProductService
@@ -22,6 +21,7 @@ namespace Backend.Services
 
             return totalOrderPrice ?? 0;
         }
+
 
         public async Task<IEnumerable<OrderProduct>> GetAllOrderProductAsync()
         {
@@ -92,7 +92,7 @@ namespace Backend.Services
                         ProductPrice = row.Product.ProductPrice * (row.Quantity ?? 1),
                     },
                 })
-         .ToListAsync();
+                .ToListAsync();
                 return orderProducts;
             }
             catch (Exception ex)
@@ -101,46 +101,29 @@ namespace Backend.Services
             }
         }
 
-        // public async Task<OrderProduct> CreateOrderProduct(OrderProduct OrderProduct)
-        // {
-        // try
-        // {
-        // _dbContext.OrderProducts.Add(OrderProduct);
-        // await _dbContext.SaveChangesAsync();
-        // return OrderProduct;
-        // }
-        // catch (Exception ex)
-        // {
-        //     throw new ApplicationException("An error occurred while creating OrderProduct.", ex);
-        // }
-        // }
-        public async Task<OrderProduct> AddOrUpdateProductQuantity(OrderProduct orderProduct)
+        public async Task<OrderProduct> AddOrUpdateProductQuantity(OrderProduct product)
         {
             try
             {
-                _dbContext.OrderProducts.Add(orderProduct);
+                var orderProduct = await _dbContext.OrderProducts
+                .FirstOrDefaultAsync(op => op.OrderId == product.OrderId && op.ProductId == product.ProductId);
+
+                if (orderProduct != null)
+                {
+                    orderProduct.Quantity += product.Quantity;
+                }
+                else
+                {
+                    orderProduct = new OrderProduct
+                    {
+                        OrderId = product.OrderId,
+                        ProductId = product.ProductId,
+                        Quantity = product.Quantity,
+                    };
+                    _dbContext.OrderProducts.Add(orderProduct);
+                }
                 await _dbContext.SaveChangesAsync();
                 return orderProduct;
-                // var orderProduct = await _dbContext.OrderProducts
-                // .FirstOrDefaultAsync(op => op.OrderId == product.OrderId && op.ProductId == product.ProductId);
-
-                // if (orderProduct != null)
-                // {
-                //     orderProduct.Quantity += product.Quantity;
-                // }
-                // else
-                // {
-                //     orderProduct = new OrderProduct
-                //     {
-                //         // OrderProductId =4,
-                //         OrderId = product.OrderId,
-                //         ProductId = product.ProductId,
-                //         Quantity = product.Quantity,
-                //     };
-                //     _dbContext.OrderProducts.Add(orderProduct);
-                // }
-                // await _dbContext.SaveChangesAsync();
-                // return orderProduct;
             }
             catch (Exception ex)
             {
@@ -149,33 +132,28 @@ namespace Backend.Services
         }
 
 
-
         public async Task<IEnumerable<OrderProduct>> UpdateProductQuantity(int orderId, int productId, int incrementAmount)
         {
             try
             {
-                // Find all the order products with the specified order ID and product ID
                 var orderProducts = await _dbContext.OrderProducts
                     .Where(op => op.OrderId == orderId && op.ProductId == productId)
                     .ToListAsync();
 
-                // Increment the quantity of each order product
                 foreach (var orderProduct in orderProducts)
                 {
                     orderProduct.Quantity += incrementAmount;
                 }
 
-                // Save the changes to the database
                 await _dbContext.SaveChangesAsync();
 
-                return orderProducts; // Return 200 OK status code to indicate successful increment
+                return orderProducts;
             }
             catch (Exception ex)
             {
                 throw new ApplicationException($"An error occurred while updating OrderProduct with ID {productId}.", ex);
             }
         }
-
 
 
         public async Task<bool> DeleteOrderProduct(int orderProductId)
