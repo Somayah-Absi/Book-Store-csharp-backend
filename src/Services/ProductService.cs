@@ -113,5 +113,28 @@ namespace Backend.Services
                 throw new ApplicationException($"An error occurred while deleting product with ID {id}.", ex);
             }
         }
+        public async Task<IEnumerable<Product>> SearchProductsAsync(string keyword)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(keyword))
+                {
+                    // If no keyword provided, return all products
+                    return await _dbContext.Products.ToListAsync();
+                }
+                else
+                {
+                    // Search products based on keyword in ProductName or ProductDescription
+                    return await _dbContext.Products
+                        .Where(p => p.ProductName.Contains(keyword) || p.ProductDescription.Contains(keyword))
+                        .ToListAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                // Handle exception or log error
+                throw new ApplicationException("An error occurred while searching products.", ex);
+            }
+        }
     }
 }

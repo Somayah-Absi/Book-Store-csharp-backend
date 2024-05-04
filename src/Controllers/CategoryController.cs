@@ -18,113 +18,95 @@ namespace Backend.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAllCategories()
+        public async Task<IActionResult> GetAllCategories()
         {
             try
             {
-                var categories = _categoryService.GetAllCategories();
-                return Ok(new SuccessResponse<IEnumerable<Category>>
-                {
-                    Success = true,
-                    Message = "Categories retrieved successfully",
-                    Data = categories
-                });
+                var categories = await _categoryService.GetAllCategories();
+                return ApiResponse.Success(categories, "all categories retrieved successfully");
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new ErrorResponse { Success = false, Message = ex.Message });
+                return ApiResponse.ServerError(ex.Message);
             }
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetCategory(int id)
+        public async Task<IActionResult> GetCategory(int id)
         {
             try
             {
-                var category = _categoryService.GetCategoryById(id);
+                var category = await _categoryService.GetCategoryById(id);
                 if (category != null)
                 {
-                    return Ok(new SuccessResponse<Category>
-                    {
-                        Message = "Category retrieved successfully",
-                        Data = category
-                    });
+                    return ApiResponse.Created(category);
                 }
                 else
                 {
-                    return NotFound(new ErrorResponse { Message = "Category not found" });
+                    return ApiResponse.NotFound("Category was not found");
                 }
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new ErrorResponse { Message = ex.Message });
+                return ApiResponse.ServerError(ex.Message);
             }
         }
 
         [HttpPost]
-        public IActionResult CreateCategory(Category category)
+        public async Task<IActionResult> CreateCategory(Category category)
         {
             try
             {
                 category.CategorySlug = SlugGenerator.GenerateSlug(category.CategoryName);
-                var createdCategory = _categoryService.CreateCategory(category);
-
-                return CreatedAtAction(nameof(GetCategory), new { id = createdCategory.CategoryId }, new SuccessResponse<Category>
-                {
-                    Message = "Category created successfully",
-                    Data = createdCategory
-                });
+                var createdCategory = await _categoryService.CreateCategory(category);
+                return CreatedAtAction(nameof(GetCategory), new { id = createdCategory.CategoryId },createdCategory);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new ErrorResponse { Message = ex.Message });
+                return ApiResponse.ServerError(ex.Message);
             }
         }
 
         [HttpPut("{id}")]
-        public IActionResult UpdateCategory(int id, Category category)
+        public async Task<IActionResult> UpdateCategory(int id, Category category)
         {
             try
             {
                 category.CategorySlug = SlugGenerator.GenerateSlug(category.CategoryName);
-                var updatedCategory = _categoryService.UpdateCategory(id, category);
+                var updatedCategory = await _categoryService.UpdateCategory(id, category);
                 if (updatedCategory == null)
                 {
-                    return NotFound(new ErrorResponse { Message = "Category not found" });
+                    return ApiResponse.NotFound("Category was not found");
                 }
                 else
                 {
-                    return Ok(new SuccessResponse<Category>
-                    {
-                        Message = "Category updated successfully",
-                        Data = updatedCategory
-                    });
+                    return ApiResponse.Success(updatedCategory, "Update Category successfully");
                 }
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new ErrorResponse { Message = ex.Message });
+                return ApiResponse.ServerError(ex.Message);
             }
         }
 
         [HttpDelete("{id}")]
-        public IActionResult DeleteCategory(int id)
+        public async Task<IActionResult> DeleteCategory(int id)
         {
             try
             {
-                var result = _categoryService.DeleteCategory(id);
+                var result = await _categoryService.DeleteCategory(id);
                 if (result)
                 {
                     return NoContent();
                 }
                 else
                 {
-                    return NotFound(new ErrorResponse { Message = "Category not found" });
+                    return ApiResponse.NotFound("Category was not found");
                 }
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new ErrorResponse { Message = ex.Message });
+                return ApiResponse.ServerError(ex.Message);
             }
         }
     }

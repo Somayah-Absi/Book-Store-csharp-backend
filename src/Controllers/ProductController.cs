@@ -23,11 +23,11 @@ namespace Backend.Controllers
             try
             {
                 var products = await _productService.GetAllProductsAsync(pageNumber, pageSize);
-                return Ok(products);
+                return ApiResponse.Success(products, "all products are returned successfully");
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                return ApiResponse.ServerError(ex.Message);
             }
         }
 
@@ -39,16 +39,17 @@ namespace Backend.Controllers
                 var product = await _productService.GetProductByIdAsync(id);
                 if (product != null)
                 {
-                    return Ok(product);
+                    return ApiResponse.Created(product);
+
                 }
                 else
                 {
-                    return NotFound();
+                    return ApiResponse.NotFound("Product was not found");
                 }
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                return ApiResponse.ServerError(ex.Message);
             }
         }
 
@@ -59,7 +60,8 @@ namespace Backend.Controllers
             {
                 if (product == null)
                 {
-                    return BadRequest("Product data is null");
+                    return ApiResponse.BadRequest("Product data is null");
+
                 }
 
                 var createdProduct = await _productService.CreateProductAsync(product);
@@ -67,7 +69,7 @@ namespace Backend.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                return ApiResponse.ServerError(ex.Message);
             }
         }
 
@@ -78,20 +80,21 @@ namespace Backend.Controllers
             {
                 if (product == null || product.ProductId != id)
                 {
-                    return BadRequest("Invalid product data");
+                    return ApiResponse.BadRequest("Invalid product data");
                 }
 
                 var updatedProduct = await _productService.UpdateProductAsync(id, product);
                 if (updatedProduct == null)
                 {
-                    return NotFound();
+                    return ApiResponse.NotFound("Product was not found");
                 }
 
-                return Ok(updatedProduct);
+                return ApiResponse.Success(updatedProduct, "Update product successfully");
+
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                return ApiResponse.ServerError(ex.Message);
             }
         }
 
@@ -107,12 +110,26 @@ namespace Backend.Controllers
                 }
                 else
                 {
-                    return NotFound();
+                    return ApiResponse.NotFound("Product was not found");
+
                 }
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                return ApiResponse.ServerError(ex.Message);
+            }
+        }
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchProducts(string keyword)
+        {
+            try
+            {
+                var products = await _productService.SearchProductsAsync(keyword);
+                return ApiResponse.Success(products, "Products are returned successfully");
+            }
+            catch (Exception ex)
+            {
+                return ApiResponse.ServerError(ex.Message);
             }
         }
     }
