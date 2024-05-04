@@ -1,3 +1,4 @@
+using api.Controllers;
 using Backend.Models;
 using Backend.Services;
 using Microsoft.AspNetCore.Mvc;
