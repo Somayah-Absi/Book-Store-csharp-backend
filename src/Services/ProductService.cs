@@ -17,14 +17,14 @@ namespace Backend.Services
         }
 
         public async Task<IEnumerable<Product>> GetAllProductsAsync(
-    string productName = null,
-    decimal? minPrice = null,
-    decimal? maxPrice = null,
-    DateTime? CreateDate = null,
-    string sortBy = "id",
-    bool ascending = true,
-    int pageNumber = 1,
-    int pageSize = 10)
+            string? productName = null,
+            decimal? minPrice = null,
+            decimal? maxPrice = null,
+            DateTime? CreateDate = null,
+            string sortBy = "id",
+            bool ascending = true,
+            int pageNumber = 1,
+            int pageSize = 10)
         {
             try
             {
@@ -38,7 +38,6 @@ namespace Backend.Services
                     query = query.Where(p => p.ProductName.ToLower().Contains(productNameLower));
                 }
 
-
                 if (minPrice.HasValue)
                     query = query.Where(p => p.ProductPrice >= minPrice);
 
@@ -47,8 +46,6 @@ namespace Backend.Services
 
                 if (CreateDate.HasValue)
                     query = query.Where(p => p.CreatedAt >= CreateDate);
-
-
 
                 // Apply sorting
                 switch (sortBy.ToLower())
@@ -119,7 +116,7 @@ namespace Backend.Services
                 if (existingProduct != null)
                 {
                     existingProduct.ProductName = product.ProductName;
-                    existingProduct.ProductSlug = product.ProductSlug;
+                    existingProduct.ProductSlug = SlugGenerator.GenerateSlug(product.ProductName);
                     existingProduct.ProductDescription = product.ProductDescription;
                     existingProduct.ProductPrice = product.ProductPrice;
                     existingProduct.ProductImage = product.ProductImage;

@@ -21,22 +21,18 @@ namespace Backend.Controllers
         }
 
         [HttpGet]
-
         public async Task<IActionResult> GetAllProducts(
-    [FromQuery] string productName = null,
-    [FromQuery] decimal? minPrice = null,
-    [FromQuery] decimal? maxPrice = null,
-    [FromQuery] DateTime? CreateDate = null,
-    [FromQuery] int pageNumber = 1,
-    [FromQuery] int pageSize = 10,
-    [FromQuery] string sortBy = "id",
-    [FromQuery] bool ascending = true)
+            [FromQuery] string? productName = null,
+            [FromQuery] decimal? minPrice = null,
+            [FromQuery] decimal? maxPrice = null,
+            [FromQuery] DateTime? CreateDate = null,
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10,
+            [FromQuery] string sortBy = "id",
+            [FromQuery] bool ascending = true)
         {
             try
             {
-
-
-
                 var sortOptions = new List<string> { "id", "price", "title", "product name", "create date" };
 
                 // Check if the sortBy value is valid, if not, return bad request
@@ -45,10 +41,7 @@ namespace Backend.Controllers
                     return BadRequest("Invalid value for sortBy. Valid options are: id, price, productName, createDate (Make sure to the lower and capital letters)");
                 }
 
-
-                var products = await _productService.GetAllProductsAsync(
-                    productName, minPrice, maxPrice, CreateDate, sortBy, ascending, pageNumber, pageSize);
-
+                var products = await _productService.GetAllProductsAsync(productName, minPrice, maxPrice, CreateDate, sortBy, ascending, pageNumber, pageSize);
                 return Ok(products);
             }
             catch (Exception ex)
@@ -87,9 +80,9 @@ namespace Backend.Controllers
                 if (product == null)
                 {
                     return ApiResponse.BadRequest("Product data is null");
-
                 }
 
+                product.ProductSlug = SlugGenerator.GenerateSlug(product.ProductName);
                 var createdProduct = await _productService.CreateProductAsync(product);
                 return CreatedAtAction(nameof(GetProduct), new { id = createdProduct.ProductId }, createdProduct);
             }
@@ -109,6 +102,7 @@ namespace Backend.Controllers
                     return ApiResponse.BadRequest("Invalid product data");
                 }
 
+                product.ProductSlug = SlugGenerator.GenerateSlug(product.ProductName);
                 var updatedProduct = await _productService.UpdateProductAsync(id, product);
                 if (updatedProduct == null)
                 {
@@ -137,7 +131,6 @@ namespace Backend.Controllers
                 else
                 {
                     return ApiResponse.NotFound("Product was not found");
-
                 }
             }
             catch (Exception ex)
