@@ -1,9 +1,14 @@
 using Backend.Models;
 using Backend.Services;
 using Microsoft.EntityFrameworkCore;
-var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+/**
+
+Set up the infrastructure for a backend API, including service registration, 
+database context configuration, middleware setup, and controller mapping and integrate 
+Swagger for API documentation in the development environment.
+*/
+var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -15,12 +20,13 @@ builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<OrderService>();
 builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<OrderProductService>();
+
 builder.Services.AddControllers();
-builder.Services.AddDbContext<EcommerceSdaContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddDbContext<EcommerceSdaContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -30,6 +36,8 @@ if (app.Environment.IsDevelopment())
     });
 }
 
+// Middleware is configured to redirect HTTP requests to HTTPS in order to enforce secure communication.
 app.UseHttpsRedirection();
+
 app.MapControllers();
 app.Run();

@@ -16,14 +16,62 @@ namespace Backend.Services
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
 
-        public async Task<IEnumerable<Product>> GetAllProductsAsync(int pageNumber, int pageSize)
+        public async Task<IEnumerable<Product>> GetAllProductsAsync(
+            string? productName = null,
+            decimal? minPrice = null,
+            decimal? maxPrice = null,
+            DateTime? CreateDate = null,
+            string sortBy = "id",
+            bool ascending = true,
+            int pageNumber = 1,
+            int pageSize = 10)
         {
             try
             {
-                return await _dbContext.Products
-                             .Skip((pageNumber - 1) * pageSize)
-                             .Take(pageSize)
-                             .ToListAsync();
+                var query = _dbContext.Products.AsQueryable();
+
+                // Apply filters
+                if (!string.IsNullOrEmpty(productName))
+                {
+                    // Convert the product name to lowercase for case-insensitive search
+                    var productNameLower = productName.ToLower();
+                    query = query.Where(p => p.ProductName.ToLower().Contains(productNameLower));
+                }
+
+                if (minPrice.HasValue)
+                    query = query.Where(p => p.ProductPrice >= minPrice);
+
+                if (maxPrice.HasValue)
+                    query = query.Where(p => p.ProductPrice <= maxPrice);
+
+                if (CreateDate.HasValue)
+                    query = query.Where(p => p.CreatedAt >= CreateDate);
+
+                // Apply sorting
+                switch (sortBy.ToLower())
+                {
+                    case "id":
+                        query = ascending ? query.OrderBy(p => p.ProductId) : query.OrderByDescending(p => p.ProductId);
+                        break;
+                    case "price":
+                        query = ascending ? query.OrderBy(p => p.ProductPrice) : query.OrderByDescending(p => p.ProductPrice);
+                        break;
+                    case "product Name":
+                        query = ascending ? query.OrderBy(p => p.ProductName) : query.OrderByDescending(p => p.ProductName);
+                        break;
+                    case "Create Date":
+                        query = ascending ? query.OrderBy(p => p.CreatedAt) : query.OrderByDescending(p => p.CreatedAt);
+                        break;
+
+                    default:
+                        query = ascending ? query.OrderBy(p => p.ProductId) : query.OrderByDescending(p => p.ProductId);
+                        break;
+                }
+
+                // Apply pagination
+                query = query.Skip((pageNumber - 1) * pageSize).Take(pageSize);
+
+                return await query.ToListAsync();
             }
             catch (Exception ex)
             {
@@ -68,7 +116,7 @@ namespace Backend.Services
                 if (existingProduct != null)
                 {
                     existingProduct.ProductName = product.ProductName;
-                    existingProduct.ProductSlug = product.ProductSlug;
+                    existingProduct.ProductSlug = SlugGenerator.GenerateSlug(product.ProductName);
                     existingProduct.ProductDescription = product.ProductDescription;
                     existingProduct.ProductPrice = product.ProductPrice;
                     existingProduct.ProductImage = product.ProductImage;
@@ -111,6 +159,29 @@ namespace Backend.Services
             {
                 // Handle exception or log error
                 throw new ApplicationException($"An error occurred while deleting product with ID {id}.", ex);
+            }
+        }
+        public async Task<IEnumerable<Product>> SearchProductsAsync(string keyword)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(keyword))
+                {
+                    // If no keyword provided, return all products
+                    return await _dbContext.Products.ToListAsync();
+                }
+                else
+                {
+                    // Search products based on keyword in ProductName or ProductDescription
+                    return await _dbContext.Products
+                        .Where(p => p.ProductName.Contains(keyword) || p.ProductDescription.Contains(keyword))
+                        .ToListAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                // Handle exception or log error
+                throw new ApplicationException("An error occurred while searching products.", ex);
             }
         }
     }

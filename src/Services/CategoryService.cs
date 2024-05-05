@@ -2,6 +2,7 @@ using Backend.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 
 namespace Backend.Services
 {
@@ -14,23 +15,22 @@ namespace Backend.Services
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
 
-        public IEnumerable<Category> GetAllCategories()
+        public async Task<IEnumerable<Category>> GetAllCategories()
         {
             try
             {
-                return _dbContext.Categories.ToList();
+                return await _dbContext.Categories.ToListAsync();
             }
             catch (Exception ex)
             {
                 throw new ApplicationException("An error occurred while retrieving categories.", ex);
             }
         }
-        public Category? GetCategoryById(int id)
+        public async Task <Category?> GetCategoryById(int id)
         {
             try
             {
-                var category = _dbContext.Categories.Find(id);
-                return category;
+                return await _dbContext.Categories.FindAsync(id);
             }
             catch (Exception ex)
             {
@@ -38,12 +38,12 @@ namespace Backend.Services
             }
         }
 
-        public Category CreateCategory(Category category)
+        public async Task <Category> CreateCategory(Category category)
         {
             try
             {
                 _dbContext.Categories.Add(category);
-                _dbContext.SaveChanges();
+                await _dbContext.SaveChangesAsync();
                 return category;
             }
             catch (Exception ex)
@@ -52,7 +52,7 @@ namespace Backend.Services
             }
         }
 
-        public Category? UpdateCategory(int id, Category category)
+        public async Task<Category?> UpdateCategory(int id, Category category)
         {
             try
             {
@@ -62,7 +62,7 @@ namespace Backend.Services
                     existingCategory.CategoryName = category.CategoryName;
                     existingCategory.CategorySlug = SlugGenerator.GenerateSlug(category.CategoryName);
                     existingCategory.CategoryDescription = category.CategoryDescription;
-                    _dbContext.SaveChanges();
+                    await _dbContext.SaveChangesAsync();
                     return existingCategory;
                 }
                 else
@@ -76,7 +76,7 @@ namespace Backend.Services
             }
         }
 
-        public bool DeleteCategory(int id)
+        public async Task<bool> DeleteCategory(int id)
         {
             try
             {
@@ -84,7 +84,7 @@ namespace Backend.Services
                 if (categoryToDelete != null)
                 {
                     _dbContext.Categories.Remove(categoryToDelete);
-                    _dbContext.SaveChanges();
+                    await _dbContext.SaveChangesAsync();
                     return true;
                 }
                 else

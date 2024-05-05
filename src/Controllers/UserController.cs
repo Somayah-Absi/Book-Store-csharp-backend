@@ -24,11 +24,11 @@ namespace Backend.Controllers
             try
             {
                 var users = await _userService.GetAllUsersAsync();
-                return Ok(users);
+                return ApiResponse.Success(users, "all users are returned successfully");
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                return ApiResponse.ServerError(ex.Message);
             }
         }
 
@@ -40,16 +40,16 @@ namespace Backend.Controllers
                 var user = await _userService.GetUserByIdAsync(id);
                 if (user != null)
                 {
-                    return Ok(user);
+                    return ApiResponse.Created(user);
                 }
                 else
                 {
-                    return NotFound();
+                    return ApiResponse.NotFound("User was not found");
                 }
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                return ApiResponse.ServerError(ex.Message);
             }
         }
 
@@ -63,7 +63,7 @@ namespace Backend.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                return ApiResponse.ServerError(ex.Message);
             }
         }
 
@@ -72,19 +72,20 @@ namespace Backend.Controllers
         {
             try
             {
-                var updateduser = await _userService.UpdateUserAsync(id, user);
-                if (updateduser == null)
+                var updatedUser = await _userService.UpdateUserAsync(id, user);
+                if (updatedUser == null)
                 {
-                    return NotFound();
+                    return ApiResponse.NotFound("User was not found");
+
                 }
                 else
                 {
-                    return Ok(updateduser);
+                    return ApiResponse.Success(updatedUser, "Update user successfully");
                 }
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                return ApiResponse.ServerError(ex.Message);
             }
         }
 
@@ -100,12 +101,12 @@ namespace Backend.Controllers
                 }
                 else
                 {
-                    return NotFound();
+                    return ApiResponse.NotFound("User was not found");
                 }
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                return ApiResponse.ServerError(ex.Message);
             }
         }
     }
