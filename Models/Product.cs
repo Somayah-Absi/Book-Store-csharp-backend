@@ -1,29 +1,40 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
-namespace Backend.Models;
-
-public partial class Product
+namespace Backend.Models
 {
-    public int ProductId { get; set; }
+    public partial class Product
+    {
+        public int ProductId { get; set; }
 
-    public string ProductName { get; set; } = null!;
+        [Required(ErrorMessage = "Product name is required")]
+        public string ProductName { get; set; } = null!;
 
-    public string? ProductSlug { get; set; }
+        [Required(ErrorMessage = "Product slug is required")]
+        [RegularExpression("^[a-z0-9-]+$", ErrorMessage = "Product slug can only contain lowercase letters, numbers, and hyphens.")]
+        public string? ProductSlug { get; set; }
 
-    public string ProductDescription { get; set; } = null!;
+        [Required(ErrorMessage = "Product description is required")]
+        public string ProductDescription { get; set; } = null!;
 
-    public decimal ProductPrice { get; set; }
+        [Required(ErrorMessage = "Product price is required")]
+        [Range(0.01, double.MaxValue, ErrorMessage = "Product price must be greater than 0")]
+        public decimal ProductPrice { get; set; }
 
-    public string? ProductImage { get; set; }
+        [Url(ErrorMessage = "Invalid URL format")]
+        public string? ProductImage { get; set; }
 
-    public int ProductQuantityInStock { get; set; }
+        [Required(ErrorMessage = "Product quantity in stock is required")]
+        [Range(0, int.MaxValue, ErrorMessage = "Product quantity must be a positive number")]
+        public int ProductQuantityInStock { get; set; }
 
-    public DateTime? CreatedAt { get; set; }
+        public DateTime? CreatedAt { get; set; }
 
-    public int? CategoryId { get; set; }
+        public int? CategoryId { get; set; }
 
-    public virtual Category? Category { get; set; }
+        public virtual Category? Category { get; set; }
 
-    public virtual ICollection<OrderProduct> OrderProducts { get; set; } = new List<OrderProduct>();
+        public virtual ICollection<OrderProduct> OrderProducts { get; set; } = new List<OrderProduct>();
+    }
 }
