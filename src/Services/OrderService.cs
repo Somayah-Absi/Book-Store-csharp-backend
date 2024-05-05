@@ -8,13 +8,10 @@ namespace Backend.Services
     {
 
         private EcommerceSdaContext _dbContext;
-
         public OrderService(EcommerceSdaContext appDbContext)
         {
             _dbContext = appDbContext;
         }
-
-
 
         public async Task<IEnumerable<Order>> GetAllOrdersService()
         {
@@ -31,7 +28,6 @@ namespace Backend.Services
                     OrderStatus = row.OrderStatus,
                     UserId = row.UserId,
                     Payment = row.Payment,
-                    // Add more mappings as needed
                 });
 
                 return orders;
@@ -48,13 +44,8 @@ namespace Backend.Services
             }
         }
 
-
-
-
-
         public async Task<Order> CreateOrderService(Order newOrder)
         {
-
             try
             {
                 // Add the new order asynchronously
@@ -71,14 +62,7 @@ namespace Backend.Services
             {
                 throw new ApplicationException("An error occurred while creating Order.", ex);
             }
-
-
         }
-
-
-
-
-
 
         public async Task<Order?> GetOrderByIdService(int orderId)
         {
@@ -92,11 +76,7 @@ namespace Backend.Services
                 // Handle exception or log error
                 throw new ApplicationException($"An error occurred while retrieving order with ID {orderId}.", ex);
             }
-
         }
-
-
-
 
         public async Task<Order?> UpdateOrderService(int orderId, Order updateOrder)
         {
@@ -121,11 +101,9 @@ namespace Backend.Services
             catch (Exception ex)
             {
                 throw new ApplicationException($"An error occurred while updating Order with ID {orderId}.", ex);
-
             }
-
-
         }
+
         public async Task<bool> DeleteOrderService(int orderId)
         {
             try
@@ -148,14 +126,7 @@ namespace Backend.Services
                 throw new ApplicationException($"An error occurred while deleting order with ID {orderId}.", ex);
             }
         }
-
-
-
-
     }
-
-
-
 }
 
 

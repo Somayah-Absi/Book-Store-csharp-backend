@@ -7,24 +7,24 @@ namespace Backend.Models;
 public partial class EcommerceSdaContext : DbContext
 {
     public EcommerceSdaContext()
-    {
-    }
+    { }
 
     public EcommerceSdaContext(DbContextOptions<EcommerceSdaContext> options)
         : base(options)
-    {
-    }
+    { }
 
     public virtual DbSet<Category> Categories { get; set; }
-
     public virtual DbSet<Order> Orders { get; set; }
-
     public virtual DbSet<OrderProduct> OrderProducts { get; set; }
-
     public virtual DbSet<Product> Products { get; set; }
-
     public virtual DbSet<User> Users { get; set; }
 
+    /* 
+       OnModelCreating Method:
+       Overrides the default behavior to configure the model based on entity classes. 
+       It defines database schema, table names, primary keys, foreign keys, column mappings, 
+       data types, and constraints using fluent API.
+   */
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Category>(entity =>

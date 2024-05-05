@@ -59,7 +59,6 @@ namespace Backend.Controllers
                 if (product != null)
                 {
                     return ApiResponse.Created(product);
-
                 }
                 else
                 {

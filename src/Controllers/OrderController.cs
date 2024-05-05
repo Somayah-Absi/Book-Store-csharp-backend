@@ -8,16 +8,12 @@ using System.Threading.Tasks;
 
 namespace api.Controllers
 {
-
-
     [ApiController]
     [Route("/api/orders")]
     public class OrderController : ControllerBase
     {
-
         private readonly OrderService _orderService;
         // to initialize the services we will create constructor 
-
         public OrderController(OrderService orderService)
         {
             _orderService = orderService ?? throw new ArgumentNullException(nameof(orderService)); ;
@@ -25,9 +21,7 @@ namespace api.Controllers
 
         // help to make get request
         [HttpGet]
-
         //IActionResult give all status code like :ok,not found.....
-
         public async Task<IActionResult> GetAllOrder()
         {
             try
@@ -39,9 +33,7 @@ namespace api.Controllers
             {
                 return ApiResponse.BadRequest(e.Message);
             }
-
         }
-
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetOrder(int orderId)
@@ -69,14 +61,11 @@ namespace api.Controllers
             }
         }
 
-
         [HttpPost]
-
         public async Task<IActionResult> CreateOrder(Order newOrder)
         {
             try
             {
-
                 // Await the order creation operation
                 var createdOrder = await _orderService.CreateOrderService(newOrder);
 
@@ -88,14 +77,8 @@ namespace api.Controllers
             {
                 Console.WriteLine("there is error with creating order");
                 return ApiResponse.ServerError(ex.Message);
-
             }
-
-
         }
-
-
-
 
         [HttpPut("{orderId}")]
         public async Task<IActionResult> UpdateOrder(int orderId, Order updateOrder)
@@ -127,12 +110,12 @@ namespace api.Controllers
                 }
                 else
                 {
-                    return ApiResponse.Success(updatedOrder,"Order updated successfully");
+                    return ApiResponse.Success(updatedOrder, "Order updated successfully");
                 }
             }
             catch (Exception ex)
             {
-                return ApiResponse.ServerError( ex.Message);
+                return ApiResponse.ServerError(ex.Message);
             }
         }
 
@@ -159,18 +142,14 @@ namespace api.Controllers
                 }
                 else
                 {
-                    return  NoContent();
+                    return NoContent();
                 }
             }
             catch (Exception ex)
             {
-                return ApiResponse.ServerError( ex.Message);
+                return ApiResponse.ServerError(ex.Message);
             }
         }
-
-
-
-
     }
 }
 
