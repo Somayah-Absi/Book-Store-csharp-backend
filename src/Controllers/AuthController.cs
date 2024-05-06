@@ -26,9 +26,9 @@ namespace auth.Controllers
         {
             var user = new User
             {
-                FirstName = dto.FirstName,
-                LastName = dto.LastName,
-                Email = dto.Email,
+                FirstName = dto.FirstName ?? "",
+                LastName = dto.LastName ?? "",
+                Email = dto.Email ?? "",
                 Password = BCrypt.Net.BCrypt.HashPassword(dto.Password),
                 Mobile = dto.Mobile,
             };
@@ -67,6 +67,10 @@ namespace auth.Controllers
             try
             {
                 var jwt = Request.Cookies["jwt"];
+                if (jwt == null)
+                {
+                    return Unauthorized();
+                }
 
                 var token = _jwtService.Verify(jwt);
 
