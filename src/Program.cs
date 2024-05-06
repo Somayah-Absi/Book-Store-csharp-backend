@@ -1,3 +1,5 @@
+using auth.Data;
+using auth.Helpers;
 using Backend.Models;
 using Backend.Services;
 using Microsoft.EntityFrameworkCore;
@@ -20,6 +22,9 @@ builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<OrderService>();
 builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<OrderProductService>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<JwtService>();
+builder.Services.AddCors();
 
 builder.Services.AddControllers();
 builder.Services.AddDbContext<EcommerceSdaContext>(options =>
@@ -38,6 +43,18 @@ if (app.Environment.IsDevelopment())
 
 // Middleware is configured to redirect HTTP requests to HTTPS in order to enforce secure communication.
 app.UseHttpsRedirection();
+
+
+app.UseRouting();
+
+app.UseCors(options => options
+    .WithOrigins(new[] { "http://localhost:3000", "http://localhost:8080", "http://localhost:4200" })
+    .AllowAnyHeader()
+    .AllowAnyMethod()
+    .AllowCredentials()
+);
+
+app.UseAuthorization();
 
 app.MapControllers();
 app.Run();

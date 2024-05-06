@@ -7,7 +7,7 @@ namespace Backend.Controllers
     {
         public static IActionResult Success<T>(T data, string message = "Success")
         {
-            return new ObjectResult(new ApiResponseTemplate<T>(true, data, message, 200));
+            return new ObjectResult(new ApiResponseTemplate<T>(true, data,message, 200));
         }
 
         public static IActionResult Created<T>(T data, string message = "Resource Created")
@@ -56,9 +56,9 @@ namespace Backend.Controllers
         public ApiResponseTemplate(bool success, T? data, string message, int statusCode = 200)
         {
             Success = success;
-            Data = data;
-            Message = message;
             StatusCode = statusCode;
+            Message = message;
+            Data = data;
         }
     }
 }
