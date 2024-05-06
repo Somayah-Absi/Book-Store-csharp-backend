@@ -19,27 +19,13 @@ namespace Backend.Services
         {
             try
             {
-                List<User> users = new List<User>();
-                var dataList = await _dbContext.Users.ToListAsync();
-                dataList.ForEach(row => users.Add(new User
-                {
-                    UserId = row.UserId,
-                    FirstName = row.FirstName,
-                    LastName = row.LastName,
-                    Email = row.Email,
-                    Mobile = row.Mobile,
-                    Password = row.Password,
-                    CreatedAt = row.CreatedAt,
-                }));
-                return users;
+                return await _dbContext.Users.ToListAsync();
             }
             catch (Exception ex)
             {
-                // Handle exception or log error
-                throw new ApplicationException("An error occurred while retrieving users.", ex);
+                throw new ApplicationException("An error occurred while retrieving Users.", ex);
             }
         }
-
         public async Task<User?> GetUserByIdAsync(int id)
         {
             try
@@ -82,7 +68,6 @@ namespace Backend.Services
                     existingUser.Password = user.Password ?? existingUser.Password;
                     existingUser.IsAdmin = user.IsAdmin;
                     existingUser.IsBanned = user.IsBanned;
-                    // Update other properties as needed
                     await _dbContext.SaveChangesAsync();
                     return existingUser;
                 }
