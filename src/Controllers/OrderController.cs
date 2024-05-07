@@ -2,9 +2,7 @@ using Backend.Controllers;
 using Backend.Models;
 using Backend.Services;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+
 
 namespace api.Controllers
 {
@@ -35,8 +33,8 @@ namespace api.Controllers
             }
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetOrder(int orderId)
+        [HttpGet("{orderId:int}")]
+        public async Task<IActionResult> GetOrder( int orderId)
         {
             try
             {

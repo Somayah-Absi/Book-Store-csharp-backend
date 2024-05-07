@@ -25,7 +25,7 @@ namespace Backend.Controllers
             [FromQuery] string? productName = null,
             [FromQuery] decimal? minPrice = null,
             [FromQuery] decimal? maxPrice = null,
-            [FromQuery] DateTime? CreateDate = null,
+            [FromQuery] DateTime? createDate = null,
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 10,
             [FromQuery] string sortBy = "id",
@@ -41,7 +41,7 @@ namespace Backend.Controllers
                     return BadRequest("Invalid value for sortBy. Valid options are: id, price, productName, createDate (Make sure to the lower and capital letters)");
                 }
 
-                var products = await _productService.GetAllProductsAsync(productName, minPrice, maxPrice, CreateDate, sortBy, ascending, pageNumber, pageSize);
+                var products = await _productService.GetAllProductsAsync(productName, minPrice, maxPrice, createDate, sortBy, ascending, pageNumber, pageSize);
                 return Ok(products);
             }
             catch (Exception ex)
