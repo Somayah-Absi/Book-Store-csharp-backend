@@ -2,7 +2,7 @@
 
 namespace Backend.Models;
 
-public  class Order
+public class Order
 {
     [Key]
     [Required(ErrorMessage = "OrderId is required.")]

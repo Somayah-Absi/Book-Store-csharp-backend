@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Backend.Models
 {
-    public partial class Product
+    public class Product
     {
         public int ProductId { get; set; }
 
