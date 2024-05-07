@@ -65,7 +65,7 @@ namespace Backend.Services
 
         public async Task<Order?> GetOrderByIdService(int orderId)
         {
-           
+
             try
             {
                 return await _dbContext.Orders.FindAsync(orderId);
@@ -79,17 +79,15 @@ namespace Backend.Services
 
         public async Task<Order?> UpdateOrderService(int orderId, Order updateOrder)
         {
-            await Task.CompletedTask;
             //simulate an asynchronous operation without delay
             try
             {
-                var exitingOrder = _dbContext.Orders.FirstOrDefault(order => order.OrderId == orderId);
+                var exitingOrder = await _dbContext.Orders.FirstOrDefaultAsync(order => order.OrderId == orderId);
                 if (exitingOrder != null)
                 {
                     exitingOrder.OrderStatus = updateOrder.OrderStatus ?? exitingOrder.OrderStatus;
                     exitingOrder.Payment = updateOrder.Payment ?? exitingOrder.Payment;
-                    _dbContext.Orders.Update(exitingOrder);
-                    _dbContext.SaveChanges();
+                    await _dbContext.SaveChangesAsync();
                     return exitingOrder;
                 }
                 else
