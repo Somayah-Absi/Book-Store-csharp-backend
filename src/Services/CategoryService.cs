@@ -1,5 +1,6 @@
 using Backend.Models;
 using Microsoft.EntityFrameworkCore;
+using Backend.Dtos;
 
 namespace Backend.Services
 {
@@ -12,18 +13,37 @@ namespace Backend.Services
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
 
-        public async Task<IEnumerable<Category>> GetAllCategories()
+        // Converts fetched database data (categories and their products) into DTOs by selecting/mapping specific properties and creating new objects.
+        public async Task<IEnumerable<CategoryDto>> GetAllCategories()
         {
             try
             {
-                return await _dbContext.Categories.ToListAsync();
+                var categories = await _dbContext.Categories.Include(c => c.Products).ToListAsync();
+                var categoryDtos = categories.Select(c => new CategoryDto
+                {
+                    CategoryId = c.CategoryId,
+                    CategoryName = c.CategoryName,
+                    CategoryDescription = c.CategoryDescription,
+                    Products = c.Products.Select(p => new ProductDto
+                    {
+                        ProductId = p.ProductId,
+                        ProductName = p.ProductName,
+                        ProductPrice = p.ProductPrice,
+                        ProductDescription = p.ProductDescription,
+                        ProductImage = p.ProductImage,
+                        ProductQuantityInStock = p.ProductQuantityInStock
+                    }).ToList()
+                });
+
+                return categoryDtos;
+
             }
             catch (Exception ex)
             {
                 throw new ApplicationException("An error occurred while retrieving categories.", ex);
             }
         }
-        public async Task <Category?> GetCategoryById(int id)
+        public async Task<Category?> GetCategoryById(int id)
         {
             try
             {
@@ -35,7 +55,7 @@ namespace Backend.Services
             }
         }
 
-        public async Task <Category> CreateCategory(Category category)
+        public async Task<Category> CreateCategory(Category category)
         {
             try
             {
