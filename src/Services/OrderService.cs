@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Http.HttpResults;
 using Backend.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -66,10 +65,10 @@ namespace Backend.Services
 
         public async Task<Order?> GetOrderByIdService(int orderId)
         {
-            await Task.CompletedTask;
+           
             try
             {
-                return _dbContext.Orders.Find(orderId);
+                return await _dbContext.Orders.FindAsync(orderId);
             }
             catch (Exception ex)
             {

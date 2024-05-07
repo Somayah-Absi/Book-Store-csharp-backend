@@ -20,7 +20,7 @@ namespace Backend.Services
             string? productName = null,
             decimal? minPrice = null,
             decimal? maxPrice = null,
-            DateTime? CreateDate = null,
+            DateTime? createDate = null,
             string sortBy = "id",
             bool ascending = true,
             int pageNumber = 1,
@@ -44,8 +44,8 @@ namespace Backend.Services
                 if (maxPrice.HasValue)
                     query = query.Where(p => p.ProductPrice <= maxPrice);
 
-                if (CreateDate.HasValue)
-                    query = query.Where(p => p.CreatedAt >= CreateDate);
+                if (createDate.HasValue)
+                    query = query.Where(p => p.CreatedAt >= createDate);
 
                 // Apply sorting
                 switch (sortBy.ToLower())
