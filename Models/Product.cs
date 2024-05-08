@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace Backend.Models
 {
@@ -33,6 +34,7 @@ namespace Backend.Models
 
         public virtual Category? Category { get; set; }
 
+        [JsonIgnore]
         public virtual ICollection<OrderProduct> OrderProducts { get; set; } = new List<OrderProduct>();
     }
 }
