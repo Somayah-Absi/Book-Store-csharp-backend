@@ -2,7 +2,6 @@ using Backend.Models;
 using Backend.Services;
 using Microsoft.AspNetCore.Mvc;
 using Backend.Helpers;
-using System.Linq.Expressions;
 
 namespace api.Controllers
 {
@@ -18,20 +17,20 @@ namespace api.Controllers
         }
 
         // help to make get request
-        // [HttpGet]
+        [HttpGet]
         // //IActionResult give all status code like :ok,not found.....
-        // public async Task<IActionResult> GetAllOrder()
-        // {
-        //     try
-        //     {
-        //         var orders = await _orderService.GetAllOrdersService();
-        //         return ApiResponse.Success(orders, "All Orders returned successfully");
-        //     }
-        //     catch (Exception e)
-        //     {
-        //         return ApiResponse.BadRequest(e.Message);
-        //     }
-        // }
+        public async Task<IActionResult> GetAllOrder()
+        {
+            try
+            {
+                var orders = await _orderService.GetAllOrdersService();
+                return ApiResponse.Success(orders, "All Orders returned successfully");
+            }
+            catch (Exception e)
+            {
+                return ApiResponse.BadRequest(e.Message);
+            }
+        }
 
         [HttpGet("{orderId}")]
         public async Task<IActionResult> GetOrder(int orderId)
@@ -65,7 +64,7 @@ namespace api.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return ApiResponse.ServerError(ex.Message);
             }
         }
 
@@ -82,12 +81,12 @@ namespace api.Controllers
                 }
                 else
                 {
-                    return Ok( "Update user successfully");
+                    return ApiResponse.Success(UpdateOrder, "Update user successfully");
                 }
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return ApiResponse.ServerError(ex.Message);
             }
         }
         [HttpDelete("{orderId}")]

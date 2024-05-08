@@ -1,3 +1,4 @@
+using System.Text.Json;
 using AutoMapper;
 using Backend.Dtos;
 using Backend.Models;
@@ -16,28 +17,32 @@ namespace Backend.Services
             _dbContext = appDbContext;
             // _mapper = mapper;
         }
-        // public async Task<IEnumerable<OrderDto>> GetAllOrdersService()
-        // {
-        //     try
-        //     {
-        //         var orderEntities = await _dbContext.Orders
-        //             .Include(o => o.User) // Include the User information
-        //             .ToListAsync();
+        public async Task<IEnumerable<OrderDto>> GetAllOrdersService()
+        {
+            try
+            {
+                var orderEntities = await _dbContext.Orders.Include(o => o.User).ToListAsync();
 
-        //         // Use AutoMapper to map Order entities to OrderDto
-        //         var orderDtos = _mapper.Map<IEnumerable<OrderDto>>(orderEntities);
+                var orderDtos = orderEntities.Select(o => new OrderDto
+                {
+                    OrderId = o.OrderId,
+                    OrderDate = o.OrderDate,
+                    OrderStatus = o.OrderStatus,
+                    Payment = o.Payment.ValueKind == JsonValueKind.String ? o.Payment.GetString() : null,
+                    UserId = o.UserId
 
-        //         return orderDtos;
-        //     }
-        //     catch (IOException ex)
-        //     {
-        //         throw new ApplicationException("An error occurred while retrieving orders from the database.", ex);
-        //     }
-        //     catch (Exception ex)
-        //     {
-        //         throw new ApplicationException("An error occurred while creating Order.", ex);
-        //     }
-        // }
+                });
+                return orderDtos;
+            }
+            catch (IOException ex)
+            {
+                throw new ApplicationException("An error occurred while retrieving orders from the database.", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException("An error occurred while creating Order.", ex);
+            }
+        }
 
         public async Task<Order> CreateOrderService(Order newOrder)
         {
@@ -75,49 +80,47 @@ namespace Backend.Services
         }
 
         public async Task<Order?> UpdateOrderService(int orderId, Order updateOrder)
-{
-    try
-    {
-        // Retrieve the existing order from the database
-        var existingOrder = await _dbContext.Orders.FindAsync(orderId);
-
-        if (existingOrder != null)
         {
-            // Validate the updateOrder parameter (e.g., ensure non-null values, perform business logic checks)
-
-            // Update order properties based on the updateOrder parameter
-            existingOrder.OrderStatus = updateOrder.OrderStatus;
-            existingOrder.Payment = updateOrder.Payment; // Directly assign JsonElement value
-
-            // Save changes to the database within a transaction
-            using (var transaction = await _dbContext.Database.BeginTransactionAsync())
+            try
             {
-                try
+                // Retrieve the existing order from the database
+                var existingOrder = await _dbContext.Orders.FindAsync(orderId);
+
+                if (existingOrder != null)
                 {
-                    await _dbContext.SaveChangesAsync();
-                    await transaction.CommitAsync();
+                    // Validate the updateOrder parameter (e.g., ensure non-null values, perform business logic checks)
+
+                    // Update order properties based on the updateOrder parameter
+                    existingOrder.OrderStatus = updateOrder.OrderStatus;
+                    existingOrder.Payment = updateOrder.Payment; // Directly assign JsonElement value
+
+                    // Save changes to the database within a transaction
+                    using (var transaction = await _dbContext.Database.BeginTransactionAsync())
+                    {
+                        try
+                        {
+                            await _dbContext.SaveChangesAsync();
+                            await transaction.CommitAsync();
+                        }
+                        catch (Exception ex)
+                        {
+                            await transaction.RollbackAsync();
+                            throw new ApplicationException($"Failed to update order with ID {orderId}. Transaction rolled back.", ex);
+                        }
+                    }
+
+                    return existingOrder;
                 }
-                catch (Exception ex)
+                else
                 {
-                    await transaction.RollbackAsync();
-                    throw new ApplicationException($"Failed to update order with ID {orderId}. Transaction rolled back.", ex);
+                    return null; // Order with the given ID does not exist
                 }
             }
-
-            return existingOrder;
+            catch (Exception ex)
+            {
+                throw new ApplicationException($"An error occurred while updating Order with ID {orderId}.", ex);
+            }
         }
-        else
-        {
-            return null; // Order with the given ID does not exist
-        }
-    }
-    catch (Exception ex)
-    {
-        throw new ApplicationException($"An error occurred while updating Order with ID {orderId}.", ex);
-    }
-}
-
-
         public async Task<bool> DeleteOrderService(int orderId)
         {
             try
