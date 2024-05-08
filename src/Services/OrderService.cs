@@ -1,5 +1,4 @@
 using System.Text.Json;
-using AutoMapper;
 using Backend.Dtos;
 using Backend.Models;
 using Microsoft.EntityFrameworkCore;
@@ -33,19 +32,40 @@ namespace Backend.Services
                     OrderStatus = o.OrderStatus,
                     Payment = o.Payment.ValueKind == JsonValueKind.String ? o.Payment.GetString() : null,
                     UserId = o.UserId,
-                    OrderProducts = o.OrderProducts.Select(op => new OrderProduct
+                    User = new UserDto // Assuming UserDto is your DTO for User
+                    {
+                        UserId = o.User.UserId,
+                        FirstName = o.User.FirstName,
+                        LastName = o.User.LastName,
+                        Email = o.User.Email,
+                        Mobile = o.User.Mobile,
+
+
+                    },
+                    OrderProducts = o.OrderProducts.Select(op => new OrderProductDto
                     {
                         OrderProductId = op.OrderProductId,
-                        Quantity=op.Quantity,
-                        ProductId=op.ProductId
+                        Quantity = op.Quantity,
+                        ProductId = op.ProductId,
+                        Product = new ProductDto // Assuming UserDto is your DTO for User
+                        {
+                            ProductId = op.Product.ProductId,
+                            ProductName = op.Product.ProductName,
+                            ProductSlug = op.Product.ProductSlug,
+                            ProductDescription = op.Product.ProductDescription,
+                            ProductPrice = op.Product.ProductPrice,
+                            ProductImage = op.Product.ProductImage,
+                            ProductQuantityInStock = op.Product.ProductQuantityInStock,
+                            CreatedAt = op.Product.CreatedAt,
+                            CategoryId = op.Product.CategoryId
 
-                }).ToList()
+
+
+                        }
+
+                    }).ToList()
                 });
                 return orderDtos;
-            }
-            catch (IOException ex)
-            {
-                throw new ApplicationException("An error occurred while retrieving orders from the database.", ex);
             }
             catch (Exception ex)
             {
@@ -97,26 +117,11 @@ namespace Backend.Services
 
                 if (existingOrder != null)
                 {
-                    // Validate the updateOrder parameter (e.g., ensure non-null values, perform business logic checks)
-
-                    // Update order properties based on the updateOrder parameter
                     existingOrder.OrderStatus = updateOrder.OrderStatus;
                     existingOrder.Payment = updateOrder.Payment; // Directly assign JsonElement value
 
-                    // Save changes to the database within a transaction
-                    using (var transaction = await _dbContext.Database.BeginTransactionAsync())
-                    {
-                        try
-                        {
-                            await _dbContext.SaveChangesAsync();
-                            await transaction.CommitAsync();
-                        }
-                        catch (Exception ex)
-                        {
-                            await transaction.RollbackAsync();
-                            throw new ApplicationException($"Failed to update order with ID {orderId}. Transaction rolled back.", ex);
-                        }
-                    }
+                    // Save changes to the database
+                    await _dbContext.SaveChangesAsync();
 
                     return existingOrder;
                 }
@@ -130,6 +135,7 @@ namespace Backend.Services
                 throw new ApplicationException($"An error occurred while updating Order with ID {orderId}.", ex);
             }
         }
+
         public async Task<bool> DeleteOrderService(int orderId)
         {
             try

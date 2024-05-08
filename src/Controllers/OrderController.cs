@@ -45,7 +45,7 @@ namespace api.Controllers
                 }
                 else
                 {
-                    return ApiResponse.NotFound();
+                    return ApiResponse.NotFound("order not found");
                 }
             }
             catch (Exception ex)
@@ -80,12 +80,12 @@ namespace api.Controllers
                 var updatedOrder = await _orderService.UpdateOrderService(id, order);
                 if (updatedOrder == null)
                 {
-                    return NotFound("User was not found");
+                    return NotFound("Order was not found");
 
                 }
                 else
                 {
-                    return Ok("Update user successfully");
+                    return Ok("Update Order successfully");
                 }
             }
             catch (Exception ex)
@@ -109,7 +109,7 @@ namespace api.Controllers
                 var result = await _orderService.DeleteOrderService(orderId);
                 if (!result)
                 {
-                    return ApiResponse.NotFound();
+                    return ApiResponse.NotFound($"Failed to delete order with ID {orderId}.");
                 }
                 else
                 {

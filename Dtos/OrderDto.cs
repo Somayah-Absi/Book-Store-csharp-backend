@@ -1,5 +1,4 @@
-using System.Text.Json.Serialization;
-using Backend.Models;
+
 
 namespace Backend.Dtos
 {
@@ -13,7 +12,7 @@ namespace Backend.Dtos
               
                 public UserDto User { get; set; } = null!; // Include UserDTO to represent the associated User
             
-                public ICollection<OrderProduct> OrderProducts { get; set; } = null!; // Include OrderProduct collection
+                public ICollection<OrderProductDto> OrderProducts { get; set; } = null!; // Include OrderProduct collection
         }
 
         public class OrderCreateDto

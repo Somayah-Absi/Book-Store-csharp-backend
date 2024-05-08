@@ -1,5 +1,4 @@
-using System.Text.Json.Serialization;
-using Backend.Models;
+
 
 namespace Backend.Dtos
 {
@@ -15,7 +14,7 @@ namespace Backend.Dtos
 
 
 
-    public virtual Product? Product { get; set; }
+    public virtual ProductDto? Product { get; set; }
 
 
     }
