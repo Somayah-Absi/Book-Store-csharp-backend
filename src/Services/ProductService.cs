@@ -1,6 +1,7 @@
 using Backend.Dtos;
 using Backend.Models;
 using Microsoft.EntityFrameworkCore;
+using Backend.Helpers;
 
 namespace Backend.Services
 {
@@ -91,6 +92,7 @@ namespace Backend.Services
         {
             try
             {
+                product.ProductId = await IdGenerator.GenerateIdAsync<Product>(_dbContext);
                 _dbContext.Products.Add(product);
                 await _dbContext.SaveChangesAsync();
                 return product;
