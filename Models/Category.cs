@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace Backend.Models
 {
@@ -19,12 +20,14 @@ namespace Backend.Models
         [StringLength(500, ErrorMessage = "Category description cannot exceed 500 characters.")]
         public string? CategoryDescription { get; set; }
 
+        [JsonIgnore]
         [Display(Name = "Created At")]
         [DataType(DataType.DateTime)]
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd HH:mm:ss}", ApplyFormatInEditMode = true)]
         public DateTime CreatedAt { get; set; } = DateTime.Now;
 
         // Relationships
+        [JsonIgnore]
         public virtual ICollection<Product> Products { get; set; } = new List<Product>();
     }
 }

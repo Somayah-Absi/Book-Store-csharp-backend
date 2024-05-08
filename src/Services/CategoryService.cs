@@ -1,6 +1,7 @@
 using Backend.Models;
 using Microsoft.EntityFrameworkCore;
 using Backend.Dtos;
+using Backend.Helpers;
 
 namespace Backend.Services
 {
@@ -14,20 +15,23 @@ namespace Backend.Services
         }
 
         // Converts fetched database data (categories and their products) into DTOs by selecting/mapping specific properties and creating new objects.
-        public async Task<IEnumerable<CategoryDto>> GetAllCategories()
+        public async Task<IEnumerable<GetCategoryWithProductDto>> GetAllCategories()
         {
             try
             {
                 var categories = await _dbContext.Categories.Include(c => c.Products).ToListAsync();
-                var categoryDtos = categories.Select(c => new CategoryDto
+                var categoryDtos = categories.Select(c => new GetCategoryWithProductDto
                 {
                     CategoryId = c.CategoryId,
                     CategoryName = c.CategoryName,
+                    CategorySlug = c.CategorySlug,
                     CategoryDescription = c.CategoryDescription,
-                    Products = c.Products.Select(p => new ProductDto
+
+                    Products = c.Products.Select(p => new GetProductWithCategoryDto
                     {
                         ProductId = p.ProductId,
                         ProductName = p.ProductName,
+                        ProductSlug = p.ProductSlug,
                         ProductPrice = p.ProductPrice,
                         ProductDescription = p.ProductDescription,
                         ProductImage = p.ProductImage,
@@ -59,6 +63,7 @@ namespace Backend.Services
         {
             try
             {
+                category.CategoryId = await IdGenerator.GenerateIdAsync<Category>(_dbContext);
                 _dbContext.Categories.Add(category);
                 await _dbContext.SaveChangesAsync();
                 return category;
@@ -69,16 +74,17 @@ namespace Backend.Services
             }
         }
 
-        public async Task<Category?> UpdateCategory(int id, Category category)
+        public async Task<Category?> UpdateCategory(int id, UpdateCategoryDto categoryDto)
         {
             try
             {
-                var existingCategory = _dbContext.Categories.Find(id);
+                var existingCategory = await _dbContext.Categories.FindAsync(id);
+
                 if (existingCategory != null)
                 {
-                    existingCategory.CategoryName = category.CategoryName;
-                    existingCategory.CategorySlug = SlugGenerator.GenerateSlug(category.CategoryName);
-                    existingCategory.CategoryDescription = category.CategoryDescription;
+                    existingCategory.CategoryName = categoryDto.CategoryName;
+                    existingCategory.CategorySlug = SlugGenerator.GenerateSlug(categoryDto.CategoryName);
+                    existingCategory.CategoryDescription = categoryDto.CategoryDescription;
                     await _dbContext.SaveChangesAsync();
                     return existingCategory;
                 }

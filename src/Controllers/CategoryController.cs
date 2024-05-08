@@ -1,6 +1,8 @@
+using Backend.Dtos;
 using Backend.Models;
 using Backend.Services;
 using Microsoft.AspNetCore.Mvc;
+using Backend.Helpers;
 
 
 namespace Backend.Controllers
@@ -58,7 +60,7 @@ namespace Backend.Controllers
             {
                 category.CategorySlug = SlugGenerator.GenerateSlug(category.CategoryName);
                 var createdCategory = await _categoryService.CreateCategory(category);
-                return CreatedAtAction(nameof(GetCategory), new { id = createdCategory.CategoryId },createdCategory);
+                return CreatedAtAction(nameof(GetCategory), new { id = createdCategory.CategoryId }, createdCategory);
             }
             catch (Exception ex)
             {
@@ -67,12 +69,11 @@ namespace Backend.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateCategory(int id, Category category)
+        public async Task<IActionResult> UpdateCategory(int id, UpdateCategoryDto categoryDto)
         {
             try
             {
-                category.CategorySlug = SlugGenerator.GenerateSlug(category.CategoryName);
-                var updatedCategory = await _categoryService.UpdateCategory(id, category);
+                var updatedCategory = await _categoryService.UpdateCategory(id, categoryDto);
                 if (updatedCategory == null)
                 {
                     return ApiResponse.NotFound("Category was not found");

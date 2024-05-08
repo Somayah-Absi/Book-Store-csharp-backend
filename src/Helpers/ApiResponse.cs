@@ -1,13 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
 using System;
 
-namespace Backend.Controllers
+namespace Backend.Helpers
 {
     public static class ApiResponse
     {
         public static IActionResult Success<T>(T data, string message = "Success")
         {
-            return new ObjectResult(new ApiResponseTemplate<T>(true, data,message, 200));
+            return new ObjectResult(new ApiResponseTemplate<T>(true, data, message, 200));
         }
 
         public static IActionResult Created<T>(T data, string message = "Resource Created")
@@ -17,7 +17,7 @@ namespace Backend.Controllers
 
         public static IActionResult NotFound(string message = "Resource not found")
         {
-            return new ObjectResult(new ApiResponseTemplate<object>(false,null,message, 404));
+            return new ObjectResult(new ApiResponseTemplate<object>(false, null, message, 404));
         }
 
         public static IActionResult Conflict(string message = "Conflict Detected")
@@ -27,7 +27,7 @@ namespace Backend.Controllers
 
         public static IActionResult BadRequest(string message = "Bad request")
         {
-            return new ObjectResult(new ApiResponseTemplate<object>(false,null,message, 400));
+            return new ObjectResult(new ApiResponseTemplate<object>(false, null, message, 400));
         }
 
         public static IActionResult UnAuthorized(string message = "Unauthorized access")

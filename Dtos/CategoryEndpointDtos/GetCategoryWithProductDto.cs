@@ -1,13 +1,12 @@
-using Backend.Models;
-
 namespace Backend.Dtos
 {
-    public class CategoryDto
+    public class GetCategoryWithProductDto
     {
         public int CategoryId { get; set; }
         public string? CategoryName { get; set; }
+        public string? CategorySlug { get; set; }
         public string? CategoryDescription { get; set; }
-        public ICollection<ProductDto>? Products { get; set; }
+        public ICollection<GetProductWithCategoryDto>? Products { get; set; }
     }
 
 }
