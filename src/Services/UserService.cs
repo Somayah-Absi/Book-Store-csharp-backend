@@ -1,5 +1,6 @@
 using Backend.Models;
 using Microsoft.EntityFrameworkCore;
+using Backend.Helpers;
 namespace Backend.Services
 {
     public class UserService
@@ -39,6 +40,7 @@ namespace Backend.Services
         {
             try
             {
+                user.UserId = await IdGenerator.GenerateIdAsync<User>(_dbContext);
                 _dbContext.Users.Add(user);
                 await _dbContext.SaveChangesAsync();
                 return user;
