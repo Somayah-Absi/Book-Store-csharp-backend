@@ -1,25 +1,48 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
-namespace Backend.Models;
-
-public class Order
+namespace Backend.Models
 {
-    [Key]
-    [Required(ErrorMessage = "OrderId is required.")]
-    public int OrderId { get; set; }
+    public class Order
+    {
+        [Key]
+        [Required(ErrorMessage = "OrderId is required.")]
+        public int OrderId { get; set; }
 
-    public DateTime? OrderDate { get; set; }
+        [JsonIgnore]
+        public DateTime? OrderDate { get; set; }
 
-    [Required(ErrorMessage = "OrderStatus is required.")]
-    public string OrderStatus { get; set; } = null!;
+        [Required(ErrorMessage = "OrderStatus is required.")]
+        public string OrderStatus { get; set; } = null!;
 
-    [Required(ErrorMessage = "Payment method is required.")]
-    public string? Payment { get; set; }
+        [Required(ErrorMessage = "Payment method is required.")]
+        [JsonConverter(typeof(CustomJsonConverter))] // Apply CustomJsonConverter to the Payment property
+        public JsonElement Payment { get; set; }
 
-    public int? UserId { get; set; }
+        public int? UserId { get; set; }
 
-    public virtual ICollection<OrderProduct> OrderProducts { get; set; } = new List<OrderProduct>();
+        [JsonIgnore]
+        public virtual ICollection<OrderProduct> OrderProducts { get; set; } = new List<OrderProduct>();
 
-    public virtual User? User { get; set; }
+        [JsonIgnore]
+        public virtual User? User { get; set; }
+    }
+
+    public class CustomJsonConverter : JsonConverter<JsonElement>
+    {
+        public override JsonElement Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            // Implement custom deserialization logic if needed
+            return JsonSerializer.Deserialize<JsonElement>(ref reader, options);
+        }
+
+        public override void Write(Utf8JsonWriter writer, JsonElement value, JsonSerializerOptions options)
+        {
+            // Implement custom serialization logic if needed
+            JsonSerializer.Serialize(writer, value, options);
+        }
+    }
 }
-

@@ -8,36 +8,36 @@ namespace Backend.Services
     public class OrderService
     {
 
-        private EcommerceSdaContext _dbContext;
-        private readonly IMapper _mapper;
+        private readonly EcommerceSdaContext _dbContext;
+        // private readonly IMapper _mapper;
 
-        public OrderService(EcommerceSdaContext appDbContext, IMapper mapper)
+        public OrderService(EcommerceSdaContext appDbContext)
         {
             _dbContext = appDbContext;
-            _mapper = mapper;
+            // _mapper = mapper;
         }
-        public async Task<IEnumerable<OrderDto>> GetAllOrdersService()
-        {
-            try
-            {
-                var orderEntities = await _dbContext.Orders
-                    .Include(o => o.User) // Include the User information
-                    .ToListAsync();
+        // public async Task<IEnumerable<OrderDto>> GetAllOrdersService()
+        // {
+        //     try
+        //     {
+        //         var orderEntities = await _dbContext.Orders
+        //             .Include(o => o.User) // Include the User information
+        //             .ToListAsync();
 
-                // Use AutoMapper to map Order entities to OrderDto
-                var orderDtos = _mapper.Map<IEnumerable<OrderDto>>(orderEntities);
+        //         // Use AutoMapper to map Order entities to OrderDto
+        //         var orderDtos = _mapper.Map<IEnumerable<OrderDto>>(orderEntities);
 
-                return orderDtos;
-            }
-            catch (IOException ex)
-            {
-                throw new ApplicationException("An error occurred while retrieving orders from the database.", ex);
-            }
-            catch (Exception ex)
-            {
-                throw new ApplicationException("An error occurred while creating Order.", ex);
-            }
-        }
+        //         return orderDtos;
+        //     }
+        //     catch (IOException ex)
+        //     {
+        //         throw new ApplicationException("An error occurred while retrieving orders from the database.", ex);
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         throw new ApplicationException("An error occurred while creating Order.", ex);
+        //     }
+        // }
 
         public async Task<Order> CreateOrderService(Order newOrder)
         {
@@ -45,7 +45,7 @@ namespace Backend.Services
             {
 
                 // Add the new order asynchronously
-                await _dbContext.Orders.AddAsync(newOrder);
+                _dbContext.Orders.Add(newOrder);
 
                 // Save changes asynchronously
                 await _dbContext.SaveChangesAsync();
@@ -75,28 +75,48 @@ namespace Backend.Services
         }
 
         public async Task<Order?> UpdateOrderService(int orderId, Order updateOrder)
+{
+    try
+    {
+        // Retrieve the existing order from the database
+        var existingOrder = await _dbContext.Orders.FindAsync(orderId);
+
+        if (existingOrder != null)
         {
-            //simulate an asynchronous operation without delay
-            try
+            // Validate the updateOrder parameter (e.g., ensure non-null values, perform business logic checks)
+
+            // Update order properties based on the updateOrder parameter
+            existingOrder.OrderStatus = updateOrder.OrderStatus;
+            existingOrder.Payment = updateOrder.Payment; // Directly assign JsonElement value
+
+            // Save changes to the database within a transaction
+            using (var transaction = await _dbContext.Database.BeginTransactionAsync())
             {
-                var exitingOrder = await _dbContext.Orders.FirstOrDefaultAsync(order => order.OrderId == orderId);
-                if (exitingOrder != null)
+                try
                 {
-                    exitingOrder.OrderStatus = updateOrder.OrderStatus ?? exitingOrder.OrderStatus;
-                    exitingOrder.Payment = updateOrder.Payment ?? exitingOrder.Payment;
                     await _dbContext.SaveChangesAsync();
-                    return exitingOrder;
+                    await transaction.CommitAsync();
                 }
-                else
+                catch (Exception ex)
                 {
-                    return null;
+                    await transaction.RollbackAsync();
+                    throw new ApplicationException($"Failed to update order with ID {orderId}. Transaction rolled back.", ex);
                 }
             }
-            catch (Exception ex)
-            {
-                throw new ApplicationException($"An error occurred while updating Order with ID {orderId}.", ex);
-            }
+
+            return existingOrder;
         }
+        else
+        {
+            return null; // Order with the given ID does not exist
+        }
+    }
+    catch (Exception ex)
+    {
+        throw new ApplicationException($"An error occurred while updating Order with ID {orderId}.", ex);
+    }
+}
+
 
         public async Task<bool> DeleteOrderService(int orderId)
         {

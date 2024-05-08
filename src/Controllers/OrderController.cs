@@ -2,6 +2,7 @@ using Backend.Models;
 using Backend.Services;
 using Microsoft.AspNetCore.Mvc;
 using Backend.Helpers;
+using System.Linq.Expressions;
 
 namespace api.Controllers
 {
@@ -17,31 +18,27 @@ namespace api.Controllers
         }
 
         // help to make get request
-        [HttpGet]
-        //IActionResult give all status code like :ok,not found.....
-        public async Task<IActionResult> GetAllOrder()
-        {
-            try
-            {
-                var orders = await _orderService.GetAllOrdersService();
-                return ApiResponse.Success(orders, "All Orders returned successfully");
-            }
-            catch (Exception e)
-            {
-                return ApiResponse.BadRequest(e.Message);
-            }
-        }
+        // [HttpGet]
+        // //IActionResult give all status code like :ok,not found.....
+        // public async Task<IActionResult> GetAllOrder()
+        // {
+        //     try
+        //     {
+        //         var orders = await _orderService.GetAllOrdersService();
+        //         return ApiResponse.Success(orders, "All Orders returned successfully");
+        //     }
+        //     catch (Exception e)
+        //     {
+        //         return ApiResponse.BadRequest(e.Message);
+        //     }
+        // }
 
-        [HttpGet("{orderId:int}")]
+        [HttpGet("{orderId}")]
         public async Task<IActionResult> GetOrder(int orderId)
         {
             try
             {
-                // Check if the orderId is non-negative
-                if (orderId <= 0)
-                {
-                    return ApiResponse.BadRequest("Invalid order ID.");
-                }
+
                 var order = await _orderService.GetOrderByIdService(orderId);
                 if (order != null)
                 {
@@ -59,72 +56,46 @@ namespace api.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateOrder(Order newOrder)
+        public async Task<IActionResult> CreateOrder(Order order)
         {
             try
             {
-                // Await the order creation operation
-                var createdOrder = await _orderService.CreateOrderService(newOrder);
-
-                // Return a 201 Created status with the created order
+                var createdOrder = await _orderService.CreateOrderService(order);
                 return CreatedAtAction(nameof(GetOrder), new { id = createdOrder.OrderId }, createdOrder);
-
             }
             catch (Exception ex)
             {
-                Console.WriteLine("there is error with creating order");
-                return ApiResponse.ServerError(ex.Message);
+                return BadRequest(ex.Message);
             }
         }
 
-        [HttpPut("{orderId}")]
-        public async Task<IActionResult> UpdateOrder(int orderId, Order updateOrder)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateOrder(int id, Order order)
         {
             try
             {
-                // Validate orderId
-                if (orderId <= 0)
-                {
-                    return ApiResponse.BadRequest("Invalid order ID.");
-                }
-
-                // Validate updateOrder object
-                if (updateOrder == null)
-                {
-                    return ApiResponse.BadRequest("Update order data is null.");
-                }
-
-                // Check if the order with orderId exists
-                var existingOrder = await _orderService.GetOrderByIdService(orderId);
-                if (existingOrder == null)
-                {
-                    return ApiResponse.NotFound("Order not found.");
-                }
-                var updatedOrder = await _orderService.UpdateOrderService(orderId, updateOrder);
+                var updatedOrder = await _orderService.UpdateOrderService(id, order);
                 if (updatedOrder == null)
                 {
-                    return ApiResponse.NotFound();
+                    return ApiResponse.NotFound("User was not found");
+
                 }
                 else
                 {
-                    return ApiResponse.Success(updatedOrder, "Order updated successfully");
+                    return Ok( "Update user successfully");
                 }
             }
             catch (Exception ex)
             {
-                return ApiResponse.ServerError(ex.Message);
+                return BadRequest(ex.Message);
             }
         }
-
         [HttpDelete("{orderId}")]
         public async Task<IActionResult> DeleteOrder(int orderId)
         {
             try
-            {  // Validate orderId
-                if (orderId <= 0)
-                {
-                    return ApiResponse.BadRequest("Invalid order ID.");
-                }
+            {  
+               
 
                 // Check if the order with orderId exists
                 var existingOrder = await _orderService.GetOrderByIdService(orderId);
