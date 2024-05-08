@@ -10,9 +10,9 @@ namespace Backend.Dtos
                 public string OrderStatus { get; set; } = null!;
                 public string? Payment { get; set; } = null!;
                 public int? UserId { get; set; }
-                [JsonIgnore]
+              
                 public UserDto User { get; set; } = null!; // Include UserDTO to represent the associated User
-                [JsonIgnore]
+            
                 public ICollection<OrderProduct> OrderProducts { get; set; } = null!; // Include OrderProduct collection
         }
 

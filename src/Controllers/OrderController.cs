@@ -60,11 +60,15 @@ namespace api.Controllers
             try
             {
                 var createdOrder = await _orderService.CreateOrderService(order);
-                return CreatedAtAction(nameof(GetOrder), new { id = createdOrder.OrderId }, createdOrder);
+                var test=CreatedAtAction(nameof(GetOrder), new { id = createdOrder.OrderId }, createdOrder);
+                if (test==null) {
+                    return NotFound("value is null");
+                 }
+                return Ok("created successfully") ;
             }
             catch (Exception ex)
             {
-                return ApiResponse.ServerError(ex.Message);
+                return NotFound(ex.Message);
             }
         }
 
@@ -76,12 +80,12 @@ namespace api.Controllers
                 var updatedOrder = await _orderService.UpdateOrderService(id, order);
                 if (updatedOrder == null)
                 {
-                    return ApiResponse.NotFound("User was not found");
+                    return NotFound("User was not found");
 
                 }
                 else
                 {
-                    return ApiResponse.Success(UpdateOrder, "Update user successfully");
+                    return Ok("Update user successfully");
                 }
             }
             catch (Exception ex)

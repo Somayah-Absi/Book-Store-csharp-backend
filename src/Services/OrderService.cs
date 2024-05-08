@@ -21,7 +21,10 @@ namespace Backend.Services
         {
             try
             {
-                var orderEntities = await _dbContext.Orders.Include(o => o.User).ToListAsync();
+                var orderEntities = await _dbContext.Orders.Include(o => o.User)
+                .Include(o => o.OrderProducts)
+                .ThenInclude(op => op.Product)
+                .ToListAsync();
 
                 var orderDtos = orderEntities.Select(o => new OrderDto
                 {
@@ -29,8 +32,14 @@ namespace Backend.Services
                     OrderDate = o.OrderDate,
                     OrderStatus = o.OrderStatus,
                     Payment = o.Payment.ValueKind == JsonValueKind.String ? o.Payment.GetString() : null,
-                    UserId = o.UserId
+                    UserId = o.UserId,
+                    OrderProducts = o.OrderProducts.Select(op => new OrderProduct
+                    {
+                        OrderProductId = op.OrderProductId,
+                        Quantity=op.Quantity,
+                        ProductId=op.ProductId
 
+                }).ToList()
                 });
                 return orderDtos;
             }
