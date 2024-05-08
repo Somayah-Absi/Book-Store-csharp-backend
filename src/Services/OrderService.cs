@@ -1,3 +1,5 @@
+using AutoMapper;
+using Backend.Dtos;
 using Backend.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,38 +9,32 @@ namespace Backend.Services
     {
 
         private EcommerceSdaContext _dbContext;
-        public OrderService(EcommerceSdaContext appDbContext)
+        private readonly IMapper _mapper;
+
+        public OrderService(EcommerceSdaContext appDbContext, IMapper mapper)
         {
             _dbContext = appDbContext;
+            _mapper = mapper;
         }
-
-        public async Task<IEnumerable<Order>> GetAllOrdersService()
+        public async Task<IEnumerable<OrderDto>> GetAllOrdersService()
         {
             try
             {
-                // Retrieve orders asynchronously
-                var orderEntities = await _dbContext.Orders.ToListAsync();
+                var orderEntities = await _dbContext.Orders
+                    .Include(o => o.User) // Include the User information
+                    .ToListAsync();
 
-                // Map Order entities to Order domain objects
-                var orders = orderEntities.Select(row => new Order
-                {
-                    OrderId = row.OrderId,
-                    OrderDate = row.OrderDate,
-                    OrderStatus = row.OrderStatus,
-                    UserId = row.UserId,
-                    Payment = row.Payment,
-                });
+                // Use AutoMapper to map Order entities to OrderDto
+                var orderDtos = _mapper.Map<IEnumerable<OrderDto>>(orderEntities);
 
-                return orders;
+                return orderDtos;
             }
             catch (IOException ex)
             {
-                // Handle database-specific exceptions
                 throw new ApplicationException("An error occurred while retrieving orders from the database.", ex);
             }
             catch (Exception ex)
             {
-                // Handle other exceptions
                 throw new ApplicationException("An error occurred while creating Order.", ex);
             }
         }
@@ -47,6 +43,7 @@ namespace Backend.Services
         {
             try
             {
+
                 // Add the new order asynchronously
                 await _dbContext.Orders.AddAsync(newOrder);
 

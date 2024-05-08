@@ -16,7 +16,7 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "Backend Teamwork API", Version = "v1" });
 });
-
+builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddScoped<CategoryService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<OrderService>();
