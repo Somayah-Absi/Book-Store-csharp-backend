@@ -1,6 +1,7 @@
 using Backend.Models;
 using Microsoft.EntityFrameworkCore;
 using Backend.Helpers;
+using Backend.Dtos;
 namespace Backend.Services
 {
     public class UserService
@@ -12,11 +13,22 @@ namespace Backend.Services
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
 
-        public async Task<IEnumerable<User>> GetAllUsersAsync()
+        public async Task<IEnumerable<GetUserDto>> GetAllUsersAsync()
         {
             try
             {
-                return await _dbContext.Users.ToListAsync();
+                var users = await _dbContext.Users.ToListAsync();
+                var userDtos = users.Select(u => new GetUserDto
+                {
+                    UserId = u.UserId,
+                    FirstName = u.FirstName,
+                    LastName = u.LastName,
+                    Email = u.Email,
+                    Mobile = u.Mobile,
+                    IsAdmin = u.IsAdmin,
+                    IsBanned = u.IsBanned
+                }).ToList();
+                return userDtos;
             }
             catch (Exception ex)
             {
