@@ -1,3 +1,4 @@
+using Backend.Dtos;
 using Backend.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,7 +13,7 @@ namespace Backend.Services
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
 
-        public async Task<IEnumerable<Product>> GetAllProductsAsync(
+        public async Task<PaginationResult<Product>> GetAllProductsAsync(
             string? productName = null,
             decimal? minPrice = null,
             decimal? maxPrice = null,
@@ -29,7 +30,6 @@ namespace Backend.Services
                 // Apply filters
                 if (!string.IsNullOrEmpty(productName))
                 {
-                    // Convert the product name to lowercase for case-insensitive search
                     var productNameLower = productName.ToLower();
                     query = query.Where(p => p.ProductName.ToLower().Contains(productNameLower));
                 }
@@ -44,30 +44,28 @@ namespace Backend.Services
                     query = query.Where(p => p.CreatedAt >= createDate);
 
                 // Apply sorting
-                switch (sortBy.ToLower())
+                query = sortBy.ToLower() switch
                 {
-                    case "id":
-                        query = ascending ? query.OrderBy(p => p.ProductId) : query.OrderByDescending(p => p.ProductId);
-                        break;
-                    case "price":
-                        query = ascending ? query.OrderBy(p => p.ProductPrice) : query.OrderByDescending(p => p.ProductPrice);
-                        break;
-                    case "product Name":
-                        query = ascending ? query.OrderBy(p => p.ProductName) : query.OrderByDescending(p => p.ProductName);
-                        break;
-                    case "Create Date":
-                        query = ascending ? query.OrderBy(p => p.CreatedAt) : query.OrderByDescending(p => p.CreatedAt);
-                        break;
+                    "price" => ascending ? query.OrderBy(p => p.ProductPrice) : query.OrderByDescending(p => p.ProductPrice),
+                    "product name" => ascending ? query.OrderBy(p => p.ProductName) : query.OrderByDescending(p => p.ProductName),
+                    "create date" => ascending ? query.OrderBy(p => p.CreatedAt) : query.OrderByDescending(p => p.CreatedAt),
+                    _ => ascending ? query.OrderBy(p => p.ProductId) : query.OrderByDescending(p => p.ProductId),
+                };
 
-                    default:
-                        query = ascending ? query.OrderBy(p => p.ProductId) : query.OrderByDescending(p => p.ProductId);
-                        break;
-                }
+                // Count total items before pagination
+                var totalCount = await query.CountAsync();
 
                 // Apply pagination
                 query = query.Skip((pageNumber - 1) * pageSize).Take(pageSize);
 
-                return await query.ToListAsync();
+                var items = await query.ToListAsync();
+                return new PaginationResult<Product>
+                {
+                    Items = items,
+                    TotalCount = totalCount,
+                    PageNumber = pageNumber,
+                    PageSize = pageSize
+                };
             }
             catch (Exception ex)
             {
