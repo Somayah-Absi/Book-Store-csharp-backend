@@ -89,9 +89,9 @@ namespace Backend.Controllers
                         var test = CreatedAtAction(nameof(GetCategory), new { id = createdCategory.CategoryId }, createdCategory);
                         if (test == null)
                         {
-                            return ApiResponse.NotFound("failed to create a category.");
+                            return ApiResponse.NotFound("Failed to create a category");
                         }
-                        return ApiResponse.Created(test, "created successfully");
+                        return ApiResponse.Created("Category created successfully");
                     }
                     else
                     {

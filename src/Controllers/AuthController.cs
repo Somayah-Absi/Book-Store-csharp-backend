@@ -36,7 +36,7 @@ namespace auth.Controllers
                 Mobile = dto.Mobile,
             };
 
-            return Created("Success Register", _repository.Create(user));
+            return Created("Successfully Registered ✔️", _repository.Create(user));
         }
 
 
@@ -47,11 +47,11 @@ namespace auth.Controllers
             {
                 var user = _repository.GetByEmail(dto.Email ?? "");
 
-                if (user == null) return BadRequest(new { message = "Invalid Email" });
+                if (user == null) return BadRequest(new { message = "Invalid Email ❗" });
 
                 if (!BCrypt.Net.BCrypt.Verify(dto.Password, user.Password))
                 {
-                    return BadRequest(new { message = "Invalid Password" });
+                    return BadRequest(new { message = "Invalid Password ❗" });
                 }
 
                 var userDto = new UserDto
@@ -73,7 +73,7 @@ namespace auth.Controllers
 
                 return Ok(new
                 {
-                    message = $"Success LogIn '{userDto.FirstName}' ",
+                    message = $"Successfully logged in, welcome back again {userDto.FirstName} 🌸 ",
                 });
             }
             catch (Exception e)
@@ -89,11 +89,11 @@ namespace auth.Controllers
             {
                 Response.Cookies.Delete("jwt");
 
-                return Ok(new { message = "Logout Successfully" });
+                return Ok(new { message = "Logged out successfully ✔️" });
             }
             else
             {
-                return NotFound(new { message = "Yoy are not LogIn" });
+                return NotFound(new { message = "You are not logged in ❗ " });
             }
         }
     }

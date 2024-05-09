@@ -27,7 +27,7 @@ namespace Backend.Models
         [Required(ErrorMessage = "Product quantity in stock is required")]
         [Range(0, int.MaxValue, ErrorMessage = "Product quantity must be a positive number")]
         public int ProductQuantityInStock { get; set; }
-
+        [JsonIgnore]
         public DateTime? CreatedAt { get; set; }
 
         public int? CategoryId { get; set; }

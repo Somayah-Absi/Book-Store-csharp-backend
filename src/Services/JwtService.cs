@@ -20,8 +20,22 @@ namespace auth.Helpers
 
         public string GenerateJwt(UserDto user)
         {
+            // Retrieve the JWT key from configuration
+            var jwtKey = _configuration["Jwt:Key"];
 
-            var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]);
+            // Check if the key is null or empty
+            if (string.IsNullOrEmpty(jwtKey))
+            {
+                throw new InvalidOperationException("JWT key is not configured properly.");
+            }
+
+            // Convert the key to bytes
+            var key = Encoding.ASCII.GetBytes(jwtKey);
+            // Check if the key is null
+            if (key == null || key.Length == 0)
+            {
+                throw new InvalidOperationException("JWT key is not configured properly.");
+            }
             bool isAdmin = user.IsAdmin ?? false;
 
             var tokenDescriptor = new SecurityTokenDescriptor
