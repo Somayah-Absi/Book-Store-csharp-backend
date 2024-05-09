@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Backend.Dtos;
+using Backend.Helpers;
 using Backend.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -77,7 +78,7 @@ namespace Backend.Services
         {
             try
             {
-
+                newOrder.OrderId = await IdGenerator.GenerateIdAsync<Order>(_dbContext);
                 // Add the new order asynchronously
                 _dbContext.Orders.Add(newOrder);
 
