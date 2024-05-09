@@ -1,14 +1,17 @@
 using auth.Data;
-using auth.Dtos;
+using Backend.Dtos;
 using auth.Helpers;
 using Backend.Models;
 using Microsoft.AspNetCore.Mvc;
+using System.IdentityModel.Tokens.Jwt;
+using auth.Dtos;
+using Microsoft.AspNetCore.Authorization;
 
 
 
 namespace auth.Controllers
 {
-    [Route("api")]
+    [Route("api/users")]
     [ApiController]
     public class AuthController : Controller
     {
@@ -22,7 +25,7 @@ namespace auth.Controllers
         }
 
         [HttpPost("register")]
-        public IActionResult Register(RegisterDto dto)
+        public IActionResult Register([FromBody] RegisterDto dto)
         {
             var user = new User
             {
@@ -36,65 +39,62 @@ namespace auth.Controllers
             return Created("Success Register", _repository.Create(user));
         }
 
+
         [HttpPost("login")]
-        public IActionResult Login(LoginDto dto)
-        {
-            var user = _repository.GetByEmail(dto.Email);
-
-            if (user == null) return BadRequest(new { message = "Invalid Email" });
-
-            if (!BCrypt.Net.BCrypt.Verify(dto.Password, user.Password))
-            {
-                return BadRequest(new { message = "Invalid Password" });
-            }
-
-            var jwt = _jwtService.Generate(user.UserId);
-
-            Response.Cookies.Append("jwt", jwt, new CookieOptions
-            {
-                HttpOnly = true
-            });
-
-            return Ok(new
-            {
-                message = $"Success LogIn "
-            });
-        }
-
-        [HttpGet("user")]
-        public IActionResult Users()
+        public IActionResult Login([FromBody] LoginDto dto)
         {
             try
             {
-                var jwt = Request.Cookies["jwt"];
-                if (jwt == null)
+                var user = _repository.GetByEmail(dto.Email ?? "");
+
+                if (user == null) return BadRequest(new { message = "Invalid Email" });
+
+                if (!BCrypt.Net.BCrypt.Verify(dto.Password, user.Password))
                 {
-                    return Unauthorized();
+                    return BadRequest(new { message = "Invalid Password" });
                 }
 
-                var token = _jwtService.Verify(jwt);
+                var userDto = new UserDto
+                {
+                    UserId = user.UserId,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    Email = user.Email,
+                    Mobile = user.Mobile,
+                    IsAdmin = user.IsAdmin,
+                    IsBanned = user.IsBanned,
+                };
+                var jwt = _jwtService.GenerateJwt(userDto);
 
-                int userId = int.Parse(token.Issuer);
+                Response.Cookies.Append("jwt", jwt, new CookieOptions
+                {
+                    HttpOnly = true
+                });
 
-                var user = _repository.GetById(userId);
-
-                return Ok(user);
+                return Ok(new
+                {
+                    message = $"Success LogIn '{userDto.FirstName}' ",
+                });
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                return Unauthorized();
+                return BadRequest($"{e.Message}");
             }
         }
 
         [HttpPost("logout")]
         public IActionResult Logout()
         {
-            Response.Cookies.Delete("jwt");
-
-            return Ok(new
+            if (Request.Cookies.ContainsKey("jwt"))
             {
-                message = "Success Logout"
-            });
+                Response.Cookies.Delete("jwt");
+
+                return Ok(new { message = "Logout Successfully" });
+            }
+            else
+            {
+                return NotFound(new { message = "Yoy are not LogIn" });
+            }
         }
     }
 }
