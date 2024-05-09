@@ -52,15 +52,15 @@ namespace Backend.Services
                 throw new ApplicationException("An error occurred while retrieving categories.", ex);
             }
         }
-        public async Task<Category?> GetCategoryById(int id)
+        public async Task<Category?> GetCategoryById(int categoryId)
         {
             try
             {
-                return await _dbContext.Categories.FindAsync(id);
+                return await _dbContext.Categories.FindAsync(categoryId);
             }
             catch (Exception ex)
             {
-                throw new ApplicationException($"An error occurred while retrieving category with ID {id}.", ex);
+                throw new ApplicationException($"An error occurred while retrieving category with ID {categoryId}.", ex);
             }
         }
 
@@ -82,11 +82,11 @@ namespace Backend.Services
             }
         }
 
-        public async Task<Category?> UpdateCategory(int id, UpdateCategoryDto categoryDto)
+        public async Task<Category?> UpdateCategory(int categoryId, UpdateCategoryDto categoryDto)
         {
             try
             {
-                var existingCategory = await _dbContext.Categories.FindAsync(id);
+                var existingCategory = await _dbContext.Categories.FindAsync(categoryId);
 
                 if (existingCategory != null)
                 {
@@ -106,16 +106,16 @@ namespace Backend.Services
             }
             catch (Exception ex)
             {
-                throw new ApplicationException($"An error occurred while updating category with ID {id}.", ex);
+                throw new ApplicationException($"An error occurred while updating category with ID {categoryId}.", ex);
             }
         }
 
-        public async Task<bool> DeleteCategory(int id)
+        public async Task<bool> DeleteCategory(int categoryId)
         {
             try
             {
                 // Retrieve the category entity with the specified ID from the database.
-                var categoryToDelete = await _dbContext.Categories.FindAsync(id);
+                var categoryToDelete = await _dbContext.Categories.FindAsync(categoryId);
 
                 if (categoryToDelete != null)
                 {
@@ -131,7 +131,7 @@ namespace Backend.Services
             }
             catch (Exception ex)
             {
-                throw new ApplicationException($"An error occurred while deleting category with ID {id}.", ex);
+                throw new ApplicationException($"An error occurred while deleting category with ID {categoryId}.", ex);
             }
         }
     }

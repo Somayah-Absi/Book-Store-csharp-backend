@@ -30,12 +30,12 @@ namespace Backend.Controllers
             }
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetUser(int id)
+        [HttpGet("{userId}")]
+        public async Task<IActionResult> GetUser(int userId)
         {
             try
             {
-                var user = await _userService.GetUserByIdAsync(id);
+                var user = await _userService.GetUserByIdAsync(userId);
                 if (user != null)
                 {
                     return ApiResponse.Created(user);
@@ -65,12 +65,12 @@ namespace Backend.Controllers
             }
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateUser(int id, User user)
+        [HttpPut("{userId}")]
+        public async Task<IActionResult> UpdateUser(int userId, User user)
         {
             try
             {
-                var updatedUser = await _userService.UpdateUserAsync(id, user);
+                var updatedUser = await _userService.UpdateUserAsync(userId, user);
                 if (updatedUser == null)
                 {
                     return ApiResponse.NotFound("User was not found");
@@ -87,12 +87,12 @@ namespace Backend.Controllers
             }
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUser(int id)
+        [HttpDelete("{userId}")]
+        public async Task<IActionResult> DeleteUser(int userId)
         {
             try
             {
-                var result = await _userService.DeleteUserAsync(id);
+                var result = await _userService.DeleteUserAsync(userId);
                 if (!result)
                 {
                     return NoContent();

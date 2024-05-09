@@ -36,13 +36,13 @@ namespace Backend.Controllers
         }
 
         // Endpoint to retrieve a specific category by ID
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetCategory(int id)
+        [HttpGet("{categoryId}")]
+        public async Task<IActionResult> GetCategory(int categoryId)
         {
             try
             {
                 // Call service to get category by ID
-                var category = await _categoryService.GetCategoryById(id);
+                var category = await _categoryService.GetCategoryById(categoryId);
                 if (category != null)
                 {
                     return ApiResponse.Created(category);
@@ -76,13 +76,13 @@ namespace Backend.Controllers
         }
 
         // Endpoint to update an existing category
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateCategory(int id, UpdateCategoryDto categoryDto)
+        [HttpPut("{categoryId}")]
+        public async Task<IActionResult> UpdateCategory(int categoryId, UpdateCategoryDto categoryDto)
         {
             try
             {
                 // Call service to update category
-                var updatedCategory = await _categoryService.UpdateCategory(id, categoryDto);
+                var updatedCategory = await _categoryService.UpdateCategory(categoryId, categoryDto);
                 if (updatedCategory == null)
                 {
                     return ApiResponse.NotFound("Category was not found");
@@ -99,13 +99,13 @@ namespace Backend.Controllers
         }
 
         // Endpoint to delete a category by ID
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCategory(int id)
+        [HttpDelete("{categoryId}")]
+        public async Task<IActionResult> DeleteCategory(int categoryId)
         {
             try
             {
                 // Call service to delete category
-                var result = await _categoryService.DeleteCategory(id);
+                var result = await _categoryService.DeleteCategory(categoryId);
                 if (result)
                 {
                     return NoContent();
