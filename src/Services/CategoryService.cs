@@ -5,10 +5,12 @@ using Backend.Helpers;
 
 namespace Backend.Services
 {
+    // Service class for managing categories and related operations.
     public class CategoryService
     {
         private readonly EcommerceSdaContext _dbContext;
 
+        // Constructor for initializing the CategoryService with the provided database context.
         public CategoryService(EcommerceSdaContext dbContext)
         {
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
@@ -19,7 +21,10 @@ namespace Backend.Services
         {
             try
             {
+                // Fetch categories along with their associated products from the database.
                 var categories = await _dbContext.Categories.Include(c => c.Products).ToListAsync();
+
+                // Map fetched database entities to DTOs by selecting specific properties
                 var categoryDtos = categories.Select(c => new GetCategoryWithProductDto
                 {
                     CategoryId = c.CategoryId,
@@ -63,7 +68,10 @@ namespace Backend.Services
         {
             try
             {
+                // Generate a unique identifier for the category using IdGenerator helper.
                 category.CategoryId = await IdGenerator.GenerateIdAsync<Category>(_dbContext);
+
+                // Add the category to the database and save changes.
                 _dbContext.Categories.Add(category);
                 await _dbContext.SaveChangesAsync();
                 return category;
@@ -82,9 +90,12 @@ namespace Backend.Services
 
                 if (existingCategory != null)
                 {
+                    // Update category properties with values from the DTO.
                     existingCategory.CategoryName = categoryDto.CategoryName;
                     existingCategory.CategorySlug = SlugGenerator.GenerateSlug(categoryDto.CategoryName);
                     existingCategory.CategoryDescription = categoryDto.CategoryDescription;
+
+                    // Save changes to the database.
                     await _dbContext.SaveChangesAsync();
                     return existingCategory;
                 }
@@ -103,9 +114,12 @@ namespace Backend.Services
         {
             try
             {
-                var categoryToDelete = _dbContext.Categories.Find(id);
+                // Retrieve the category entity with the specified ID from the database.
+                var categoryToDelete = await _dbContext.Categories.FindAsync(id);
+
                 if (categoryToDelete != null)
                 {
+                    // Remove the category from the database and save changes.
                     _dbContext.Categories.Remove(categoryToDelete);
                     await _dbContext.SaveChangesAsync();
                     return true;
