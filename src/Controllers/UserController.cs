@@ -2,6 +2,7 @@ using Backend.Models;
 using Backend.Services;
 using Microsoft.AspNetCore.Mvc;
 using Backend.Helpers;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace Backend.Controllers
 {
@@ -21,8 +22,32 @@ namespace Backend.Controllers
         {
             try
             {
-                var users = await _userService.GetAllUsersAsync();
-                return ApiResponse.Success(users, "all users are returned successfully");
+                if (!Request.Cookies.ContainsKey("jwt"))
+                {
+                    return Unauthorized("Not have any token to access");
+                }
+                else
+                {
+                    var jwt = Request.Cookies["jwt"];
+                    // Validate and decode JWT token to extract claims
+                    var tokenHandler = new JwtSecurityTokenHandler();
+                    var token = tokenHandler.ReadJwtToken(jwt);
+
+                    var isAdminClaim = token.Claims.FirstOrDefault(c => c.Type == "role" && c.Value == "Admin");
+
+                    bool isAdmin = isAdminClaim != null;
+
+                    if (isAdmin)
+                    {
+                        //"Admin access granted"
+                        var users = await _userService.GetAllUsersAsync();
+                        return ApiResponse.Success(users, "all users are returned successfully");
+                    }
+                    else
+                    {
+                        return Unauthorized("You don't have permission to access this endpoint");
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -35,14 +60,38 @@ namespace Backend.Controllers
         {
             try
             {
-                var user = await _userService.GetUserByIdAsync(userId);
-                if (user != null)
+                if (!Request.Cookies.ContainsKey("jwt"))
                 {
-                    return ApiResponse.Created(user);
+                    return Unauthorized("Not have any token to access");
                 }
                 else
                 {
-                    return ApiResponse.NotFound("User was not found");
+                    var jwt = Request.Cookies["jwt"];
+                    // Validate and decode JWT token to extract claims
+                    var tokenHandler = new JwtSecurityTokenHandler();
+                    var token = tokenHandler.ReadJwtToken(jwt);
+
+                    var isAdminClaim = token.Claims.FirstOrDefault(c => c.Type == "role" && c.Value == "Admin");
+
+                    bool isAdmin = isAdminClaim != null;
+
+                    if (isAdmin)
+                    {
+                        //"Admin access granted"
+                        var user = await _userService.GetUserByIdAsync(userId);
+                        if (user != null)
+                        {
+                            return ApiResponse.Created(user);
+                        }
+                        else
+                        {
+                            return ApiResponse.NotFound("User was not found");
+                        }
+                    }
+                    else
+                    {
+                        return Unauthorized("You don't have permission to access this endpoint");
+                    }
                 }
             }
             catch (Exception ex)
@@ -56,8 +105,32 @@ namespace Backend.Controllers
         {
             try
             {
-                var createdUser = await _userService.CreateUserAsync(user);
-                return CreatedAtAction(nameof(GetUser), new { id = createdUser.UserId }, createdUser);
+                if (!Request.Cookies.ContainsKey("jwt"))
+                {
+                    return Unauthorized("Not have any token to access");
+                }
+                else
+                {
+                    var jwt = Request.Cookies["jwt"];
+                    // Validate and decode JWT token to extract claims
+                    var tokenHandler = new JwtSecurityTokenHandler();
+                    var token = tokenHandler.ReadJwtToken(jwt);
+
+                    var isAdminClaim = token.Claims.FirstOrDefault(c => c.Type == "role" && c.Value == "Admin");
+
+                    bool isAdmin = isAdminClaim != null;
+
+                    if (isAdmin)
+                    {
+                        //"Admin access granted"
+                        var createdUser = await _userService.CreateUserAsync(user);
+                        return CreatedAtAction(nameof(GetUser), new { id = createdUser.UserId }, createdUser);
+                    }
+                    else
+                    {
+                        return Unauthorized("You don't have permission to access this endpoint");
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -70,15 +143,39 @@ namespace Backend.Controllers
         {
             try
             {
-                var updatedUser = await _userService.UpdateUserAsync(userId, user);
-                if (updatedUser == null)
+                if (!Request.Cookies.ContainsKey("jwt"))
                 {
-                    return ApiResponse.NotFound("User was not found");
-
+                    return Unauthorized("Not have any token to access");
                 }
                 else
                 {
-                    return ApiResponse.Success(updatedUser, "Update user successfully");
+                    var jwt = Request.Cookies["jwt"];
+                    // Validate and decode JWT token to extract claims
+                    var tokenHandler = new JwtSecurityTokenHandler();
+                    var token = tokenHandler.ReadJwtToken(jwt);
+
+                    var isAdminClaim = token.Claims.FirstOrDefault(c => c.Type == "role" && c.Value == "Admin");
+
+                    bool isAdmin = isAdminClaim != null;
+
+                    if (isAdmin)
+                    {
+                        //"Admin access granted"
+                        var updatedUser = await _userService.UpdateUserAsync(userId, user);
+                        if (updatedUser == null)
+                        {
+                            return ApiResponse.NotFound("User was not found");
+
+                        }
+                        else
+                        {
+                            return ApiResponse.Success(updatedUser, "Update user successfully");
+                        }
+                    }
+                    else
+                    {
+                        return Unauthorized("You don't have permission to access this endpoint");
+                    }
                 }
             }
             catch (Exception ex)
@@ -92,14 +189,38 @@ namespace Backend.Controllers
         {
             try
             {
-                var result = await _userService.DeleteUserAsync(userId);
-                if (!result)
+                if (!Request.Cookies.ContainsKey("jwt"))
                 {
-                    return NoContent();
+                    return Unauthorized("Not have any token to access");
                 }
                 else
                 {
-                    return ApiResponse.NotFound("User was not found");
+                    var jwt = Request.Cookies["jwt"];
+                    // Validate and decode JWT token to extract claims
+                    var tokenHandler = new JwtSecurityTokenHandler();
+                    var token = tokenHandler.ReadJwtToken(jwt);
+
+                    var isAdminClaim = token.Claims.FirstOrDefault(c => c.Type == "role" && c.Value == "Admin");
+
+                    bool isAdmin = isAdminClaim != null;
+
+                    if (isAdmin)
+                    {
+                        //"Admin access granted"
+                        var result = await _userService.DeleteUserAsync(userId);
+                        if (!result)
+                        {
+                            return NoContent();
+                        }
+                        else
+                        {
+                            return ApiResponse.NotFound("User was not found");
+                        }
+                    }
+                    else
+                    {
+                        return Unauthorized("You don't have permission to access this endpoint");
+                    }
                 }
             }
             catch (Exception ex)

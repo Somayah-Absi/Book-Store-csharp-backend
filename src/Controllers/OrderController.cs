@@ -3,6 +3,7 @@ using Backend.Services;
 using Microsoft.AspNetCore.Mvc;
 using Backend.Helpers;
 using Backend.Dtos;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace api.Controllers
 {
@@ -24,8 +25,32 @@ namespace api.Controllers
         {
             try
             {
-                var orders = await _orderService.GetAllOrdersService();
-                return ApiResponse.Success(orders, "All Orders returned successfully");
+                if (!Request.Cookies.ContainsKey("jwt"))
+                {
+                    return Unauthorized("Not have any token to access");
+                }
+                else
+                {
+                    var jwt = Request.Cookies["jwt"];
+                    // Validate and decode JWT token to extract claims
+                    var tokenHandler = new JwtSecurityTokenHandler();
+                    var token = tokenHandler.ReadJwtToken(jwt);
+
+                    var isAdminClaim = token.Claims.FirstOrDefault(c => c.Type == "role" && c.Value == "Admin");
+
+                    bool isAdmin = isAdminClaim != null;
+
+                    if (isAdmin)
+                    {
+                        //"Admin access granted"
+                        var orders = await _orderService.GetAllOrdersService();
+                        return ApiResponse.Success(orders, "All Orders returned successfully");
+                    }
+                    else
+                    {
+                        return Unauthorized("You don't have permission to access this endpoint");
+                    }
+                }
             }
             catch (Exception e)
             {
@@ -38,15 +63,39 @@ namespace api.Controllers
         {
             try
             {
-
-                var order = await _orderService.GetOrderByIdService(orderId);
-                if (order != null)
+                if (!Request.Cookies.ContainsKey("jwt"))
                 {
-                    return ApiResponse.Success(order, "Order returned successfully");
+                    return Unauthorized("Not have any token to access");
                 }
                 else
                 {
-                    return ApiResponse.NotFound("order not found");
+                    var jwt = Request.Cookies["jwt"];
+                    // Validate and decode JWT token to extract claims
+                    var tokenHandler = new JwtSecurityTokenHandler();
+                    var token = tokenHandler.ReadJwtToken(jwt);
+
+                    var isAdminClaim = token.Claims.FirstOrDefault(c => c.Type == "role" && c.Value == "Admin");
+
+                    bool isAdmin = isAdminClaim != null;
+
+                    if (isAdmin)
+                    {
+                        //"Admin access granted"
+
+                        var order = await _orderService.GetOrderByIdService(orderId);
+                        if (order != null)
+                        {
+                            return ApiResponse.Success(order, "Order returned successfully");
+                        }
+                        else
+                        {
+                            return ApiResponse.NotFound("order not found");
+                        }
+                    }
+                    else
+                    {
+                        return Unauthorized("You don't have permission to access this endpoint");
+                    }
                 }
             }
             catch (Exception ex)
@@ -60,13 +109,37 @@ namespace api.Controllers
         {
             try
             {
-                var createdOrder = await _orderService.CreateOrderService(orderCreationDto.NewOrder, orderCreationDto.Products);
-                var test = CreatedAtAction(nameof(GetOrder), new { id = createdOrder.OrderId }, createdOrder);
-                if (test == null)
+                if (!Request.Cookies.ContainsKey("jwt"))
                 {
-                    return NotFound("value is null");
+                    return Unauthorized("Not have any token to access");
                 }
-                return Ok("created successfully");
+                else
+                {
+                    var jwt = Request.Cookies["jwt"];
+                    // Validate and decode JWT token to extract claims
+                    var tokenHandler = new JwtSecurityTokenHandler();
+                    var token = tokenHandler.ReadJwtToken(jwt);
+
+                    var isAdminClaim = token.Claims.FirstOrDefault(c => c.Type == "role" && c.Value == "User");
+
+                    bool isAdmin = isAdminClaim != null;
+
+                    if (isAdmin)
+                    {
+                        //"Admin access granted"
+                        var createdOrder = await _orderService.CreateOrderService(orderCreationDto.NewOrder, orderCreationDto.Products);
+                        var test = CreatedAtAction(nameof(GetOrder), new { id = createdOrder.OrderId }, createdOrder);
+                        if (test == null)
+                        {
+                            return NotFound("value is null");
+                        }
+                        return Ok("created successfully");
+                    }
+                    else
+                    {
+                        return Unauthorized("You don't have permission to access this endpoint");
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -79,15 +152,39 @@ namespace api.Controllers
         {
             try
             {
-                var updatedOrder = await _orderService.UpdateOrderService(OrderId, order);
-                if (updatedOrder == null)
+                if (!Request.Cookies.ContainsKey("jwt"))
                 {
-                    return NotFound("Order was not found");
-
+                    return Unauthorized("Not have any token to access");
                 }
                 else
                 {
-                    return Ok("Update Order successfully");
+                    var jwt = Request.Cookies["jwt"];
+                    // Validate and decode JWT token to extract claims
+                    var tokenHandler = new JwtSecurityTokenHandler();
+                    var token = tokenHandler.ReadJwtToken(jwt);
+
+                    var isAdminClaim = token.Claims.FirstOrDefault(c => c.Type == "role" && c.Value == "User");
+
+                    bool isAdmin = isAdminClaim != null;
+
+                    if (isAdmin)
+                    {
+                        //"Admin access granted"
+                        var updatedOrder = await _orderService.UpdateOrderService(OrderId, order);
+                        if (updatedOrder == null)
+                        {
+                            return NotFound("Order was not found");
+
+                        }
+                        else
+                        {
+                            return Ok("Update Order successfully");
+                        }
+                    }
+                    else
+                    {
+                        return Unauthorized("You don't have permission to access this endpoint");
+                    }
                 }
             }
             catch (Exception ex)
@@ -100,20 +197,44 @@ namespace api.Controllers
         {
             try
             {
-                // Check if the order with orderId exists
-                var existingOrder = await _orderService.GetOrderByIdService(orderId);
-                if (existingOrder == null)
+                if (!Request.Cookies.ContainsKey("jwt"))
                 {
-                    return NotFound("Order not found.");
-                }
-                var result = await _orderService.DeleteOrderService(orderId);
-                if (!result)
-                {
-                    return ApiResponse.NotFound($"Failed to delete order with ID {orderId}.");
+                    return Unauthorized("Not have any token to access");
                 }
                 else
                 {
-                    return NoContent();
+                    var jwt = Request.Cookies["jwt"];
+                    // Validate and decode JWT token to extract claims
+                    var tokenHandler = new JwtSecurityTokenHandler();
+                    var token = tokenHandler.ReadJwtToken(jwt);
+
+                    var isAdminClaim = token.Claims.FirstOrDefault(c => c.Type == "role" && c.Value == "User");
+
+                    bool isAdmin = isAdminClaim != null;
+
+                    if (isAdmin)
+                    {
+                        //"Admin access granted"
+                        // Check if the order with orderId exists
+                        var existingOrder = await _orderService.GetOrderByIdService(orderId);
+                        if (existingOrder == null)
+                        {
+                            return NotFound("Order not found.");
+                        }
+                        var result = await _orderService.DeleteOrderService(orderId);
+                        if (!result)
+                        {
+                            return ApiResponse.NotFound($"Failed to delete order with ID {orderId}.");
+                        }
+                        else
+                        {
+                            return NoContent();
+                        }
+                    }
+                    else
+                    {
+                        return Unauthorized("You don't have permission to access this endpoint");
+                    }
                 }
             }
             catch (Exception ex)

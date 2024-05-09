@@ -2,6 +2,7 @@ using Backend.Models;
 using Backend.Services;
 using Microsoft.AspNetCore.Mvc;
 using Backend.Helpers;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace Backend.Controllers
 {
@@ -72,14 +73,38 @@ namespace Backend.Controllers
         {
             try
             {
-                if (product == null)
+                if (!Request.Cookies.ContainsKey("jwt"))
                 {
-                    return ApiResponse.BadRequest("Product data is null");
+                    return Unauthorized("Not have any token to access");
                 }
+                else
+                {
+                    var jwt = Request.Cookies["jwt"];
+                    // Validate and decode JWT token to extract claims
+                    var tokenHandler = new JwtSecurityTokenHandler();
+                    var token = tokenHandler.ReadJwtToken(jwt);
 
-                product.ProductSlug = SlugGenerator.GenerateSlug(product.ProductName);
-                var createdProduct = await _productService.CreateProductAsync(product);
-                return CreatedAtAction(nameof(GetProduct), new { id = createdProduct.ProductId }, createdProduct);
+                    var isAdminClaim = token.Claims.FirstOrDefault(c => c.Type == "role" && c.Value == "Admin");
+
+                    bool isAdmin = isAdminClaim != null;
+
+                    if (isAdmin)
+                    {
+                        //"Admin access granted"
+                        if (product == null)
+                        {
+                            return ApiResponse.BadRequest("Product data is null");
+                        }
+
+                        product.ProductSlug = SlugGenerator.GenerateSlug(product.ProductName);
+                        var createdProduct = await _productService.CreateProductAsync(product);
+                        return CreatedAtAction(nameof(GetProduct), new { id = createdProduct.ProductId }, createdProduct);
+                    }
+                    else
+                    {
+                        return Unauthorized("You don't have permission to access this endpoint");
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -92,20 +117,43 @@ namespace Backend.Controllers
         {
             try
             {
-                if (product == null || product.ProductId != ProductId)
+                if (!Request.Cookies.ContainsKey("jwt"))
                 {
-                    return ApiResponse.BadRequest("Invalid product data");
+                    return Unauthorized("Not have any token to access");
                 }
-
-                product.ProductSlug = SlugGenerator.GenerateSlug(product.ProductName);
-                var updatedProduct = await _productService.UpdateProductAsync(ProductId, product);
-                if (updatedProduct == null)
+                else
                 {
-                    return ApiResponse.NotFound("Product was not found");
+                    var jwt = Request.Cookies["jwt"];
+                    // Validate and decode JWT token to extract claims
+                    var tokenHandler = new JwtSecurityTokenHandler();
+                    var token = tokenHandler.ReadJwtToken(jwt);
+
+                    var isAdminClaim = token.Claims.FirstOrDefault(c => c.Type == "role" && c.Value == "Admin");
+
+                    bool isAdmin = isAdminClaim != null;
+
+                    if (isAdmin)
+                    {
+                        //"Admin access granted"
+                        if (product == null || product.ProductId != ProductId)
+                        {
+                            return ApiResponse.BadRequest("Invalid product data");
+                        }
+
+                        product.ProductSlug = SlugGenerator.GenerateSlug(product.ProductName);
+                        var updatedProduct = await _productService.UpdateProductAsync(ProductId, product);
+                        if (updatedProduct == null)
+                        {
+                            return ApiResponse.NotFound("Product was not found");
+                        }
+
+                        return ApiResponse.Success(updatedProduct, "Update product successfully");
+                    }
+                    else
+                    {
+                        return Unauthorized("You don't have permission to access this endpoint");
+                    }
                 }
-
-                return ApiResponse.Success(updatedProduct, "Update product successfully");
-
             }
             catch (Exception ex)
             {
@@ -118,14 +166,38 @@ namespace Backend.Controllers
         {
             try
             {
-                var result = await _productService.DeleteProductAsync(ProductId);
-                if (result)
+                if (!Request.Cookies.ContainsKey("jwt"))
                 {
-                    return NoContent();
+                    return Unauthorized("Not have any token to access");
                 }
                 else
                 {
-                    return ApiResponse.NotFound("Product was not found");
+                    var jwt = Request.Cookies["jwt"];
+                    // Validate and decode JWT token to extract claims
+                    var tokenHandler = new JwtSecurityTokenHandler();
+                    var token = tokenHandler.ReadJwtToken(jwt);
+
+                    var isAdminClaim = token.Claims.FirstOrDefault(c => c.Type == "role" && c.Value == "Admin");
+
+                    bool isAdmin = isAdminClaim != null;
+
+                    if (isAdmin)
+                    {
+                        //"Admin access granted"
+                        var result = await _productService.DeleteProductAsync(ProductId);
+                        if (result)
+                        {
+                            return NoContent();
+                        }
+                        else
+                        {
+                            return ApiResponse.NotFound("Product was not found");
+                        }
+                    }
+                    else
+                    {
+                        return Unauthorized("You don't have permission to access this endpoint");
+                    }
                 }
             }
             catch (Exception ex)
