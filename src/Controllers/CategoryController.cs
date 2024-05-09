@@ -3,6 +3,7 @@ using Backend.Models;
 using Backend.Services;
 using Microsoft.AspNetCore.Mvc;
 using Backend.Helpers;
+using System.IdentityModel.Tokens.Jwt;
 
 
 namespace Backend.Controllers
@@ -64,10 +65,34 @@ namespace Backend.Controllers
         {
             try
             {
-                // Generate slug and create new category
-                category.CategorySlug = SlugGenerator.GenerateSlug(category.CategoryName);
-                var createdCategory = await _categoryService.CreateCategory(category);
-                return CreatedAtAction(nameof(GetCategory), new { id = createdCategory.CategoryId }, createdCategory);
+                if (!Request.Cookies.ContainsKey("jwt"))
+                {
+                    return Unauthorized("Not have any token to access");
+                }
+                else
+                {
+                    var jwt = Request.Cookies["jwt"];
+                    // Validate and decode JWT token to extract claims
+                    var tokenHandler = new JwtSecurityTokenHandler();
+                    var token = tokenHandler.ReadJwtToken(jwt);
+
+                    var isAdminClaim = token.Claims.FirstOrDefault(c => c.Type == "role" && c.Value == "Admin");
+
+                    bool isAdmin = isAdminClaim != null;
+
+                    if (isAdmin)
+                    {
+                        //"Admin access granted"
+                        // Generate slug and create new category
+                        category.CategorySlug = SlugGenerator.GenerateSlug(category.CategoryName);
+                        var createdCategory = await _categoryService.CreateCategory(category);
+                        return CreatedAtAction(nameof(GetCategory), new { id = createdCategory.CategoryId }, createdCategory);
+                    }
+                    else
+                    {
+                        return Unauthorized("You don't have permission to access this endpoint");
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -81,15 +106,39 @@ namespace Backend.Controllers
         {
             try
             {
-                // Call service to update category
-                var updatedCategory = await _categoryService.UpdateCategory(categoryId, categoryDto);
-                if (updatedCategory == null)
+                if (!Request.Cookies.ContainsKey("jwt"))
                 {
-                    return ApiResponse.NotFound("Category was not found");
+                    return Unauthorized("Not have any token to access");
                 }
                 else
                 {
-                    return ApiResponse.Success(updatedCategory, "Update Category successfully");
+                    var jwt = Request.Cookies["jwt"];
+                    // Validate and decode JWT token to extract claims
+                    var tokenHandler = new JwtSecurityTokenHandler();
+                    var token = tokenHandler.ReadJwtToken(jwt);
+
+                    var isAdminClaim = token.Claims.FirstOrDefault(c => c.Type == "role" && c.Value == "Admin");
+
+                    bool isAdmin = isAdminClaim != null;
+
+                    if (isAdmin)
+                    {
+                        //"Admin access granted"
+                        // Call service to update category
+                        var updatedCategory = await _categoryService.UpdateCategory(categoryId, categoryDto);
+                        if (updatedCategory == null)
+                        {
+                            return ApiResponse.NotFound("Category was not found");
+                        }
+                        else
+                        {
+                            return ApiResponse.Success(updatedCategory, "Update Category successfully");
+                        }
+                    }
+                    else
+                    {
+                        return Unauthorized("You don't have permission to access this endpoint");
+                    }
                 }
             }
             catch (Exception ex)
@@ -104,15 +153,39 @@ namespace Backend.Controllers
         {
             try
             {
-                // Call service to delete category
-                var result = await _categoryService.DeleteCategory(categoryId);
-                if (result)
+                if (!Request.Cookies.ContainsKey("jwt"))
                 {
-                    return NoContent();
+                    return Unauthorized("Not have any token to access");
                 }
                 else
                 {
-                    return ApiResponse.NotFound("Category was not found");
+                    var jwt = Request.Cookies["jwt"];
+                    // Validate and decode JWT token to extract claims
+                    var tokenHandler = new JwtSecurityTokenHandler();
+                    var token = tokenHandler.ReadJwtToken(jwt);
+
+                    var isAdminClaim = token.Claims.FirstOrDefault(c => c.Type == "role" && c.Value == "Admin");
+
+                    bool isAdmin = isAdminClaim != null;
+
+                    if (isAdmin)
+                    {
+                        //"Admin access granted"
+                        // Call service to delete category
+                        var result = await _categoryService.DeleteCategory(categoryId);
+                        if (result)
+                        {
+                            return NoContent();
+                        }
+                        else
+                        {
+                            return ApiResponse.NotFound("Category was not found");
+                        }
+                    }
+                    else
+                    {
+                        return Unauthorized("You don't have permission to access this endpoint");
+                    }
                 }
             }
             catch (Exception ex)
