@@ -35,16 +35,16 @@ namespace Backend.Services
                 throw new ApplicationException("An error occurred while retrieving Users.", ex);
             }
         }
-        public async Task<User?> GetUserByIdAsync(int id)
+        public async Task<User?> GetUserByIdAsync(int userId)
         {
             try
             {
-                return await _dbContext.Users.FindAsync(id);
+                return await _dbContext.Users.FindAsync(userId);
             }
             catch (Exception ex)
             {
                 // Handle exception or log error
-                throw new ApplicationException($"An error occurred while retrieving user with ID {id}.", ex);
+                throw new ApplicationException($"An error occurred while retrieving user with ID {userId}.", ex);
             }
         }
 
@@ -64,11 +64,11 @@ namespace Backend.Services
             }
         }
 
-        public async Task<User?> UpdateUserAsync(int id, User user)
+        public async Task<User?> UpdateUserAsync(int userId, User user)
         {
             try
             {
-                var existingUser = await _dbContext.Users.FindAsync(id);
+                var existingUser = await _dbContext.Users.FindAsync(userId);
                 if (existingUser != null)
                 {
                     existingUser.FirstName = user.FirstName ?? existingUser.FirstName;
@@ -89,15 +89,15 @@ namespace Backend.Services
             catch (Exception ex)
             {
                 // Handle exception or log error
-                throw new ApplicationException($"An error occurred while updating user with ID {id}.", ex);
+                throw new ApplicationException($"An error occurred while updating user with ID {userId}.", ex);
             }
         }
 
-        public async Task<bool> DeleteUserAsync(int id)
+        public async Task<bool> DeleteUserAsync(int userId)
         {
             try
             {
-                var userToDelete = await _dbContext.Users.FindAsync(id);
+                var userToDelete = await _dbContext.Users.FindAsync(userId);
                 if (userToDelete != null)
                 {
                     _dbContext.Users.Remove(userToDelete);
@@ -112,7 +112,7 @@ namespace Backend.Services
             catch (Exception ex)
             {
                 // Handle exception or log error
-                throw new ApplicationException($"An error occurred while deleting user with ID {id}.", ex);
+                throw new ApplicationException($"An error occurred while deleting user with ID {userId}.", ex);
             }
         }
     }
