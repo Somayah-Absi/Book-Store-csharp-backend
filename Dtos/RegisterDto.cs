@@ -6,6 +6,8 @@ namespace auth.Dtos
         public string? LastName { set; get; }
         public string? Email { set; get; }
         public string? Password { set; get; }
-        public string? Mobile {set; get;}
+        public string? Mobile { set; get; }
+        public bool? IsAdmin { get; set; } = false;
+        public bool? IsBanned { get; set; } = false;
     }
 }
