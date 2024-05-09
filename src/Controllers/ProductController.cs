@@ -46,12 +46,12 @@ namespace Backend.Controllers
             }
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetProduct(int id)
+        [HttpGet("{ProductId}")]
+        public async Task<IActionResult> GetProduct(int ProductId)
         {
             try
             {
-                var product = await _productService.GetProductByIdAsync(id);
+                var product = await _productService.GetProductByIdAsync(ProductId);
                 if (product != null)
                 {
                     return ApiResponse.Created(product);
@@ -87,18 +87,18 @@ namespace Backend.Controllers
             }
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateProduct(int id, Product product)
+        [HttpPut("{ProductId}")]
+        public async Task<IActionResult> UpdateProduct(int ProductId, Product product)
         {
             try
             {
-                if (product == null || product.ProductId != id)
+                if (product == null || product.ProductId != ProductId)
                 {
                     return ApiResponse.BadRequest("Invalid product data");
                 }
 
                 product.ProductSlug = SlugGenerator.GenerateSlug(product.ProductName);
-                var updatedProduct = await _productService.UpdateProductAsync(id, product);
+                var updatedProduct = await _productService.UpdateProductAsync(ProductId, product);
                 if (updatedProduct == null)
                 {
                     return ApiResponse.NotFound("Product was not found");
@@ -113,12 +113,12 @@ namespace Backend.Controllers
             }
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteProduct(int id)
+        [HttpDelete("{ProductId}")]
+        public async Task<IActionResult> DeleteProduct(int ProductId)
         {
             try
             {
-                var result = await _productService.DeleteProductAsync(id);
+                var result = await _productService.DeleteProductAsync(ProductId);
                 if (result)
                 {
                     return NoContent();

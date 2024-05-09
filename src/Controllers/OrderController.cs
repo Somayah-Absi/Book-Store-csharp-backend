@@ -72,12 +72,12 @@ namespace api.Controllers
             }
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateOrder(int id, Order order)
+        [HttpPut("{OrderId}")]
+        public async Task<IActionResult> UpdateOrder(int OrderId, Order order)
         {
             try
             {
-                var updatedOrder = await _orderService.UpdateOrderService(id, order);
+                var updatedOrder = await _orderService.UpdateOrderService(OrderId, order);
                 if (updatedOrder == null)
                 {
                     return NotFound("Order was not found");

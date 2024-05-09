@@ -48,7 +48,7 @@ namespace Backend.Services
                         OrderProductId = op.OrderProductId,
                         Quantity = op.Quantity,
                         ProductId = op.ProductId,
-                        Product = new ProductDto // Assuming UserDto is your DTO for User
+                        Product = new Product // Assuming UserDto is your DTO for User
                         {
                             ProductId = op.Product.ProductId,
                             ProductName = op.Product.ProductName,

@@ -75,16 +75,16 @@ namespace Backend.Services
             }
         }
 
-        public async Task<Product?> GetProductByIdAsync(int id)
+        public async Task<Product?> GetProductByIdAsync(int ProductId)
         {
             try
             {
-                return await _dbContext.Products.FindAsync(id);
+                return await _dbContext.Products.FindAsync(ProductId);
             }
             catch (Exception ex)
             {
                 // Handle exception or log error
-                throw new ApplicationException($"An error occurred while retrieving product with ID {id}.", ex);
+                throw new ApplicationException($"An error occurred while retrieving product with ID {ProductId}.", ex);
             }
         }
 
@@ -104,11 +104,11 @@ namespace Backend.Services
             }
         }
 
-        public async Task<Product?> UpdateProductAsync(int id, Product product)
+        public async Task<Product?> UpdateProductAsync(int ProductId, Product product)
         {
             try
             {
-                var existingProduct = await _dbContext.Products.FindAsync(id);
+                var existingProduct = await _dbContext.Products.FindAsync(ProductId);
                 if (existingProduct != null)
                 {
                     existingProduct.ProductName = product.ProductName;
@@ -131,15 +131,15 @@ namespace Backend.Services
             catch (Exception ex)
             {
                 // Handle exception or log error
-                throw new ApplicationException($"An error occurred while updating product with ID {id}.", ex);
+                throw new ApplicationException($"An error occurred while updating product with ID {ProductId}.", ex);
             }
         }
 
-        public async Task<bool> DeleteProductAsync(int id)
+        public async Task<bool> DeleteProductAsync(int ProductId)
         {
             try
             {
-                var productToDelete = await _dbContext.Products.FindAsync(id);
+                var productToDelete = await _dbContext.Products.FindAsync(ProductId);
                 if (productToDelete != null)
                 {
                     _dbContext.Products.Remove(productToDelete);
@@ -154,7 +154,7 @@ namespace Backend.Services
             catch (Exception ex)
             {
                 // Handle exception or log error
-                throw new ApplicationException($"An error occurred while deleting product with ID {id}.", ex);
+                throw new ApplicationException($"An error occurred while deleting product with ID {ProductId}.", ex);
             }
         }
         public async Task<IEnumerable<Product>> SearchProductsAsync(string keyword)
