@@ -48,20 +48,12 @@ namespace Backend.Services
                         OrderProductId = op.OrderProductId,
                         Quantity = op.Quantity,
                         ProductId = op.ProductId,
-                        Product = new Product // Assuming UserDto is your DTO for User
+                        Product = new ProductDto // Assuming UserDto is your DTO for User
                         {
                             ProductId = op.Product.ProductId,
                             ProductName = op.Product.ProductName,
-                            ProductSlug = op.Product.ProductSlug,
-                            ProductDescription = op.Product.ProductDescription,
                             ProductPrice = op.Product.ProductPrice,
-                            ProductImage = op.Product.ProductImage,
-                            ProductQuantityInStock = op.Product.ProductQuantityInStock,
-                            CreatedAt = op.Product.CreatedAt,
                             CategoryId = op.Product.CategoryId
-
-
-
                         }
 
                     }).ToList()
@@ -74,11 +66,23 @@ namespace Backend.Services
             }
         }
 
-        public async Task<Order> CreateOrderService(Order newOrder)
+        public async Task<Order> CreateOrderService(Order newOrder, List<OrderedProductDto> products)
         {
             try
             {
                 newOrder.OrderId = await IdGenerator.GenerateIdAsync<Order>(_dbContext);
+
+                // Map ProductDto objects to OrderProduct entities
+                var orderProducts = products.Select(p => new OrderProduct
+                {
+                    Order = newOrder,
+                    ProductId = p.ProductId,
+                    Quantity = p.Quantity
+                });
+
+                // Add orderProducts to newOrder
+                newOrder.OrderProducts = orderProducts.ToList();
+
                 // Add the new order asynchronously
                 _dbContext.Orders.Add(newOrder);
 
@@ -87,13 +91,13 @@ namespace Backend.Services
 
                 // Return the newly created order
                 return newOrder;
-
             }
             catch (Exception ex)
             {
                 throw new ApplicationException("An error occurred while creating Order.", ex);
             }
         }
+
 
         public async Task<Order?> GetOrderByIdService(int orderId)
         {

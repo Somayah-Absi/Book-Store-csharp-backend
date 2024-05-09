@@ -2,6 +2,7 @@ using Backend.Models;
 using Backend.Services;
 using Microsoft.AspNetCore.Mvc;
 using Backend.Helpers;
+using Backend.Dtos;
 
 namespace api.Controllers
 {
@@ -55,16 +56,17 @@ namespace api.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateOrder(Order order)
+        public async Task<IActionResult> CreateOrder([FromBody] OrderCreationDto orderCreationDto)
         {
             try
             {
-                var createdOrder = await _orderService.CreateOrderService(order);
-                var test=CreatedAtAction(nameof(GetOrder), new { id = createdOrder.OrderId }, createdOrder);
-                if (test==null) {
+                var createdOrder = await _orderService.CreateOrderService(orderCreationDto.NewOrder, orderCreationDto.Products);
+                var test = CreatedAtAction(nameof(GetOrder), new { id = createdOrder.OrderId }, createdOrder);
+                if (test == null)
+                {
                     return NotFound("value is null");
-                 }
-                return Ok("created successfully") ;
+                }
+                return Ok("created successfully");
             }
             catch (Exception ex)
             {
@@ -97,9 +99,7 @@ namespace api.Controllers
         public async Task<IActionResult> DeleteOrder(int orderId)
         {
             try
-            {  
-               
-
+            {
                 // Check if the order with orderId exists
                 var existingOrder = await _orderService.GetOrderByIdService(orderId);
                 if (existingOrder == null)
