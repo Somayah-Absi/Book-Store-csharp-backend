@@ -2,7 +2,6 @@ using Backend.Models;
 using Backend.Services;
 using Microsoft.AspNetCore.Mvc;
 using Backend.Helpers;
-using System.Linq.Expressions;
 
 namespace api.Controllers
 {
@@ -18,20 +17,20 @@ namespace api.Controllers
         }
 
         // help to make get request
-        // [HttpGet]
+        [HttpGet]
         // //IActionResult give all status code like :ok,not found.....
-        // public async Task<IActionResult> GetAllOrder()
-        // {
-        //     try
-        //     {
-        //         var orders = await _orderService.GetAllOrdersService();
-        //         return ApiResponse.Success(orders, "All Orders returned successfully");
-        //     }
-        //     catch (Exception e)
-        //     {
-        //         return ApiResponse.BadRequest(e.Message);
-        //     }
-        // }
+        public async Task<IActionResult> GetAllOrder()
+        {
+            try
+            {
+                var orders = await _orderService.GetAllOrdersService();
+                return ApiResponse.Success(orders, "All Orders returned successfully");
+            }
+            catch (Exception e)
+            {
+                return ApiResponse.BadRequest(e.Message);
+            }
+        }
 
         [HttpGet("{orderId}")]
         public async Task<IActionResult> GetOrder(int orderId)
@@ -46,7 +45,7 @@ namespace api.Controllers
                 }
                 else
                 {
-                    return ApiResponse.NotFound();
+                    return ApiResponse.NotFound("order not found");
                 }
             }
             catch (Exception ex)
@@ -61,11 +60,15 @@ namespace api.Controllers
             try
             {
                 var createdOrder = await _orderService.CreateOrderService(order);
-                return CreatedAtAction(nameof(GetOrder), new { id = createdOrder.OrderId }, createdOrder);
+                var test=CreatedAtAction(nameof(GetOrder), new { id = createdOrder.OrderId }, createdOrder);
+                if (test==null) {
+                    return NotFound("value is null");
+                 }
+                return Ok("created successfully") ;
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return NotFound(ex.Message);
             }
         }
 
@@ -77,17 +80,17 @@ namespace api.Controllers
                 var updatedOrder = await _orderService.UpdateOrderService(id, order);
                 if (updatedOrder == null)
                 {
-                    return ApiResponse.NotFound("User was not found");
+                    return NotFound("Order was not found");
 
                 }
                 else
                 {
-                    return Ok( "Update user successfully");
+                    return Ok("Update Order successfully");
                 }
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return ApiResponse.ServerError(ex.Message);
             }
         }
         [HttpDelete("{orderId}")]
@@ -106,7 +109,7 @@ namespace api.Controllers
                 var result = await _orderService.DeleteOrderService(orderId);
                 if (!result)
                 {
-                    return ApiResponse.NotFound();
+                    return ApiResponse.NotFound($"Failed to delete order with ID {orderId}.");
                 }
                 else
                 {

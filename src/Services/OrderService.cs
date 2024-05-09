@@ -1,4 +1,4 @@
-using AutoMapper;
+using System.Text.Json;
 using Backend.Dtos;
 using Backend.Models;
 using Microsoft.EntityFrameworkCore;
@@ -16,28 +16,62 @@ namespace Backend.Services
             _dbContext = appDbContext;
             // _mapper = mapper;
         }
-        // public async Task<IEnumerable<OrderDto>> GetAllOrdersService()
-        // {
-        //     try
-        //     {
-        //         var orderEntities = await _dbContext.Orders
-        //             .Include(o => o.User) // Include the User information
-        //             .ToListAsync();
+        public async Task<IEnumerable<OrderDto>> GetAllOrdersService()
+        {
+            try
+            {
+                var orderEntities = await _dbContext.Orders.Include(o => o.User)
+                .Include(o => o.OrderProducts)
+                .ThenInclude(op => op.Product)
+                .ToListAsync();
 
-        //         // Use AutoMapper to map Order entities to OrderDto
-        //         var orderDtos = _mapper.Map<IEnumerable<OrderDto>>(orderEntities);
+                var orderDtos = orderEntities.Select(o => new OrderDto
+                {
+                    OrderId = o.OrderId,
+                    OrderDate = o.OrderDate,
+                    OrderStatus = o.OrderStatus,
+                    Payment = o.Payment.ValueKind == JsonValueKind.String ? o.Payment.GetString() : null,
+                    UserId = o.UserId,
+                    User = new UserDto // Assuming UserDto is your DTO for User
+                    {
+                        UserId = o.User.UserId,
+                        FirstName = o.User.FirstName,
+                        LastName = o.User.LastName,
+                        Email = o.User.Email,
+                        Mobile = o.User.Mobile,
 
-        //         return orderDtos;
-        //     }
-        //     catch (IOException ex)
-        //     {
-        //         throw new ApplicationException("An error occurred while retrieving orders from the database.", ex);
-        //     }
-        //     catch (Exception ex)
-        //     {
-        //         throw new ApplicationException("An error occurred while creating Order.", ex);
-        //     }
-        // }
+
+                    },
+                    OrderProducts = o.OrderProducts.Select(op => new OrderProductDto
+                    {
+                        OrderProductId = op.OrderProductId,
+                        Quantity = op.Quantity,
+                        ProductId = op.ProductId,
+                        Product = new ProductDto // Assuming UserDto is your DTO for User
+                        {
+                            ProductId = op.Product.ProductId,
+                            ProductName = op.Product.ProductName,
+                            ProductSlug = op.Product.ProductSlug,
+                            ProductDescription = op.Product.ProductDescription,
+                            ProductPrice = op.Product.ProductPrice,
+                            ProductImage = op.Product.ProductImage,
+                            ProductQuantityInStock = op.Product.ProductQuantityInStock,
+                            CreatedAt = op.Product.CreatedAt,
+                            CategoryId = op.Product.CategoryId
+
+
+
+                        }
+
+                    }).ToList()
+                });
+                return orderDtos;
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException("An error occurred while creating Order.", ex);
+            }
+        }
 
         public async Task<Order> CreateOrderService(Order newOrder)
         {
@@ -75,48 +109,32 @@ namespace Backend.Services
         }
 
         public async Task<Order?> UpdateOrderService(int orderId, Order updateOrder)
-{
-    try
-    {
-        // Retrieve the existing order from the database
-        var existingOrder = await _dbContext.Orders.FindAsync(orderId);
-
-        if (existingOrder != null)
         {
-            // Validate the updateOrder parameter (e.g., ensure non-null values, perform business logic checks)
-
-            // Update order properties based on the updateOrder parameter
-            existingOrder.OrderStatus = updateOrder.OrderStatus;
-            existingOrder.Payment = updateOrder.Payment; // Directly assign JsonElement value
-
-            // Save changes to the database within a transaction
-            using (var transaction = await _dbContext.Database.BeginTransactionAsync())
+            try
             {
-                try
+                // Retrieve the existing order from the database
+                var existingOrder = await _dbContext.Orders.FindAsync(orderId);
+
+                if (existingOrder != null)
                 {
+                    existingOrder.OrderStatus = updateOrder.OrderStatus;
+                    existingOrder.Payment = updateOrder.Payment; // Directly assign JsonElement value
+
+                    // Save changes to the database
                     await _dbContext.SaveChangesAsync();
-                    await transaction.CommitAsync();
+
+                    return existingOrder;
                 }
-                catch (Exception ex)
+                else
                 {
-                    await transaction.RollbackAsync();
-                    throw new ApplicationException($"Failed to update order with ID {orderId}. Transaction rolled back.", ex);
+                    return null; // Order with the given ID does not exist
                 }
             }
-
-            return existingOrder;
+            catch (Exception ex)
+            {
+                throw new ApplicationException($"An error occurred while updating Order with ID {orderId}.", ex);
+            }
         }
-        else
-        {
-            return null; // Order with the given ID does not exist
-        }
-    }
-    catch (Exception ex)
-    {
-        throw new ApplicationException($"An error occurred while updating Order with ID {orderId}.", ex);
-    }
-}
-
 
         public async Task<bool> DeleteOrderService(int orderId)
         {
