@@ -10,12 +10,12 @@ namespace Backend.Services
     {
 
         private readonly EcommerceSdaContext _dbContext;
-        // private readonly IMapper _mapper;
+    
 
         public OrderService(EcommerceSdaContext appDbContext)
         {
             _dbContext = appDbContext;
-            // _mapper = mapper;
+          
         }
         public async Task<IEnumerable<OrderDto>> GetAllOrdersService()
         {
@@ -45,9 +45,9 @@ namespace Backend.Services
                     },
                     OrderProducts = o.OrderProducts.Select(op => new OrderProductDto
                     {
-                        OrderProductId = op.OrderProductId,
+                       
                         Quantity = op.Quantity,
-                        ProductId = op.ProductId,
+                       
                         Product = new ProductDto // Assuming UserDto is your DTO for User
                         {
                             ProductId = op.Product.ProductId,
