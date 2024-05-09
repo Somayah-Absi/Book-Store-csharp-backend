@@ -86,7 +86,12 @@ namespace Backend.Controllers
                         // Generate slug and create new category
                         category.CategorySlug = SlugGenerator.GenerateSlug(category.CategoryName);
                         var createdCategory = await _categoryService.CreateCategory(category);
-                        return CreatedAtAction(nameof(GetCategory), new { id = createdCategory.CategoryId }, createdCategory);
+                        var test = CreatedAtAction(nameof(GetCategory), new { id = createdCategory.CategoryId }, createdCategory);
+                        if (test == null)
+                        {
+                            return ApiResponse.NotFound("failed to create a category.");
+                        }
+                        return ApiResponse.Created(test, "created successfully");
                     }
                     else
                     {

@@ -131,9 +131,9 @@ namespace api.Controllers
                         var test = CreatedAtAction(nameof(GetOrder), new { id = createdOrder.OrderId }, createdOrder);
                         if (test == null)
                         {
-                            return NotFound("value is null");
+                            return ApiResponse.NotFound("value is null");
                         }
-                        return Ok("created successfully");
+                        return ApiResponse.Created( "created successfully");
                     }
                     else
                     {
