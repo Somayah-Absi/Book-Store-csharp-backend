@@ -11,21 +11,25 @@ namespace Backend.Services
 
         private readonly EcommerceSdaContext _dbContext;
 
+        // Constructor for OrderService class
 
         public OrderService(EcommerceSdaContext appDbContext)
         {
             _dbContext = appDbContext;
 
         }
+        // Method to get all orders asynchronously
         public async Task<IEnumerable<OrderDto>> GetAllOrdersService()
         {
             try
             {
+                // Retrieve order entities from the database including related entities(user/orderProduct/product)
+
                 var orderEntities = await _dbContext.Orders.Include(o => o.User)
                 .Include(o => o.OrderProducts)
                 .ThenInclude(op => op.Product)
                 .ToListAsync();
-
+                // Map order entities to order DTOs
                 var orderDtos = orderEntities.Select(o => new OrderDto
                 {
                     OrderId = o.OrderId,
@@ -33,7 +37,7 @@ namespace Backend.Services
                     OrderStatus = o.OrderStatus,
                     Payment = o.Payment.ValueKind == JsonValueKind.String ? o.Payment.GetString() : null,
                     UserId = o.UserId,
-                    User = new UserDto // Assuming UserDto is your DTO for User
+                    User = new UserDto
                     {
                         UserId = o.User.UserId,
                         FirstName = o.User.FirstName,
@@ -47,7 +51,7 @@ namespace Backend.Services
 
                         Quantity = op.Quantity,
 
-                        Product = new ProductDto // Assuming UserDto is your DTO for User
+                        Product = new ProductDto
                         {
                             ProductId = op.Product.ProductId,
                             ProductName = op.Product.ProductName,
@@ -64,11 +68,13 @@ namespace Backend.Services
                 throw new ApplicationException("An error occurred while creating Order.", ex);
             }
         }
+        // Method to create a new order asynchronously
 
         public async Task<Order> CreateOrderService(Order newOrder, List<OrderedProductDto> products)
         {
             try
             {
+                // Generate ID for the new order
                 newOrder.OrderId = await IdGenerator.GenerateIdAsync<Order>(_dbContext);
 
                 // Map ProductDto objects to OrderProduct entities
@@ -97,12 +103,14 @@ namespace Backend.Services
             }
         }
 
+        // Method to get an order by ID asynchronously
 
         public async Task<Order?> GetOrderByIdService(int orderId)
         {
 
             try
             {
+                // Retrieve order by ID from the database
                 return await _dbContext.Orders.FindAsync(orderId);
             }
             catch (Exception ex)
@@ -111,20 +119,21 @@ namespace Backend.Services
                 throw new ApplicationException($"An error occurred while retrieving order with ID {orderId}.", ex);
             }
         }
+        // Method to update an existing order asynchronously
 
         public async Task<Order?> UpdateOrderService(int orderId, Order updateOrder)
         {
             try
             {
-                // Retrieve the existing order from the database
+                //1- Retrieve the existing order from the database
                 var existingOrder = await _dbContext.Orders.FindAsync(orderId);
-
+                //2- Update properties of the existing order
                 if (existingOrder != null)
                 {
                     existingOrder.OrderStatus = updateOrder.OrderStatus;
-                    existingOrder.Payment = updateOrder.Payment; // Directly assign JsonElement value
+                    existingOrder.Payment = updateOrder.Payment; //3- Directly assign JsonElement value
 
-                    // Save changes to the database
+                    // 4-Save changes to the database
                     await _dbContext.SaveChangesAsync();
 
                     return existingOrder;
@@ -139,18 +148,21 @@ namespace Backend.Services
                 throw new ApplicationException($"An error occurred while updating Order with ID {orderId}.", ex);
             }
         }
+        // Method to delete an order asynchronously
 
         public async Task<bool> DeleteOrderService(int orderId)
         {
             try
             {
-                var deleteOrder = await _dbContext.Orders.FirstOrDefaultAsync(order => order.OrderId == orderId);
+                // Find order to delete from the database
 
+                var deleteOrder = await _dbContext.Orders.FirstOrDefaultAsync(order => order.OrderId == orderId);
+                // Delete the order if found
                 if (deleteOrder != null)
                 {
                     _dbContext.Orders.Remove(deleteOrder);
                     await _dbContext.SaveChangesAsync();
-                    return true;
+                    return true;// Deletion successful
                 }
                 else
                 {
