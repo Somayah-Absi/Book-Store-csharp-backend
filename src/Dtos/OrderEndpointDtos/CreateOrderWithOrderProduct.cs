@@ -12,8 +12,8 @@ namespace Backend.Dtos
 
     public class OrderCreationDto
     {
-        public Order NewOrder { get; set; }
-        public List<OrderedProductDto> Products { get; set; }
+        public Order NewOrder { get; set; } = null!;
+        public List<OrderedProductDto> Products { get; set; } = null!;
     }
 
 }

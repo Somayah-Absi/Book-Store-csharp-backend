@@ -98,12 +98,12 @@ namespace Backend.Controllers
 
                         product.ProductSlug = SlugGenerator.GenerateSlug(product.ProductName);
                         var createdProduct = await _productService.CreateProductAsync(product);
-                        var test = CreatedAtAction(nameof(GetProduct), new { id = createdProduct.ProductId }, createdProduct);
+                        var test = CreatedAtAction(nameof(GetProduct), new { productId = createdProduct.ProductId }, createdProduct);
                         if (test == null)
                         {
                             return ApiResponse.NotFound("Failed to create a product");
                         }
-                        return ApiResponse.Created("Product created successfully");
+                        return ApiResponse.Created(product, "Product created successfully");
                     }
                     else
                     {

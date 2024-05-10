@@ -36,7 +36,7 @@ namespace auth.Controllers
                 Mobile = dto.Mobile,
             };
 
-            return Created("Successfully Registered ✔️", _repository.Create(user));
+            return Created("Successfully Registered", _repository.Create(user));
         }
 
 

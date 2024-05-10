@@ -124,12 +124,12 @@ namespace Backend.Controllers
                     {
                         //"Admin access granted"
                         var createdUser = await _userService.CreateUserAsync(user);
-                        var test = CreatedAtAction(nameof(GetUser), new { id = createdUser.UserId }, createdUser);
+                        var test = CreatedAtAction(nameof(GetUser), new { userId = createdUser.UserId }, createdUser);
                         if (test == null)
                         {
                             return ApiResponse.NotFound("Failed to create a user");
                         }
-                        return ApiResponse.Created("User created successfully");
+                        return ApiResponse.Created(user, "User created successfully");
                     }
                     else
                     {

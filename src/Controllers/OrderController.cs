@@ -128,12 +128,12 @@ namespace api.Controllers
                     {
                         //"Admin access granted"
                         var createdOrder = await _orderService.CreateOrderService(orderCreationDto.NewOrder, orderCreationDto.Products);
-                        var test = CreatedAtAction(nameof(GetOrder), new { id = createdOrder.OrderId }, createdOrder);
+                        var test = CreatedAtAction(nameof(GetOrder), new { orderId = createdOrder.OrderId }, createdOrder);
                         if (test == null)
                         {
                             return ApiResponse.NotFound("Failed to create an order");
                         }
-                        return ApiResponse.Created("Order created successfully");
+                        return ApiResponse.Created(orderCreationDto, "Order created successfully");
                     }
                     else
                     {
