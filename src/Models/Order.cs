@@ -17,6 +17,7 @@ namespace Backend.Models
         [Required(ErrorMessage = "OrderStatus is required.")]
         public string OrderStatus { get; set; } = null!;
 
+
         [Required(ErrorMessage = "Payment method is required.")]
         [JsonConverter(typeof(CustomJsonConverter))] // Apply CustomJsonConverter to the Payment property
         public JsonElement Payment { get; set; }
@@ -29,9 +30,10 @@ namespace Backend.Models
         [JsonIgnore]
         public virtual User? User { get; set; }
     }
-
+    // CustomJsonConverter class for handling JsonElement conversion
     public class CustomJsonConverter : JsonConverter<JsonElement>
     {
+        // these write and read methods will invokes automatically
         public override JsonElement Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             // Implement custom deserialization logic if needed
