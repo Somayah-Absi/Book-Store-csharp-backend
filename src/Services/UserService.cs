@@ -8,16 +8,19 @@ namespace Backend.Services
     {
         private readonly EcommerceSdaContext _dbContext;
 
+        // Constructor for initializing the UserService with the provided database context.
         public UserService(EcommerceSdaContext dbContext)
         {
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
-
+        // Converts fetched database data (users) into DTOs by selecting/mapping specific properties and creating new objects.
         public async Task<IEnumerable<GetUserDto>> GetAllUsersAsync()
         {
             try
             {
+                // fetches all users from the database
                 var users = await _dbContext.Users.ToListAsync();
+                // Map fetched database entities to DTOs by selecting specific properties
                 var userDtos = users.Select(u => new GetUserDto
                 {
                     UserId = u.UserId,
@@ -52,6 +55,7 @@ namespace Backend.Services
         {
             try
             {
+                // Generate a unique identifier for the user using IdGenerator helper.
                 user.UserId = await IdGenerator.GenerateIdAsync<User>(_dbContext);
                 _dbContext.Users.Add(user);
                 await _dbContext.SaveChangesAsync();

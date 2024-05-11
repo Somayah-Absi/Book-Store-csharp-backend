@@ -13,11 +13,13 @@ namespace Backend.Controllers
     {
         private readonly UserService _userService;
 
+        // Constructor to initialize UserService
         public UserController(UserService userService)
         {
             _userService = userService ?? throw new ArgumentNullException(nameof(userService));
         }
 
+        // Endpoint to retrieve all Users
         [HttpGet]
         public async Task<IActionResult> GetAllUsers()
         {
