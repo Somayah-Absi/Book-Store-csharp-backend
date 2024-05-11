@@ -1,34 +1,35 @@
-using Backend.Dtos;
-using Backend.Models;
-using Microsoft.EntityFrameworkCore;
-using Backend.Helpers;
+using Backend.Dtos; // Importing DTOs namespace for data transfer objects
+using Backend.Models; // Importing models namespace for Product model
+using Microsoft.EntityFrameworkCore; // Importing Entity Framework Core namespace
+using Backend.Helpers; // Importing helpers namespace for utility functions
 
-namespace Backend.Services
+namespace Backend.Services // Defining namespace for services
 {
-    public class ProductService
+    public class ProductService // ProductService class for handling product-related operations
     {
-        private readonly EcommerceSdaContext _dbContext;
+        private readonly EcommerceSdaContext _dbContext; // Database context for interacting with database
 
-        public ProductService(EcommerceSdaContext dbContext)
+        public ProductService(EcommerceSdaContext dbContext) // Constructor for injecting database context dependency
         {
-            _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+            _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext)); // Null check for dbContext
         }
 
+        // Method for retrieving all products with pagination and filtering
         public async Task<PaginationResult<Product>> GetAllProductsAsync(
-            string? productName = null,
-            decimal? minPrice = null,
-            decimal? maxPrice = null,
-            DateTime? createDate = null,
-            string sortBy = "id",
-            bool ascending = true,
-            int pageNumber = 1,
-            int pageSize = 10)
+            string? productName = null, // Optional parameter for filtering by product name
+            decimal? minPrice = null, // Optional parameter for filtering by minimum price
+            decimal? maxPrice = null, // Optional parameter for filtering by maximum price
+            DateTime? createDate = null, // Optional parameter for filtering by creation date
+            string sortBy = "id", // Optional parameter for sorting
+            bool ascending = true, // Optional parameter for sorting order
+            int pageNumber = 1, // Optional parameter for pagination - page number
+            int pageSize = 10) // Optional parameter for pagination - page size
         {
             try
             {
-                var query = _dbContext.Products.AsQueryable();
+                var query = _dbContext.Products.AsQueryable(); // Creating queryable object for products
 
-                // Apply filters
+                // Apply filters based on provided parameters
                 if (!string.IsNullOrEmpty(productName))
                 {
                     var productNameLower = productName.ToLower();
@@ -44,7 +45,7 @@ namespace Backend.Services
                 if (createDate.HasValue)
                     query = query.Where(p => p.CreatedAt >= createDate);
 
-                // Apply sorting
+                // Apply sorting based on provided sortBy parameter
                 query = sortBy.ToLower() switch
                 {
                     "price" => ascending ? query.OrderBy(p => p.ProductPrice) : query.OrderByDescending(p => p.ProductPrice),
@@ -59,8 +60,8 @@ namespace Backend.Services
                 // Apply pagination
                 query = query.Skip((pageNumber - 1) * pageSize).Take(pageSize);
 
-                var items = await query.ToListAsync();
-                return new PaginationResult<Product>
+                var items = await query.ToListAsync(); // Execute query to retrieve paginated products
+                return new PaginationResult<Product> // Return pagination result
                 {
                     Items = items,
                     TotalCount = totalCount,
@@ -75,11 +76,12 @@ namespace Backend.Services
             }
         }
 
+        // Method for retrieving a product by its ID
         public async Task<Product?> GetProductByIdAsync(int ProductId)
         {
             try
             {
-                return await _dbContext.Products.FindAsync(ProductId);
+                return await _dbContext.Products.FindAsync(ProductId); // Retrieve product by ID using Entity Framework
             }
             catch (Exception ex)
             {
@@ -88,14 +90,15 @@ namespace Backend.Services
             }
         }
 
+        // Method for creating a new product
         public async Task<Product> CreateProductAsync(Product product)
         {
             try
             {
-                product.ProductId = await IdGenerator.GenerateIdAsync<Product>(_dbContext);
-                _dbContext.Products.Add(product);
-                await _dbContext.SaveChangesAsync();
-                return product;
+                product.ProductId = await IdGenerator.GenerateIdAsync<Product>(_dbContext); // Generate ID for the new product
+                _dbContext.Products.Add(product); // Add product to the database context
+                await _dbContext.SaveChangesAsync(); // Save changes to the database
+                return product; // Return the created product
             }
             catch (Exception ex)
             {
@@ -104,13 +107,15 @@ namespace Backend.Services
             }
         }
 
+        // Method for updating an existing product
         public async Task<Product?> UpdateProductAsync(int ProductId, Product product)
         {
             try
             {
-                var existingProduct = await _dbContext.Products.FindAsync(ProductId);
-                if (existingProduct != null)
+                var existingProduct = await _dbContext.Products.FindAsync(ProductId); // Find the existing product by ID
+                if (existingProduct != null) // Check if the product exists
                 {
+                    // Update product properties with new values
                     existingProduct.ProductName = product.ProductName;
                     existingProduct.ProductSlug = SlugGenerator.GenerateSlug(product.ProductName);
                     existingProduct.ProductDescription = product.ProductDescription;
@@ -120,12 +125,12 @@ namespace Backend.Services
                     existingProduct.CreatedAt = product.CreatedAt;
                     existingProduct.CategoryId = product.CategoryId;
 
-                    await _dbContext.SaveChangesAsync();
-                    return existingProduct;
+                    await _dbContext.SaveChangesAsync(); // Save changes to the database
+                    return existingProduct; // Return the updated product
                 }
                 else
                 {
-                    return null;
+                    return null; // Return null if the product does not exist
                 }
             }
             catch (Exception ex)
@@ -135,20 +140,21 @@ namespace Backend.Services
             }
         }
 
+        // Method for deleting a product by its ID
         public async Task<bool> DeleteProductAsync(int ProductId)
         {
             try
             {
-                var productToDelete = await _dbContext.Products.FindAsync(ProductId);
-                if (productToDelete != null)
+                var productToDelete = await _dbContext.Products.FindAsync(ProductId); // Find the product to delete by ID
+                if (productToDelete != null) // Check if the product exists
                 {
-                    _dbContext.Products.Remove(productToDelete);
-                    await _dbContext.SaveChangesAsync();
-                    return true;
+                    _dbContext.Products.Remove(productToDelete); // Remove the product from the database context
+                    await _dbContext.SaveChangesAsync(); // Save changes to the database
+                    return true; // Return true indicating successful deletion
                 }
                 else
                 {
-                    return false;
+                    return false; // Return false indicating that the product was not found
                 }
             }
             catch (Exception ex)
@@ -157,21 +163,23 @@ namespace Backend.Services
                 throw new ApplicationException($"An error occurred while deleting product with ID {ProductId}.", ex);
             }
         }
+
+        // Method for searching products by keyword
         public async Task<IEnumerable<Product>> SearchProductsAsync(string keyword)
         {
             try
             {
-                if (string.IsNullOrEmpty(keyword))
+                if (string.IsNullOrEmpty(keyword)) // Check if the keyword is null or empty
                 {
                     // If no keyword provided, return all products
-                    return await _dbContext.Products.ToListAsync();
+                    return await _dbContext.Products.ToListAsync(); // Retrieve all products from the database
                 }
                 else
                 {
                     // Search products based on keyword in ProductName or ProductDescription
                     return await _dbContext.Products
                         .Where(p => p.ProductName.Contains(keyword) || p.ProductDescription.Contains(keyword))
-                        .ToListAsync();
+                        .ToListAsync(); // Retrieve products matching the search criteria from the database
                 }
             }
             catch (Exception ex)
