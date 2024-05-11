@@ -9,19 +9,21 @@ namespace Backend.Models
     {
         [Key]
         [Required(ErrorMessage = "OrderId is required.")]
+        [JsonIgnore]
         public int OrderId { get; set; }
 
         [JsonIgnore]
         public DateTime? OrderDate { get; set; }
 
         [Required(ErrorMessage = "OrderStatus is required.")]
+        [RegularExpression("^(Canceled|Closure|Processing)$", ErrorMessage = "OrderStatus must be Canceled, Closure, or Processing.")]
         public string OrderStatus { get; set; } = null!;
 
 
         [Required(ErrorMessage = "Payment method is required.")]
         [JsonConverter(typeof(CustomJsonConverter))] // Apply CustomJsonConverter to the Payment property
+        [RegularExpression("^(Cash On Delivery|Credit Card)$", ErrorMessage = "Payment must be Cash On Delivery or Credit Card.")]
         public JsonElement Payment { get; set; }
-
         public int? UserId { get; set; }
 
         [JsonIgnore]

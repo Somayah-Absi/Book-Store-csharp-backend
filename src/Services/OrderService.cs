@@ -69,7 +69,6 @@ namespace Backend.Services
             }
         }
         // Method to create a new order asynchronously
-
         public async Task<Order> CreateOrderService(Order newOrder, List<OrderedProductDto> products)
         {
             try

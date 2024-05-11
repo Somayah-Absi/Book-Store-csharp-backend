@@ -131,8 +131,7 @@ namespace api.Controllers
                     var tokenHandler = new JwtSecurityTokenHandler();
                     var token = tokenHandler.ReadJwtToken(jwt);
 
-                    var isAdminClaim = token.Claims.FirstOrDefault(c => c.Type == "role" && c.Value == "User");
-
+                    var isAdminClaim = token.Claims.FirstOrDefault(c => c.Type == "role" && c.Value == "Admin");
                     bool isAdmin = isAdminClaim != null;
 
                     if (isAdmin)
@@ -181,7 +180,7 @@ namespace api.Controllers
                     var tokenHandler = new JwtSecurityTokenHandler();
                     var token = tokenHandler.ReadJwtToken(jwt);
 
-                    var isAdminClaim = token.Claims.FirstOrDefault(c => c.Type == "role" && c.Value == "User");
+                    var isAdminClaim = token.Claims.FirstOrDefault(c => c.Type == "role" && c.Value == "Admin");
 
                     bool isAdmin = isAdminClaim != null;
 
@@ -235,7 +234,7 @@ namespace api.Controllers
                     var tokenHandler = new JwtSecurityTokenHandler();
                     var token = tokenHandler.ReadJwtToken(jwt);
 
-                    var isAdminClaim = token.Claims.FirstOrDefault(c => c.Type == "role" && c.Value == "User");
+                    var isAdminClaim = token.Claims.FirstOrDefault(c => c.Type == "role" && c.Value == "Admin");
 
                     bool isAdmin = isAdminClaim != null;
 

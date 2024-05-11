@@ -17,13 +17,10 @@ namespace Backend.Models
         [RegularExpression("^[a-z0-9-]+$", ErrorMessage = "Category slug can only contain lowercase letters, numbers, and hyphens.")]
         public string CategorySlug { get; set; } = null!;
 
-        [StringLength(500, ErrorMessage = "Category description cannot exceed 500 characters.")]
+        [StringLength(100, ErrorMessage = "Category description cannot exceed 100 characters.")]
         public string? CategoryDescription { get; set; }
 
         [JsonIgnore]
-        [Display(Name = "Created At")]
-        [DataType(DataType.DateTime)]
-        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd HH:mm:ss}", ApplyFormatInEditMode = true)]
         public DateTime CreatedAt { get; set; } = DateTime.Now;
 
         // Relationships

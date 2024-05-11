@@ -5,15 +5,15 @@ namespace Backend.Models
 {
     public class Product
     {
+        [JsonIgnore]
         public int ProductId { get; set; }
 
         [Required(ErrorMessage = "Product name is required")]
         public string ProductName { get; set; } = null!;
-
+        [JsonIgnore]
         [Required(ErrorMessage = "Product slug is required")]
         [RegularExpression("^[a-z0-9-]+$", ErrorMessage = "Product slug can only contain lowercase letters, numbers, and hyphens.")]
         public string? ProductSlug { get; set; }
-
         [Required(ErrorMessage = "Product description is required")]
         public string ProductDescription { get; set; } = null!;
 

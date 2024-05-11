@@ -3,6 +3,7 @@ using Backend.Services;
 using Microsoft.AspNetCore.Mvc;
 using Backend.Helpers;
 using System.IdentityModel.Tokens.Jwt;
+using Backend.Dtos;
 
 namespace Backend.Controllers
 {
@@ -123,6 +124,8 @@ namespace Backend.Controllers
                     if (isAdmin)
                     {
                         //"Admin access granted"
+                        string hashedPassword = BCrypt.Net.BCrypt.HashPassword(user.Password);
+                        user.Password = hashedPassword;
                         var createdUser = await _userService.CreateUserAsync(user);
                         var test = CreatedAtAction(nameof(GetUser), new { userId = createdUser.UserId }, createdUser);
                         if (test == null)
@@ -144,7 +147,7 @@ namespace Backend.Controllers
         }
 
         [HttpPut("{userId}")]
-        public async Task<IActionResult> UpdateUser(int userId, User user)
+        public async Task<IActionResult> UpdateUser(int userId, UpdateUserDto updateUserDto)
         {
             try
             {
@@ -166,7 +169,51 @@ namespace Backend.Controllers
                     if (isAdmin)
                     {
                         //"Admin access granted"
-                        var updatedUser = await _userService.UpdateUserAsync(userId, user);
+                        // Fetch the existing user from the database
+                        var existingUser = await _userService.GetUserByIdAsync(userId);
+                        if (existingUser == null)
+                        {
+                            return ApiResponse.NotFound("User was not found");
+                        }
+                        // Update only the properties that are provided in the DTO
+                        if (updateUserDto.FirstName != null)
+                        {
+                            existingUser.FirstName = updateUserDto.FirstName;
+                        }
+
+                        if (updateUserDto.LastName != null)
+                        {
+                            existingUser.LastName = updateUserDto.LastName;
+                        }
+
+                        if (updateUserDto.Email != null)
+                        {
+                            existingUser.Email = updateUserDto.Email;
+                        }
+
+                        if (updateUserDto.Mobile != null)
+                        {
+                            existingUser.Mobile = updateUserDto.Mobile;
+                        }
+
+                        if (updateUserDto.Password != null)
+                        {
+                            // Hash the new password before updating
+                            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(updateUserDto.Password);
+                            existingUser.Password = hashedPassword;
+                        }
+
+                        if (updateUserDto.IsAdmin != null)
+                        {
+                            existingUser.IsAdmin = updateUserDto.IsAdmin;
+                        }
+
+                        if (updateUserDto.IsBanned != null)
+                        {
+                            existingUser.IsBanned = updateUserDto.IsBanned;
+                        }
+                        //"Admin access granted"
+                        var updatedUser = await _userService.UpdateUserAsync(userId, existingUser);
                         if (updatedUser == null)
                         {
                             return ApiResponse.NotFound("User was not found");
