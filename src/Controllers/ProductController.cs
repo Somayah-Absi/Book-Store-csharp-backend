@@ -1,4 +1,5 @@
 using System.IdentityModel.Tokens.Jwt; // Importing namespace for JWT token handling
+using Backend.Dtos;
 using Backend.Helpers; // Importing helpers namespace for utility functions
 using Backend.Models; // Importing models namespace for Product model
 using Backend.Services; // Importing services namespace for ProductService
@@ -92,7 +93,7 @@ namespace Backend.Controllers // Defining namespace for controller
 
         // Action method for creating a new product
         [HttpPost] // HTTP POST method attribute
-        public async Task<IActionResult> CreateProduct(Product? product) // Action method for creating a new product
+        public async Task<IActionResult> CreateProduct(CreateProductDto productDto) // Action method for creating a new product
         {
             try
             {
@@ -116,10 +117,21 @@ namespace Backend.Controllers // Defining namespace for controller
                     if (isAdmin) // Check if user is admin
                     {
                         //"Admin access granted"
-                        if (product == null) // Check if product data is null
+                        if (productDto == null) // Check if product data is null
                         {
                             return ApiResponse.BadRequest("Product data is null"); // Return bad request response
                         }
+
+                        var product = new Product
+                        {
+                            ProductName = productDto.ProductName,
+                            ProductDescription = productDto.ProductDescription,
+                            ProductPrice = productDto.ProductPrice,
+                            ProductImage = productDto.ProductImage,
+                            ProductQuantityInStock = productDto.ProductQuantityInStock,
+                            CategoryId = productDto.CategoryId,
+                            // Other properties as needed
+                        };
 
                         product.ProductSlug = SlugGenerator.GenerateSlug(product.ProductName); // Generate slug for product
                         var createdProduct = await _productService.CreateProductAsync(product); // Create product using service
@@ -132,7 +144,7 @@ namespace Backend.Controllers // Defining namespace for controller
                         {
                             return ApiResponse.NotFound("Failed to create a product"); // Return not found response if product creation failed
                         }
-                        return ApiResponse.Created(product, "Product created successfully"); // Return success response with created product
+                        return ApiResponse.Created(productDto, "Product created successfully"); // Return success response with created product
                     }
                     else
                     {

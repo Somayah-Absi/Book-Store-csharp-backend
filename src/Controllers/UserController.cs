@@ -104,7 +104,7 @@ namespace Backend.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateUser(User user)
+        public async Task<IActionResult> CreateUser(CreateUserDto userDto)
         {
             try
             {
@@ -126,15 +126,24 @@ namespace Backend.Controllers
                     if (isAdmin)
                     {
                         //"Admin access granted"
-                        string hashedPassword = BCrypt.Net.BCrypt.HashPassword(user.Password);
-                        user.Password = hashedPassword;
+                        var user = new User
+                        {
+                            FirstName = userDto.FirstName,
+                            LastName = userDto.LastName,
+                            Email = userDto.Email,
+                            Password = BCrypt.Net.BCrypt.HashPassword(userDto.Password),
+                            Mobile = userDto.Mobile,
+                            IsAdmin = userDto.IsAdmin,
+                            IsBanned = userDto.IsBanned
+                        };
+                        // Create the user
                         var createdUser = await _userService.CreateUserAsync(user);
                         var test = CreatedAtAction(nameof(GetUser), new { userId = createdUser.UserId }, createdUser);
                         if (test == null)
                         {
                             return ApiResponse.NotFound("Failed to create a user");
                         }
-                        return ApiResponse.Created(user, "User created successfully");
+                        return ApiResponse.Created(userDto, "User created successfully");
                     }
                     else
                     {

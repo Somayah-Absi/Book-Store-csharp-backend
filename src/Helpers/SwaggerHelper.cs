@@ -27,7 +27,7 @@ namespace Backend.Helpers
             var examplesDictionary = new Dictionary<string, OpenApiExample>();
 
             // Check if the request DTO type is for registration
-            if (requestDtoType.Name.Contains("RegisterDto"))
+            if (requestDtoType.Name.Contains("RegisterDto") || requestDtoType.Name.Contains("CreateUserDto"))
             {
                 // Example data for registration request
                 var registrationExample = new OpenApiObject
@@ -46,6 +46,14 @@ namespace Backend.Helpers
                     Summary = "Register User Example",
                     Description = "An example of a request body for registering a new user."
                 });
+
+                // If the request DTO type is CreateUserDto, include IsAdmin and IsBanned properties
+                if (requestDtoType.Name.Contains("CreateUserDto"))
+                {
+                    // Add IsAdmin and IsBanned properties to the example
+                    registrationExample.Add("isAdmin", new OpenApiBoolean(false));
+                    registrationExample.Add("isBanned", new OpenApiBoolean(false));
+                }
             }
             // Check if the request DTO type is for creating an order
             else if (requestDtoType.Name.Contains("OrderCreationDto"))
@@ -93,6 +101,28 @@ namespace Backend.Helpers
                     Value = categoryCreationExample,
                     Summary = "Create Category Example",
                     Description = "An example of a request body for creating a new category."
+                });
+            }
+            else if (requestDtoType.Name.Contains("CreateProductDto"))
+            {
+                // Example data for creating a product request
+                var productCreationExample = new OpenApiObject
+                {
+                    ["productName"] = new OpenApiString("Laptop Example"),
+                    ["productSlug"] = new OpenApiString("laptop-example"),
+                    ["productDescription"] = new OpenApiString("An example laptop description."),
+                    ["productPrice"] = new OpenApiDouble(999.99),
+                    ["productImage"] = new OpenApiString("https://example.com/image.jpg"),
+                    ["productQuantityInStock"] = new OpenApiInteger(10),
+                    ["categoryId"] = new OpenApiInteger(6),
+                };
+
+                // Add create product example to the dictionary
+                examplesDictionary.Add("productCreationExample", new OpenApiExample
+                {
+                    Value = productCreationExample,
+                    Summary = "Create Product Example",
+                    Description = "An example of a request body for creating a new product."
                 });
             }
 
