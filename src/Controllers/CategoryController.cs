@@ -61,7 +61,7 @@ namespace Backend.Controllers
 
         // Endpoint to create a new category
         [HttpPost]
-        public async Task<IActionResult> CreateCategory(Category category)
+        public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryDto createCategoryDto)
         {
             try
             {
@@ -84,14 +84,20 @@ namespace Backend.Controllers
                     {
                         //"Admin access granted"
                         // Generate slug and create new category
-                        category.CategorySlug = SlugGenerator.GenerateSlug(category.CategoryName);
+                        var category = new Category
+                        {
+                            CategoryName = createCategoryDto.CategoryName,
+                            CategorySlug = SlugGenerator.GenerateSlug(createCategoryDto.CategoryName),
+                            CategoryDescription = createCategoryDto.CategoryDescription
+                        };
+
                         var createdCategory = await _categoryService.CreateCategory(category);
                         var test = CreatedAtAction(nameof(GetCategory), new { categoryId = createdCategory.CategoryId }, createdCategory);
                         if (test == null)
                         {
                             return ApiResponse.NotFound("Failed to create a category");
                         }
-                        return ApiResponse.Created(category, "Category created successfully");
+                        return ApiResponse.Created(createCategoryDto, "Category created successfully");
                     }
                     else
                     {

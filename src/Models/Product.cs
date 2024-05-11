@@ -10,7 +10,6 @@ namespace Backend.Models
 
         [Required(ErrorMessage = "Product name is required")]
         public string ProductName { get; set; } = null!;
-        [JsonIgnore]
         [Required(ErrorMessage = "Product slug is required")]
         [RegularExpression("^[a-z0-9-]+$", ErrorMessage = "Product slug can only contain lowercase letters, numbers, and hyphens.")]
         public string? ProductSlug { get; set; }

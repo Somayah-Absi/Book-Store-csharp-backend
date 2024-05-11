@@ -76,6 +76,24 @@ namespace Backend.Helpers
                     Summary = "Create Order Example",
                     Description = "An example of a request body for creating a new order."
                 });
+            } // Check if the request DTO type is for creating a category
+            else if (requestDtoType.Name.Contains("CreateCategoryDto"))
+            {
+                // Example data for creating a category request
+                var categoryCreationExample = new OpenApiObject
+                {
+                    ["categoryName"] = new OpenApiString("Home & Garden"),
+                    ["categorySlug"] = new OpenApiString("home-and-garden"),
+                    ["categoryDescription"] = new OpenApiString("Transform your living space into a sanctuary with our Home & Garden essentials. From stylish decor to practical tools, create a space that reflects your personality and style.")
+                };
+
+                // Add create category example to the dictionary
+                examplesDictionary.Add("categoryCreationExample", new OpenApiExample
+                {
+                    Value = categoryCreationExample,
+                    Summary = "Create Category Example",
+                    Description = "An example of a request body for creating a new category."
+                });
             }
 
             // Assign the examples dictionary to the request body content
