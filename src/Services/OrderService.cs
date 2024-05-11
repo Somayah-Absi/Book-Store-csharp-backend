@@ -74,7 +74,7 @@ namespace Backend.Services
             try
             {
                 // Generate ID for the new order
-                newOrder.OrderId = await IdGenerator.GenerateIdAsync<Order>(_dbContext);
+                // newOrder.OrderId = await IdGenerator.GenerateIdAsync<Order>(_dbContext);
 
                 // Map ProductDto objects to OrderProduct entities
                 var orderProducts = products.Select(p => new OrderProduct

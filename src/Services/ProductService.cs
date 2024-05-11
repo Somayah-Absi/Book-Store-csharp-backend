@@ -95,7 +95,7 @@ namespace Backend.Services // Defining namespace for services
         {
             try
             {
-                product.ProductId = await IdGenerator.GenerateIdAsync<Product>(_dbContext); // Generate ID for the new product
+                // product.ProductId = await IdGenerator.GenerateIdAsync<Product>(_dbContext); // Generate ID for the new product
                 _dbContext.Products.Add(product); // Add product to the database context
                 await _dbContext.SaveChangesAsync(); // Save changes to the database
                 return product; // Return the created product

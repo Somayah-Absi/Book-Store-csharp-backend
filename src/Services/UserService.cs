@@ -56,7 +56,7 @@ namespace Backend.Services
             try
             {
                 // Generate a unique identifier for the user using IdGenerator helper.
-                user.UserId = await IdGenerator.GenerateIdAsync<User>(_dbContext);
+                // user.UserId = await IdGenerator.GenerateIdAsync<User>(_dbContext);
                 _dbContext.Users.Add(user);
                 await _dbContext.SaveChangesAsync();
                 return user;
