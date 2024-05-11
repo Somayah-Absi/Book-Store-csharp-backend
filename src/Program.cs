@@ -1,5 +1,6 @@
 using auth.Data;
 using auth.Helpers;
+using Backend.Helpers;
 using Backend.Models;
 using Backend.Services;
 using Microsoft.EntityFrameworkCore;
@@ -15,6 +16,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "Backend Teamwork API", Version = "v1" });
+    c.AddSwaggerExamples();
 });
 
 builder.Services.AddScoped<CategoryService>();
