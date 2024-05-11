@@ -4,18 +4,26 @@ using Backend.Helpers;
 using Backend.Models;
 using Backend.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.OpenApi.Models;
 
 /**
 
 Set up the infrastructure for a backend API, including service registration, 
 database context configuration, middleware setup, and controller mapping and integrate 
-Swagger for API documentation in the development environment.
+Swagger for API documentation in the development environment, with CORS configuration 
+and error handling middleware.
 */
+
 var builder = WebApplication.CreateBuilder(args);
+
+// Add services
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "Backend Teamwork API", Version = "v1" });
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Backend Teamwork API", Version = "v1" });
     c.AddSwaggerExamples();
 });
 
@@ -25,14 +33,26 @@ builder.Services.AddScoped<OrderService>();
 builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<JwtService>();
-builder.Services.AddCors();
+
+// CORS configuration
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("CorsPolicy",
+        builder => builder.WithOrigins("http://localhost:3000", "http://localhost:8080", "http://localhost:4200")
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials());
+});
 
 builder.Services.AddControllers();
+
+// Database context configuration
 builder.Services.AddDbContext<EcommerceSdaContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var app = builder.Build();
 
+// Development specific configurations
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -42,20 +62,27 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-// Middleware is configured to redirect HTTP requests to HTTPS in order to enforce secure communication.
+// Middleware setup
 app.UseHttpsRedirection();
 
-
-app.UseRouting();
-
-app.UseCors(options => options
-    .WithOrigins(new[] { "http://localhost:3000", "http://localhost:8080", "http://localhost:4200" })
-    .AllowAnyHeader()
-    .AllowAnyMethod()
-    .AllowCredentials()
-);
-
+// Authentication and Authorization setup
+app.UseAuthentication();
 app.UseAuthorization();
 
+// CORS setup
+app.UseCors("CorsPolicy");
+
+// Error handling middleware
+app.UseExceptionHandler(errorApp =>
+{
+    errorApp.Run(async context =>
+    {
+        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+        await context.Response.WriteAsync("An unexpected error occurred.");
+    });
+});
+
+// Finalize setup and start listening for incoming requests
 app.MapControllers();
 app.Run();
+
