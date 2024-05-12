@@ -8,11 +8,13 @@ namespace auth.Data
     {
         private readonly EcommerceSdaContext _appDbContext;
 
+        // Constructor
         public UserRepository(EcommerceSdaContext context)
         {
             _appDbContext = context;
         }
 
+        // Adds a new user to the database
         public User Create(User user)
         {
             _appDbContext.Users.Add(user);
@@ -21,6 +23,7 @@ namespace auth.Data
             return user;
         }
 
+        // Retrieves a user by email from the database
         public User GetByEmail(string email)
         {
             var user = _appDbContext.Users.FirstOrDefault(u => u.Email == email);
@@ -31,6 +34,7 @@ namespace auth.Data
             return user;
         }
 
+        // Retrieves a user by ID from the database
         public User GetById(int id)
         {
             var user = _appDbContext.Users.FirstOrDefault(u => u.UserId == id);
@@ -41,4 +45,5 @@ namespace auth.Data
             return user;
         }
     }
+
 }
