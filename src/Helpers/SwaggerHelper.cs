@@ -9,7 +9,11 @@ namespace Backend.Helpers
     // A class to configure Swagger examples for API operations
     public class ConfigureSwaggerExamples : IOperationFilter
     {
-        // Implementation of the Apply method from IOperationFilter interface
+        /*
+        Implementation of the Apply method from IOperationFilter interface, 
+        an interface provided by Swashbuckle in the .NET Framework, which is a 
+        library that helps generate Swagger examples for ASP.NET Web API projects.
+        */
         public void Apply(OpenApiOperation operation, OperationFilterContext context)
         {
             // Check if request body is null or has no content
@@ -63,7 +67,7 @@ namespace Backend.Helpers
                 {
                     ["newOrder"] = new OpenApiObject
                     {
-                        ["orderStatus"] = new OpenApiString("Canceled"),
+                        ["orderStatus"] = new OpenApiString("Processing"),
                         ["payment"] = new OpenApiString("Cash On Delivery"),
                         ["userId"] = new OpenApiInteger(1)
                     },

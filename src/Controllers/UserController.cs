@@ -143,7 +143,7 @@ namespace Backend.Controllers
                         {
                             return ApiResponse.NotFound("Failed to create a user");
                         }
-                        return ApiResponse.Created(userDto, "User created successfully");
+                        return ApiResponse.Created(createdUser, "User created successfully");
                     }
                     else
                     {
