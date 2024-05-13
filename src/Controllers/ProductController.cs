@@ -99,7 +99,7 @@ namespace Backend.Controllers // Defining namespace for controller
             {
                 if (!Request.Cookies.ContainsKey("jwt")) // Check if JWT token exists in request cookies
                 {
-                    return Unauthorized("Not have any token to access"); // Return unauthorized response if token is missing
+                    return Unauthorized("You are not logged in ❗"); // Return unauthorized response if token is missing
                 }
                 else
                 {
@@ -166,7 +166,7 @@ namespace Backend.Controllers // Defining namespace for controller
             {
                 if (!Request.Cookies.ContainsKey("jwt")) // Check if JWT token exists in request cookies
                 {
-                    return Unauthorized("Not have any token to access"); // Return unauthorized response if token is missing
+                    return Unauthorized("You are not logged in ❗"); // Return unauthorized response if token is missing
                 }
                 else
                 {
@@ -221,7 +221,7 @@ namespace Backend.Controllers // Defining namespace for controller
             {
                 if (!Request.Cookies.ContainsKey("jwt")) // Check if JWT token exists in request cookies
                 {
-                    return Unauthorized("Not have any token to access"); // Return unauthorized response if token is missing
+                    return Unauthorized("You are not logged in ❗"); // Return unauthorized response if token is missing
                 }
                 else
                 {

@@ -67,7 +67,7 @@ namespace Backend.Controllers
             {
                 if (!Request.Cookies.ContainsKey("jwt"))
                 {
-                    return Unauthorized("Not have any token to access");
+                    return Unauthorized("You are not logged in ❗");
                 }
                 else
                 {
@@ -119,7 +119,7 @@ namespace Backend.Controllers
             {
                 if (!Request.Cookies.ContainsKey("jwt"))
                 {
-                    return Unauthorized("Not have any token to access");
+                    return Unauthorized("You are not logged in ❗");
                 }
                 else
                 {
@@ -166,7 +166,7 @@ namespace Backend.Controllers
             {
                 if (!Request.Cookies.ContainsKey("jwt"))
                 {
-                    return Unauthorized("Not have any token to access");
+                    return Unauthorized("You are not logged in ❗");
                 }
                 else
                 {

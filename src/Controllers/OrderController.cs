@@ -27,7 +27,7 @@ namespace api.Controllers
             {
                 if (!Request.Cookies.ContainsKey("jwt"))
                 {
-                    return Unauthorized("Not have any token to access");
+                    return Unauthorized("You are not logged in ❗");
                 }
                 else
                 {
@@ -70,7 +70,7 @@ namespace api.Controllers
                 if (!Request.Cookies.ContainsKey("jwt"))
                 {
                     // If JWT token is not found, return unauthorized response
-                    return Unauthorized("Not have any token to access");
+                    return Unauthorized("You are not logged in ❗");
                 }
                 else
                 {
@@ -122,7 +122,7 @@ namespace api.Controllers
                 if (!Request.Cookies.ContainsKey("jwt"))
                 {
                     // If JWT token is not found, return unauthorized response
-                    return Unauthorized("Not have any token to access");
+                    return Unauthorized("You are not logged in ❗");
                 }
                 else
                 {
@@ -171,7 +171,7 @@ namespace api.Controllers
             {
                 if (!Request.Cookies.ContainsKey("jwt"))
                 {
-                    return Unauthorized("Not have any token to access");
+                    return Unauthorized("You are not logged in ❗");
                 }
                 else
                 {
@@ -225,7 +225,7 @@ namespace api.Controllers
             {
                 if (!Request.Cookies.ContainsKey("jwt"))
                 {
-                    return Unauthorized("Not have any token to access");
+                    return Unauthorized("You are not logged in ❗");
                 }
                 else
                 {
