@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Backend.Helpers;
 using Backend.Dtos;
 using System.IdentityModel.Tokens.Jwt;
+using Backend.Middlewares;
 
 namespace api.Controllers
 {
@@ -27,7 +28,7 @@ namespace api.Controllers
             {
                 if (!Request.Cookies.ContainsKey("jwt"))
                 {
-                    return Unauthorized("Not have any token to access");
+                    throw new UnauthorizedAccessExceptions("You are not logged in ❗");
                 }
                 else
                 {
@@ -50,13 +51,13 @@ namespace api.Controllers
                     }
                     else
                     {
-                        return Unauthorized("You don't have permission to access this endpoint");
+                        throw new UnauthorizedAccessExceptions("You don't have permission to access this endpoint");
                     }
                 }
             }
             catch (Exception e)
             {
-                return ApiResponse.BadRequest(e.Message);
+                throw new InternalServerException(e.Message);
             }
         }
         // GET endpoint to retrieve a specific order by ID
@@ -70,7 +71,7 @@ namespace api.Controllers
                 if (!Request.Cookies.ContainsKey("jwt"))
                 {
                     // If JWT token is not found, return unauthorized response
-                    return Unauthorized("Not have any token to access");
+                    throw new UnauthorizedAccessExceptions("You are not logged in ❗");
                 }
                 else
                 {
@@ -95,20 +96,19 @@ namespace api.Controllers
                         else
                         {
                             // If order is not found, return not found response
-                            return ApiResponse.NotFound("order not found");
+                            throw new NotFoundException("order was not found");
                         }
                     }
                     else
                     {
                         // If user is not an admin, return unauthorized response
-
-                        return Unauthorized("You don't have permission to access this endpoint");
+                        throw new UnauthorizedAccessExceptions("You don't have permission to access this endpoint");
                     }
                 }
             }
             catch (Exception ex)
             {
-                return ApiResponse.ServerError(ex.Message);
+                throw new InternalServerException(ex.Message);
             }
         }
         // POST endpoint to create a new order
@@ -122,7 +122,7 @@ namespace api.Controllers
                 if (!Request.Cookies.ContainsKey("jwt"))
                 {
                     // If JWT token is not found, return unauthorized response
-                    return Unauthorized("Not have any token to access");
+                    throw new UnauthorizedAccessExceptions("You are not logged in ❗");
                 }
                 else
                 {
@@ -140,27 +140,20 @@ namespace api.Controllers
                         // Create new order using OrderService
                         var createdOrder = await _orderService.CreateOrderService(orderCreationDto.NewOrder, orderCreationDto.Products);
                         // Check if order creation was successful
-                        var test = CreatedAtAction(nameof(GetOrder), new { orderId = createdOrder.OrderId }, createdOrder);
-                        if (test == null)
-                        {
-                            // If order creation failed, return not found response
-                            return ApiResponse.NotFound("Failed to create an order");
-                        }
+                        var test = CreatedAtAction(nameof(GetOrder), new { orderId = createdOrder.OrderId }, createdOrder) ?? throw new NotFoundException("Failed to create an order");
                         // If order creation was successful, return created response
-
                         return ApiResponse.Created(orderCreationDto, "Order created successfully");
                     }
                     else
                     {
                         // If user is not an admin, return unauthorized response
-
-                        return Unauthorized("You don't have permission to access this endpoint");
+                        throw new UnauthorizedAccessExceptions("You don't have permission to access this endpoint");
                     }
                 }
             }
             catch (Exception ex)
             {
-                return NotFound(ex.Message);
+                throw new InternalServerException(ex.Message);
             }
         }
         // PUT endpoint to update an existing order
@@ -171,7 +164,7 @@ namespace api.Controllers
             {
                 if (!Request.Cookies.ContainsKey("jwt"))
                 {
-                    return Unauthorized("Not have any token to access");
+                    throw new UnauthorizedAccessExceptions("You are not logged in ❗");
                 }
                 else
                 {
@@ -192,27 +185,25 @@ namespace api.Controllers
                         if (updatedOrder == null)
                         {
                             // If order was not found, return not found response
-                            return NotFound("Order was not found");
+                            throw new NotFoundException("Order was not found");
 
                         }
                         else
                         {
                             // If order was updated successfully, return OK response
-
-                            return Ok("Update Order successfully");
+                           return ApiResponse.Success("Update Order successfully");
                         }
                     }
                     else
                     {
                         // If user is not an admin, return unauthorized response
-
-                        return Unauthorized("You don't have permission to access this endpoint");
+                        throw new UnauthorizedAccessExceptions("You don't have permission to access this endpoint");
                     }
                 }
             }
             catch (Exception ex)
             {
-                return ApiResponse.ServerError(ex.Message);
+                throw new InternalServerException(ex.Message);
             }
         }
         // DELETE endpoint to delete an order
@@ -225,7 +216,7 @@ namespace api.Controllers
             {
                 if (!Request.Cookies.ContainsKey("jwt"))
                 {
-                    return Unauthorized("Not have any token to access");
+                    throw new UnauthorizedAccessExceptions("You are not logged in ❗");
                 }
                 else
                 {
@@ -242,40 +233,31 @@ namespace api.Controllers
                     {
                         //"Admin access granted"
                         // Check if the order with orderId exists
-                        var existingOrder = await _orderService.GetOrderByIdService(orderId);
-                        if (existingOrder == null)
-                        {
-                            // If order does not exist, return not found response
+                        var existingOrder = await _orderService.GetOrderByIdService(orderId) ?? throw new NotFoundException("Order was not found.");
 
-                            return NotFound("Order not found.");
-                        }
                         // Delete order using OrderService
-
                         var result = await _orderService.DeleteOrderService(orderId);
                         if (!result)
                         {
                             // If deletion failed, return not found response
-
-                            return ApiResponse.NotFound($"Failed to delete order with ID {orderId}.");
+                            throw new NotFoundException($"Failed to delete order with ID {orderId}.");
                         }
                         else
                         {
                             // If deletion was successful, return no content response
-
-                            return NoContent();
+                             return ApiResponse.Deleted();
                         }
                     }
                     else
                     {
                         // If user is not an admin, return unauthorized response
-
-                        return Unauthorized("You don't have permission to access this endpoint");
+                        throw new UnauthorizedAccessExceptions("You don't have permission to access this endpoint");
                     }
                 }
             }
             catch (Exception ex)
             {
-                return ApiResponse.ServerError(ex.Message);
+                throw new InternalServerException(ex.Message);
             }
         }
     }

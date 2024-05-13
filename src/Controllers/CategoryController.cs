@@ -4,6 +4,7 @@ using Backend.Services;
 using Microsoft.AspNetCore.Mvc;
 using Backend.Helpers;
 using System.IdentityModel.Tokens.Jwt;
+using Backend.Middlewares;
 
 
 namespace Backend.Controllers
@@ -32,7 +33,7 @@ namespace Backend.Controllers
             }
             catch (Exception ex)
             {
-                return ApiResponse.ServerError(ex.Message);
+                throw new InternalServerException(ex.Message);
             }
         }
 
@@ -50,12 +51,12 @@ namespace Backend.Controllers
                 }
                 else
                 {
-                    return ApiResponse.NotFound("Category was not found");
+                    throw new NotFoundException("Category was not found");
                 }
             }
             catch (Exception ex)
             {
-                return ApiResponse.ServerError(ex.Message);
+                throw new InternalServerException(ex.Message);
             }
         }
 
@@ -67,7 +68,7 @@ namespace Backend.Controllers
             {
                 if (!Request.Cookies.ContainsKey("jwt"))
                 {
-                    return Unauthorized("Not have any token to access");
+                    throw new UnauthorizedAccessExceptions("You are not logged in ❗");
                 }
                 else
                 {
@@ -92,22 +93,18 @@ namespace Backend.Controllers
                         };
 
                         var createdCategory = await _categoryService.CreateCategory(category);
-                        var test = CreatedAtAction(nameof(GetCategory), new { categoryId = createdCategory.CategoryId }, createdCategory);
-                        if (test == null)
-                        {
-                            return ApiResponse.NotFound("Failed to create a category");
-                        }
+                        var test = CreatedAtAction(nameof(GetCategory), new { categoryId = createdCategory.CategoryId }, createdCategory) ?? throw new NotFoundException("Failed to create a category");
                         return ApiResponse.Created(createCategoryDto, "Category created successfully");
                     }
                     else
                     {
-                        return Unauthorized("You don't have permission to access this endpoint");
+                        throw new UnauthorizedAccessExceptions("You don't have permission to access this endpoint");
                     }
                 }
             }
             catch (Exception ex)
             {
-                return ApiResponse.ServerError(ex.Message);
+                throw new InternalServerException(ex.Message);
             }
         }
 
@@ -119,7 +116,7 @@ namespace Backend.Controllers
             {
                 if (!Request.Cookies.ContainsKey("jwt"))
                 {
-                    return Unauthorized("Not have any token to access");
+                    throw new UnauthorizedAccessExceptions("You are not logged in ❗");
                 }
                 else
                 {
@@ -139,7 +136,7 @@ namespace Backend.Controllers
                         var updatedCategory = await _categoryService.UpdateCategory(categoryId, categoryDto);
                         if (updatedCategory == null)
                         {
-                            return ApiResponse.NotFound("Category was not found");
+                            throw new NotFoundException("Category was not found");
                         }
                         else
                         {
@@ -148,13 +145,13 @@ namespace Backend.Controllers
                     }
                     else
                     {
-                        return Unauthorized("You don't have permission to access this endpoint");
+                        throw new UnauthorizedAccessExceptions("You don't have permission to access this endpoint");
                     }
                 }
             }
             catch (Exception ex)
             {
-                return ApiResponse.ServerError(ex.Message);
+                throw new InternalServerException(ex.Message);
             }
         }
 
@@ -166,7 +163,7 @@ namespace Backend.Controllers
             {
                 if (!Request.Cookies.ContainsKey("jwt"))
                 {
-                    return Unauthorized("Not have any token to access");
+                    throw new UnauthorizedAccessExceptions("You are not logged in ❗");
                 }
                 else
                 {
@@ -186,22 +183,22 @@ namespace Backend.Controllers
                         var result = await _categoryService.DeleteCategory(categoryId);
                         if (result)
                         {
-                            return NoContent();
+                             return ApiResponse.Deleted();
                         }
                         else
                         {
-                            return ApiResponse.NotFound("Category was not found");
+                            throw new NotFoundException("Category was not found");
                         }
                     }
                     else
                     {
-                        return Unauthorized("You don't have permission to access this endpoint");
+                        throw new UnauthorizedAccessExceptions("You don't have permission to access this endpoint");
                     }
                 }
             }
             catch (Exception ex)
             {
-                return ApiResponse.ServerError(ex.Message);
+                throw new InternalServerException(ex.Message);
             }
         }
     }

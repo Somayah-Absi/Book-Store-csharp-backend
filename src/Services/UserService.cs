@@ -1,6 +1,5 @@
 using Backend.Models;
 using Microsoft.EntityFrameworkCore;
-using Backend.Helpers;
 using Backend.Dtos;
 namespace Backend.Services
 {
@@ -101,9 +100,11 @@ namespace Backend.Services
         {
             try
             {
+                // Retrieve the user entity with the specified ID from the database.
                 var userToDelete = await _dbContext.Users.FindAsync(userId);
                 if (userToDelete != null)
                 {
+                   // Remove the user from the database and save changes.
                     _dbContext.Users.Remove(userToDelete);
                     await _dbContext.SaveChangesAsync();
                     return true;
