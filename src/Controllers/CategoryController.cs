@@ -179,7 +179,7 @@ namespace Backend.Controllers
                     if (isAdmin)
                     {
                         // Check if the category with categorytId exists
-                        var existingCategory = await _categoryService.GetCategoryById(categoryId) ?? throw new NotFoundException("Category was not found.");
+                        var existingCategory = await _categoryService.GetCategoryById(categoryId) ?? throw new NotFoundException($"Category with ID {categoryId} was not found");
 
                         //"Admin access granted"
                         // Call service to delete category
@@ -190,7 +190,7 @@ namespace Backend.Controllers
                         }
                         else
                         {
-                            throw new NotFoundException($"Category with ID {categoryId} was not found");
+                            throw new InternalServerException($"Failed to delete category with ID {categoryId}");
                         }
                     }
                     else

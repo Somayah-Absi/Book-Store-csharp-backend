@@ -233,14 +233,14 @@ namespace api.Controllers
                     {
                         //"Admin access granted"
                         // Check if the order with orderId exists
-                        var existingOrder = await _orderService.GetOrderByIdService(orderId) ?? throw new NotFoundException("Order was not found.");
+                        var existingOrder = await _orderService.GetOrderByIdService(orderId) ?? throw new NotFoundException($"Order with ID {orderId} was not found.");
 
                         // Delete order using OrderService
                         var result = await _orderService.DeleteOrderService(orderId);
                         if (!result)
                         {
                             // If deletion failed, return not found response
-                            throw new NotFoundException($"Failed to delete order with ID {orderId}.");
+                            throw new InternalServerException($"Failed to delete order with ID {orderId}.");
                         }
                         else
                         {

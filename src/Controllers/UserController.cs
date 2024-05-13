@@ -264,7 +264,7 @@ namespace Backend.Controllers
                     if (isAdmin)
                     {
                         // Check if the User with userId exists
-                        var existingUser = await _userService.GetUserByIdAsync(userId) ?? throw new NotFoundException("User was not found.");
+                        var existingUser = await _userService.GetUserByIdAsync(userId) ?? throw new NotFoundException($"User with ID {userId} was not found.");
 
                         //"Admin access granted"
                         var result = await _userService.DeleteUserAsync(userId);
@@ -275,7 +275,7 @@ namespace Backend.Controllers
                         else
                         {
                             // User was not found, return a success response since the deletion operation succeeded (from the client's perspective).
-                            return ApiResponse.Success($"User with ID {userId} was not found");
+                            throw new InternalServerException($"Failed to delete user with ID {userId}.");
                         }
                     }
                     else
