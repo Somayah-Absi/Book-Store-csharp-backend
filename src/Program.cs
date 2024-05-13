@@ -1,12 +1,10 @@
 using auth.Data;
 using auth.Helpers;
 using Backend.Helpers;
+using Backend.Middlewares;
 using Backend.Models;
 using Backend.Services;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 
 /**
@@ -81,6 +79,7 @@ app.UseExceptionHandler(errorApp =>
         await context.Response.WriteAsync("An unexpected error occurred.");
     });
 });
+app.UseMiddleware<ExceptionHandling>();
 
 // Finalize setup and start listening for incoming requests
 app.MapControllers();

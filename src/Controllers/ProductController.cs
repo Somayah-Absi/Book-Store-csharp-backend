@@ -1,6 +1,7 @@
 using System.IdentityModel.Tokens.Jwt; // Importing namespace for JWT token handling
 using Backend.Dtos;
 using Backend.Helpers; // Importing helpers namespace for utility functions
+using Backend.Middlewares;
 using Backend.Models; // Importing models namespace for Product model
 using Backend.Services; // Importing services namespace for ProductService
 using Microsoft.AspNetCore.Mvc; // Importing ASP.NET Core MVC namespace
@@ -46,9 +47,7 @@ namespace Backend.Controllers // Defining namespace for controller
                 // Check if the sortBy value is valid, if not, return bad request
                 if (!sortOptions.Contains(sortBy.ToLower()))
                 {
-                    return BadRequest(
-                        "Invalid value for sortBy. Valid options are: id, price, productName, createDate (Make sure to the lower and capital letters)"
-                    );
+                    throw new BadRequestException("Invalid value for sortBy. Valid options are: id, price, productName, createDate (Make sure to the lower and capital letters)");
                 }
 
                 var products = await _productService.GetAllProductsAsync(
@@ -61,11 +60,11 @@ namespace Backend.Controllers // Defining namespace for controller
                     pageNumber,
                     pageSize
                 ); // Get products from service
-                return Ok(products); // Return success response with products
+                return ApiResponse.Success(products); // Return success response with products
             }
             catch (Exception ex) // Catching any exceptions
             {
-                return StatusCode(500, ex.Message); // Return server error with exception message
+                throw new InternalServerException(ex.Message); // Return server error with exception message
             }
         }
 
@@ -78,16 +77,16 @@ namespace Backend.Controllers // Defining namespace for controller
                 var product = await _productService.GetProductByIdAsync(ProductId); // Get product by ID from service
                 if (product != null) // Check if product exists
                 {
-                    return ApiResponse.Created(product); // Return success response with product
+                    return ApiResponse.Success(product); // Return success response with product
                 }
                 else
                 {
-                    return ApiResponse.NotFound("Product was not found"); // Return not found response if product does not exist
+                    throw new NotFoundException("Product was not found"); // Return not found response if product does not exist
                 }
             }
             catch (Exception ex) // Catching any exceptions
             {
-                return ApiResponse.ServerError(ex.Message); // Return server error with exception message
+                throw new InternalServerException(ex.Message); // Return server error with exception message
             }
         }
 
@@ -99,7 +98,7 @@ namespace Backend.Controllers // Defining namespace for controller
             {
                 if (!Request.Cookies.ContainsKey("jwt")) // Check if JWT token exists in request cookies
                 {
-                    return Unauthorized("You are not logged in ❗"); // Return unauthorized response if token is missing
+                    throw new UnauthorizedAccessExceptions("You are not logged in ❗");// Return unauthorized response if token is missing
                 }
                 else
                 {
@@ -119,7 +118,7 @@ namespace Backend.Controllers // Defining namespace for controller
                         //"Admin access granted"
                         if (productDto == null) // Check if product data is null
                         {
-                            return ApiResponse.BadRequest("Product data is null"); // Return bad request response
+                            throw new BadRequestException("Product data is null"); // Return bad request response
                         }
 
                         var product = new Product
@@ -139,22 +138,18 @@ namespace Backend.Controllers // Defining namespace for controller
                             nameof(GetProduct),
                             new { productId = createdProduct.ProductId },
                             createdProduct
-                        ); // Check if product creation was successful
-                        if (test == null) // Check if product was created successfully
-                        {
-                            return ApiResponse.NotFound("Failed to create a product"); // Return not found response if product creation failed
-                        }
+                        ) ?? throw new NotFoundException("Failed to create a product"); // Check if product creation was successful
                         return ApiResponse.Created(productDto, "Product created successfully"); // Return success response with created product
                     }
                     else
                     {
-                        return Unauthorized("You don't have permission to access this endpoint"); // Return unauthorized response if user is not admin
+                        throw new UnauthorizedAccessExceptions("You don't have permission to access this endpoint"); // Return unauthorized response if user is not admin
                     }
                 }
             }
             catch (Exception ex) // Catching any exceptions
             {
-                return ApiResponse.ServerError(ex.Message); // Return server error with exception message
+                throw new InternalServerException(ex.Message); // Return server error with exception message
             }
         }
 
@@ -166,7 +161,7 @@ namespace Backend.Controllers // Defining namespace for controller
             {
                 if (!Request.Cookies.ContainsKey("jwt")) // Check if JWT token exists in request cookies
                 {
-                    return Unauthorized("You are not logged in ❗"); // Return unauthorized response if token is missing
+                    throw new UnauthorizedAccessExceptions("You are not logged in ❗"); // Return unauthorized response if token is missing
                 }
                 else
                 {
@@ -186,30 +181,26 @@ namespace Backend.Controllers // Defining namespace for controller
                         //"Admin access granted"
                         if (product == null || product.ProductId != ProductId) // Check if product data is null or product ID is not matching
                         {
-                            return ApiResponse.BadRequest("Invalid product data"); // Return bad request response
+                            throw new BadRequestException("Invalid product data"); // Return bad request response
                         }
 
                         product.ProductSlug = SlugGenerator.GenerateSlug(product.ProductName); // Generate slug for product
                         var updatedProduct = await _productService.UpdateProductAsync(
                             ProductId,
                             product
-                        ); // Update product using service
-                        if (updatedProduct == null) // Check if product was updated successfully
-                        {
-                            return ApiResponse.NotFound("Product was not found"); // Return not found response if product was not found
-                        }
+                        ) ?? throw new NotFoundException("Product was not found"); // Update product using service
 
                         return ApiResponse.Success(updatedProduct, "Update product successfully"); // Return success response with updated product
                     }
                     else
                     {
-                        return Unauthorized("You don't have permission to access this endpoint"); // Return unauthorized response if user is not admin
+                        throw new UnauthorizedAccessExceptions("You don't have permission to access this endpoint"); // Return unauthorized response if user is not admin
                     }
                 }
             }
             catch (Exception ex) // Catching any exceptions
             {
-                return ApiResponse.ServerError(ex.Message); // Return server error with exception message
+                throw new InternalServerException(ex.Message); // Return server error with exception message
             }
         }
 
@@ -221,7 +212,7 @@ namespace Backend.Controllers // Defining namespace for controller
             {
                 if (!Request.Cookies.ContainsKey("jwt")) // Check if JWT token exists in request cookies
                 {
-                    return Unauthorized("You are not logged in ❗"); // Return unauthorized response if token is missing
+                    throw new UnauthorizedAccessExceptions("You are not logged in ❗"); // Return unauthorized response if token is missing
                 }
                 else
                 {
@@ -242,22 +233,22 @@ namespace Backend.Controllers // Defining namespace for controller
                         var result = await _productService.DeleteProductAsync(ProductId); // Delete product using service
                         if (result) // Check if product was deleted successfully
                         {
-                            return NoContent(); // Return no content response
+                             return ApiResponse.Deleted(); // Return no content response
                         }
                         else
                         {
-                            return ApiResponse.NotFound("Product was not found"); // Return not found response if product was not found
+                            throw new NotFoundException("Product was not found"); // Return not found response if product was not found
                         }
                     }
                     else
                     {
-                        return Unauthorized("You don't have permission to access this endpoint"); // Return unauthorized response if user is not admin
+                        throw new UnauthorizedAccessExceptions("You don't have permission to access this endpoint"); // Return unauthorized response if user is not admin
                     }
                 }
             }
             catch (Exception ex) // Catching any exceptions
             {
-                return ApiResponse.ServerError(ex.Message); // Return server error with exception message
+                throw new InternalServerException(ex.Message); // Return server error with exception message
             }
         }
 
@@ -272,7 +263,7 @@ namespace Backend.Controllers // Defining namespace for controller
             }
             catch (Exception ex) // Catching any exceptions
             {
-                return ApiResponse.ServerError(ex.Message); // Return server error with exception message
+                throw new InternalServerException(ex.Message); // Return server error with exception message
             }
         }
     }

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Backend.Helpers;
 using System.IdentityModel.Tokens.Jwt;
 using Backend.Dtos;
+using Backend.Middlewares;
 
 namespace Backend.Controllers
 {
@@ -27,7 +28,7 @@ namespace Backend.Controllers
             {
                 if (!Request.Cookies.ContainsKey("jwt"))
                 {
-                    return Unauthorized("You are not logged in ❗");
+                    throw new UnauthorizedAccessExceptions("You are not logged in ❗");
                 }
                 else
                 {
@@ -48,13 +49,13 @@ namespace Backend.Controllers
                     }
                     else
                     {
-                        return Unauthorized("You don't have permission to access this endpoint");
+                        throw new UnauthorizedAccessExceptions("You don't have permission to access this endpoint");
                     }
                 }
             }
             catch (Exception ex)
             {
-                return ApiResponse.ServerError(ex.Message);
+                throw new InternalServerException(ex.Message);
             }
         }
 
@@ -65,7 +66,7 @@ namespace Backend.Controllers
             {
                 if (!Request.Cookies.ContainsKey("jwt"))
                 {
-                    return Unauthorized("You are not logged in ❗");
+                    throw new UnauthorizedAccessExceptions("You are not logged in ❗");
                 }
                 else
                 {
@@ -84,22 +85,22 @@ namespace Backend.Controllers
                         var user = await _userService.GetUserByIdAsync(userId);
                         if (user != null)
                         {
-                            return ApiResponse.Created(user);
+                            return ApiResponse.Success(user);
                         }
                         else
                         {
-                            return ApiResponse.NotFound("User was not found");
+                            throw new NotFoundException("User was not found");
                         }
                     }
                     else
                     {
-                        return Unauthorized("You don't have permission to access this endpoint");
+                        throw new UnauthorizedAccessExceptions("You don't have permission to access this endpoint");
                     }
                 }
             }
             catch (Exception ex)
             {
-                return ApiResponse.ServerError(ex.Message);
+                throw new InternalServerException(ex.Message);
             }
         }
 
@@ -110,7 +111,7 @@ namespace Backend.Controllers
             {
                 if (!Request.Cookies.ContainsKey("jwt"))
                 {
-                    return Unauthorized("You are not logged in ❗");
+                    throw new UnauthorizedAccessExceptions("You are not logged in ❗");
                 }
                 else
                 {
@@ -138,22 +139,18 @@ namespace Backend.Controllers
                         };
                         // Create the user
                         var createdUser = await _userService.CreateUserAsync(user);
-                        var test = CreatedAtAction(nameof(GetUser), new { userId = createdUser.UserId }, createdUser);
-                        if (test == null)
-                        {
-                            return ApiResponse.NotFound("Failed to create a user");
-                        }
+                        var test = CreatedAtAction(nameof(GetUser), new { userId = createdUser.UserId }, createdUser) ?? throw new NotFoundException("Failed to create a user");
                         return ApiResponse.Created(createdUser, "User created successfully");
                     }
                     else
                     {
-                        return Unauthorized("You don't have permission to access this endpoint");
+                        throw new UnauthorizedAccessExceptions("You don't have permission to access this endpoint");
                     }
                 }
             }
             catch (Exception ex)
             {
-                return ApiResponse.ServerError(ex.Message);
+                throw new InternalServerException(ex.Message);
             }
         }
 
@@ -164,7 +161,7 @@ namespace Backend.Controllers
             {
                 if (!Request.Cookies.ContainsKey("jwt"))
                 {
-                    return Unauthorized("You are not logged in ❗");
+                    throw new UnauthorizedAccessExceptions("You are not logged in ❗");
                 }
                 else
                 {
@@ -181,11 +178,8 @@ namespace Backend.Controllers
                     {
                         //"Admin access granted"
                         // Fetch the existing user from the database
-                        var existingUser = await _userService.GetUserByIdAsync(userId);
-                        if (existingUser == null)
-                        {
-                            return ApiResponse.NotFound("User was not found");
-                        }
+                        var existingUser = await _userService.GetUserByIdAsync(userId) ?? throw new NotFoundException("User was not found");
+
                         // Update only the properties that are provided in the DTO
                         if (updateUserDto.FirstName != null)
                         {
@@ -227,7 +221,7 @@ namespace Backend.Controllers
                         var updatedUser = await _userService.UpdateUserAsync(userId, existingUser);
                         if (updatedUser == null)
                         {
-                            return ApiResponse.NotFound("User was not found");
+                            throw new NotFoundException("User was not found");
 
                         }
                         else
@@ -237,13 +231,13 @@ namespace Backend.Controllers
                     }
                     else
                     {
-                        return Unauthorized("You don't have permission to access this endpoint");
+                        throw new UnauthorizedAccessExceptions("You don't have permission to access this endpoint");
                     }
                 }
             }
             catch (Exception ex)
             {
-                return ApiResponse.ServerError(ex.Message);
+                throw new InternalServerException(ex.Message);
             }
         }
 
@@ -254,7 +248,7 @@ namespace Backend.Controllers
             {
                 if (!Request.Cookies.ContainsKey("jwt"))
                 {
-                    return Unauthorized("You are not logged in ❗");
+                    throw new UnauthorizedAccessExceptions("You are not logged in ❗");
                 }
                 else
                 {
@@ -270,25 +264,25 @@ namespace Backend.Controllers
                     if (isAdmin)
                     {
                         //"Admin access granted"
-                        var result = await _userService.DeleteUserAsync(userId);
+                        var result = await _userService.DeleteUserAsync(userId);                        
                         if (!result)
                         {
-                            return NoContent();
+                            return ApiResponse.Deleted();
                         }
                         else
                         {
-                            return ApiResponse.NotFound("User was not found");
+                            throw new NotFoundException("User was not found");
                         }
                     }
                     else
                     {
-                        return Unauthorized("You don't have permission to access this endpoint");
+                        throw new UnauthorizedAccessExceptions("You don't have permission to access this endpoint");
                     }
                 }
             }
             catch (Exception ex)
             {
-                return ApiResponse.ServerError(ex.Message);
+                throw new InternalServerException(ex.Message);
             }
         }
     }
