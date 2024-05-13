@@ -154,11 +154,15 @@ namespace Backend.Services
             try
             {
                 // Find order to delete from the database
-
                 var deleteOrder = await _dbContext.Orders.FirstOrDefaultAsync(order => order.OrderId == orderId);
+
                 // Delete the order if found
                 if (deleteOrder != null)
                 {
+                    // Delete associated order products
+                    var orderProducts = _dbContext.OrderProducts.Where(op => op.OrderId == orderId);
+                    _dbContext.OrderProducts.RemoveRange(orderProducts);
+
                     _dbContext.Orders.Remove(deleteOrder);
                     await _dbContext.SaveChangesAsync();
                     return true;// Deletion successful

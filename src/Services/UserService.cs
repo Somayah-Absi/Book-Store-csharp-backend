@@ -104,7 +104,20 @@ namespace Backend.Services
                 var userToDelete = await _dbContext.Users.FindAsync(userId);
                 if (userToDelete != null)
                 {
-                   // Remove the user from the database and save changes.
+                    // Retrieve orders associated with the user
+                    var ordersToDelete = await _dbContext.Orders.Where(o => o.UserId == userId).ToListAsync();
+                    foreach (var order in ordersToDelete)
+                    {
+                        // Retrieve order products associated with the order
+                        var orderProductsToDelete = await _dbContext.OrderProducts.Where(op => op.OrderId == order.OrderId).ToListAsync();
+                        // Remove associated order products
+                        _dbContext.OrderProducts.RemoveRange(orderProductsToDelete);
+                    }
+                    // Remove associated orders
+                    _dbContext.Orders.RemoveRange(ordersToDelete);
+                    // Remove associated orders
+                    _dbContext.Orders.RemoveRange(ordersToDelete);
+                    // Remove the user from the database and save changes.
                     _dbContext.Users.Remove(userToDelete);
                     await _dbContext.SaveChangesAsync();
                     return true;

@@ -5,7 +5,6 @@ namespace Backend.Models
 {
     public class Product
     {
-        [JsonIgnore]
         public int ProductId { get; set; }
 
         [Required(ErrorMessage = "Product name is required")]
