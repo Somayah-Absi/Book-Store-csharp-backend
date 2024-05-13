@@ -17,10 +17,10 @@ namespace Backend.Helpers
             return new ObjectResult(new ApiResponseTemplate<T>(true, data, message, 201));
         }
 
- // Method to return a successful response for resource deletion
-        public static IActionResult Deleted( string message = "Successfully Deleted")
+        // Method to return a successful response for resource deletion
+        public static IActionResult Deleted<T>(T data, string message = "Successfully Deleted")
         {
-            return new ObjectResult(new ApiResponseTemplate<object>(true,null ,message, 204));
+            return new ObjectResult(new ApiResponseTemplate<object>(true, data, message, 204));
         }
     }
 

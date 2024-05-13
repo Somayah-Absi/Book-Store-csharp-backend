@@ -191,7 +191,7 @@ namespace api.Controllers
                         else
                         {
                             // If order was updated successfully, return OK response
-                           return ApiResponse.Success("Update Order successfully");
+                            return ApiResponse.Success("Update Order successfully");
                         }
                     }
                     else
@@ -245,7 +245,7 @@ namespace api.Controllers
                         else
                         {
                             // If deletion was successful, return no content response
-                             return ApiResponse.Deleted();
+                            return ApiResponse.Deleted(existingOrder, $"Successfully deleted order with ID {orderId}.");
                         }
                     }
                     else

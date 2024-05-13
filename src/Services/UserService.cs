@@ -115,8 +115,7 @@ namespace Backend.Services
                     }
                     // Remove associated orders
                     _dbContext.Orders.RemoveRange(ordersToDelete);
-                    // Remove associated orders
-                    _dbContext.Orders.RemoveRange(ordersToDelete);
+
                     // Remove the user from the database and save changes.
                     _dbContext.Users.Remove(userToDelete);
                     await _dbContext.SaveChangesAsync();

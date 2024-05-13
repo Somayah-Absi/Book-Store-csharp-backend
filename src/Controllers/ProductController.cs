@@ -229,15 +229,18 @@ namespace Backend.Controllers // Defining namespace for controller
 
                     if (isAdmin) // Check if user is admin
                     {
+                        // Check if the product with productId exists
+                        var existingProduct = await _productService.GetProductByIdAsync(ProductId) ?? throw new NotFoundException("Product was not found.");
+
                         //"Admin access granted"
                         var result = await _productService.DeleteProductAsync(ProductId); // Delete product using service
                         if (result) // Check if product was deleted successfully
                         {
-                             return ApiResponse.Deleted(); // Return no content response
+                            return ApiResponse.Deleted(existingProduct, $"Product with ID {ProductId} successfully deleted."); // Return no content response
                         }
                         else
                         {
-                            throw new NotFoundException("Product was not found"); // Return not found response if product was not found
+                            throw new NotFoundException($"Product with ID {ProductId} was not found"); // Return not found response if product was not found
                         }
                     }
                     else
