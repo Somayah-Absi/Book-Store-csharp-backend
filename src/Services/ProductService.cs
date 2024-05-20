@@ -188,5 +188,18 @@ namespace Backend.Services // Defining namespace for services
                 throw new ApplicationException("An error occurred while searching products.", ex);
             }
         }
+
+        // New method to get a product by its slug
+        public async Task<Product?> GetProductBySlugAsync(string productSlug)
+        {
+            try
+            {
+                return await _dbContext.Products.FirstOrDefaultAsync(p => p.ProductSlug == productSlug);
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException($"An error occurred while retrieving product with slug {productSlug}.", ex);
+            }
+        }
     }
 }

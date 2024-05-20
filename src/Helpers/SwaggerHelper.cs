@@ -116,7 +116,7 @@ namespace Backend.Helpers
                     ["productSlug"] = new OpenApiString("laptop-example"),
                     ["productDescription"] = new OpenApiString("An example laptop description."),
                     ["productPrice"] = new OpenApiDouble(999.99),
-                    ["productImage"] = new OpenApiString("https://example.com/image.jpg"),
+                    ["productImage"] = new OpenApiString("https://res.cloudinary.com/dupd1nn8q/image/upload/v1715996035/products/default_mwlldg.png"),
                     ["productQuantityInStock"] = new OpenApiInteger(10),
                     ["categoryId"] = new OpenApiInteger(6),
                 };

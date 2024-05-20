@@ -60,7 +60,7 @@ namespace Backend.Controllers // Defining namespace for controller
                     pageNumber,
                     pageSize
                 ); // Get products from service
-                return ApiResponse.Success(products); // Return success response with products
+                return ApiResponse.Success(products, "Successfully returned all products."); // Return success response with products
             }
             catch (Exception ex) // Catching any exceptions
             {
@@ -267,6 +267,29 @@ namespace Backend.Controllers // Defining namespace for controller
             catch (Exception ex) // Catching any exceptions
             {
                 throw new InternalServerException(ex.Message); // Return server error with exception message
+            }
+        }
+
+
+        // New action method for getting a product by slug
+        [HttpGet("slug/{productSlug}")]
+        public async Task<IActionResult> GetProductBySlug(string productSlug)
+        {
+            try
+            {
+                var product = await _productService.GetProductBySlugAsync(productSlug);
+                if (product != null)
+                {
+                    return ApiResponse.Success(product, "Product retrieved successfully.");
+                }
+                else
+                {
+                    throw new NotFoundException("Product not found.");
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new InternalServerException(ex.Message);
             }
         }
     }
