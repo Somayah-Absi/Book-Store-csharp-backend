@@ -23,7 +23,9 @@ namespace Backend.Services // Defining namespace for services
             string sortBy = "id", // Optional parameter for sorting
             bool ascending = true, // Optional parameter for sorting order
             int pageNumber = 1, // Optional parameter for pagination - page number
-            int pageSize = 10) // Optional parameter for pagination - page size
+            int pageSize = 100,
+            int? categoryId = null // Add categoryId parameter
+            ) // Optional parameter for pagination - page size
         {
             try
             {
@@ -44,6 +46,9 @@ namespace Backend.Services // Defining namespace for services
 
                 if (createDate.HasValue)
                     query = query.Where(p => p.CreatedAt >= createDate);
+
+                if (categoryId.HasValue)
+                    query = query.Where(p => p.CategoryId == categoryId);
 
                 // Apply sorting based on provided sortBy parameter
                 query = sortBy.ToLower() switch

@@ -28,9 +28,11 @@ namespace Backend.Controllers // Defining namespace for controller
             [FromQuery] decimal? maxPrice = null, // Optional query parameter for filtering by maximum price
             [FromQuery] DateTime? createDate = null, // Optional query parameter for filtering by creation date
             [FromQuery] int pageNumber = 1, // Optional query parameter for pagination - page number
-            [FromQuery] int pageSize = 10, // Optional query parameter for pagination - page size
+            [FromQuery] int pageSize = 100, // Optional query parameter for pagination - page size
             [FromQuery] string sortBy = "id", // Optional query parameter for sorting
-            [FromQuery] bool ascending = true
+            [FromQuery] bool ascending = true,
+            [FromQuery] int? categoryId = null // Add categoryId parameter
+
         ) // Optional query parameter for sorting order
         {
             try
@@ -58,7 +60,8 @@ namespace Backend.Controllers // Defining namespace for controller
                     sortBy,
                     ascending,
                     pageNumber,
-                    pageSize
+                    pageSize,
+                    categoryId
                 ); // Get products from service
                 return ApiResponse.Success(products, "Successfully returned all products."); // Return success response with products
             }
