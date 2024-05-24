@@ -154,85 +154,75 @@ namespace Backend.Controllers
             }
         }
 
-        [HttpPut("{userId}")]
+         [HttpPut("{userId}")]
         public async Task<IActionResult> UpdateUser(int userId, UpdateUserDto updateUserDto)
         {
             try
             {
-                if (!Request.Cookies.ContainsKey("jwt"))
+                // Fetch the existing user from the database
+                var existingUser = await _userService.GetUserByIdAsync(userId) ?? throw new NotFoundException("User was not found");
+
+                // Check if the update request is from an admin
+                bool isAdmin = updateUserDto.IsAdmin.HasValue && updateUserDto.IsAdmin.Value;
+
+                if (isAdmin)
                 {
-                    throw new UnauthorizedAccessExceptions("You are not logged in ❗");
+                    // Admin can update all fields
+                    if (updateUserDto.FirstName != null)
+                    {
+                        existingUser.FirstName = updateUserDto.FirstName;
+                    }
+                    if (updateUserDto.LastName != null)
+                    {
+                        existingUser.LastName = updateUserDto.LastName;
+                    }
+                    if (updateUserDto.Email != null)
+                    {
+                        existingUser.Email = updateUserDto.Email;
+                    }
+                    if (updateUserDto.Mobile != null)
+                    {
+                        existingUser.Mobile = updateUserDto.Mobile;
+                    }
+                    if (updateUserDto.Password != null)
+                    {
+                        existingUser.Password = BCrypt.Net.BCrypt.HashPassword(updateUserDto.Password);
+                    }
+                    if (updateUserDto.IsAdmin.HasValue)
+                    {
+                        existingUser.IsAdmin = updateUserDto.IsAdmin.Value;
+                    }
+                    if (updateUserDto.IsBanned.HasValue)
+                    {
+                        existingUser.IsBanned = updateUserDto.IsBanned.Value;
+                    }
                 }
                 else
                 {
-                    var jwt = Request.Cookies["jwt"];
-                    // Validate and decode JWT token to extract claims
-                    var tokenHandler = new JwtSecurityTokenHandler();
-                    var token = tokenHandler.ReadJwtToken(jwt);
-
-                    var isAdminClaim = token.Claims.FirstOrDefault(c => c.Type == "role" && c.Value == "Admin");
-
-                    bool isAdmin = isAdminClaim != null;
-
-                    if (isAdmin)
+                    // Regular user can update only FirstName, LastName, and Mobile
+                    if (updateUserDto.FirstName != null)
                     {
-                        //"Admin access granted"
-                        // Fetch the existing user from the database
-                        var existingUser = await _userService.GetUserByIdAsync(userId) ?? throw new NotFoundException("User was not found");
-
-                        // Update only the properties that are provided in the DTO
-                        if (updateUserDto.FirstName != null)
-                        {
-                            existingUser.FirstName = updateUserDto.FirstName;
-                        }
-
-                        if (updateUserDto.LastName != null)
-                        {
-                            existingUser.LastName = updateUserDto.LastName;
-                        }
-
-                        if (updateUserDto.Email != null)
-                        {
-                            existingUser.Email = updateUserDto.Email;
-                        }
-
-                        if (updateUserDto.Mobile != null)
-                        {
-                            existingUser.Mobile = updateUserDto.Mobile;
-                        }
-
-                        if (updateUserDto.Password != null)
-                        {
-                            // Hash the new password before updating
-                            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(updateUserDto.Password);
-                            existingUser.Password = hashedPassword;
-                        }
-
-                        if (updateUserDto.IsAdmin != null)
-                        {
-                            existingUser.IsAdmin = updateUserDto.IsAdmin;
-                        }
-
-                        if (updateUserDto.IsBanned != null)
-                        {
-                            existingUser.IsBanned = updateUserDto.IsBanned;
-                        }
-                        //"Admin access granted"
-                        var updatedUser = await _userService.UpdateUserAsync(userId, existingUser);
-                        if (updatedUser == null)
-                        {
-                            throw new NotFoundException("User was not found");
-
-                        }
-                        else
-                        {
-                            return ApiResponse.Success(updatedUser, "Update user successfully");
-                        }
+                        existingUser.FirstName = updateUserDto.FirstName;
                     }
-                    else
+                    if (updateUserDto.LastName != null)
                     {
-                        throw new UnauthorizedAccessExceptions("You don't have permission to access this endpoint");
+                        existingUser.LastName = updateUserDto.LastName;
                     }
+                    if (updateUserDto.Mobile != null)
+                    {
+                        existingUser.Mobile = updateUserDto.Mobile;
+                    }
+                }
+
+                // Save the updated user
+                var updatedUser = await _userService.UpdateUserAsync(userId, existingUser);
+                if (updatedUser == null)
+                {
+                    throw new NotFoundException("User was not found");
+                }
+                else
+                {
+                    return ApiResponse.Success(updatedUser, "User updated successfully");
                 }
             }
             catch (Exception ex)
@@ -240,6 +230,9 @@ namespace Backend.Controllers
                 throw new InternalServerException(ex.Message);
             }
         }
+
+ 
+    
 
         [HttpDelete("{userId}")]
         public async Task<IActionResult> DeleteUser(int userId)

@@ -38,7 +38,7 @@ namespace auth.Controllers
             };
 
             // Create the user in the repository and return the result with a "Created" status code
-            return ApiResponse.Created(_repository.Create(user) ,"Successfully Registered");
+            return ApiResponse.Created(_repository.Create(user), "Successfully Registered");
         }
 
 
@@ -50,7 +50,7 @@ namespace auth.Controllers
                 // Retrieve the user from the repository by email
                 var user = _repository.GetByEmail(dto.Email ?? "");
 
-                if(user == null || user.Email == "")
+                if (user == null || user.Email == "")
                 {
                     throw new BadRequestException("Invalid Email ❗");
                 }
@@ -76,13 +76,18 @@ namespace auth.Controllers
 
                 // Generate a JWT token for the authenticated user
                 var jwt = _jwtService.GenerateJwt(userDto) ?? throw new ConflictException("Don't have sufficient permissions to access the requested resource");
-
+                var data = new
+                {
+                    jwt,
+                    userDto
+                };
                 // Add the JWT token to a cookie for future authentication
                 Response.Cookies.Append("jwt", jwt, new CookieOptions
                 { HttpOnly = true });
 
                 // Return a successful response with a welcome message
-               return ApiResponse.Success($"Successfully logged in, welcome back again {userDto.FirstName} 🌸 ");
+                //    return ApiResponse.Success($"Successfully logged in, welcome back again {userDto.FirstName} 🌸 ");
+                return Ok(data);
             }
             catch (Exception e)
             {

@@ -23,17 +23,29 @@ namespace Backend.Controllers
 
         // Endpoint to retrieve all categories
         [HttpGet]
-        public async Task<IActionResult> GetAllCategories()
+        public async Task<IActionResult> GetAllCategories(
+     [FromQuery] int pageNumber = 1, // Optional query parameter for pagination - page number
+     [FromQuery] int pageSize = 100// Optional query parameter for pagination - page size
+
+ )
         {
             try
             {
-                // Call service to get all categories
-                var categories = await _categoryService.GetAllCategories();
-                return ApiResponse.Success(categories, "all categories retrieved successfully");
+
+                // Check if the sortBy value is valid, if not, return bad request
+
+
+                var categories = await _categoryService.GetAllCategories(
+                    pageNumber,
+                    pageSize
+
+                ); // Get categories from service
+
+                return ApiResponse.Success(categories, "Successfully returned all categories."); // Return success response with categories
             }
-            catch (Exception ex)
+            catch (Exception ex) // Catching any exceptions
             {
-                throw new InternalServerException(ex.Message);
+                throw new InternalServerException(ex.Message); // Return server error with exception message
             }
         }
 
@@ -161,42 +173,31 @@ namespace Backend.Controllers
         {
             try
             {
-                if (!Request.Cookies.ContainsKey("jwt"))
+                // Fetch the existing category from the database
+                var existingCategory = await _categoryService.GetCategoryById(categoryId)
+                                        ?? throw new NotFoundException($"Category with ID {categoryId} was not found");
+
+                // Check if the user is an admin
+                bool isAdmin = User.IsInRole("Admin");
+                // Check if the user is an admin
+
+                if (isAdmin)
                 {
-                    throw new UnauthorizedAccessExceptions("You are not logged in ❗");
-                }
-                else
-                {
-                    var jwt = Request.Cookies["jwt"];
-                    // Validate and decode JWT token to extract claims
-                    var tokenHandler = new JwtSecurityTokenHandler();
-                    var token = tokenHandler.ReadJwtToken(jwt);
-
-                    var isAdminClaim = token.Claims.FirstOrDefault(c => c.Type == "role" && c.Value == "Admin");
-
-                    bool isAdmin = isAdminClaim != null;
-
-                    if (isAdmin)
+                    // Admin can delete the category
+                    var result = await _categoryService.DeleteCategory(categoryId);
+                    if (result)
                     {
-                        // Check if the category with categorytId exists
-                        var existingCategory = await _categoryService.GetCategoryById(categoryId) ?? throw new NotFoundException($"Category with ID {categoryId} was not found");
-
-                        //"Admin access granted"
-                        // Call service to delete category
-                        var result = await _categoryService.DeleteCategory(categoryId);
-                        if (result)
-                        {
-                            return ApiResponse.Deleted(existingCategory, $"Category with ID {categoryId} successfully deleted.");
-                        }
-                        else
-                        {
-                            throw new InternalServerException($"Failed to delete category with ID {categoryId}");
-                        }
+                        return ApiResponse.Deleted(existingCategory, $"Category with ID {categoryId} successfully deleted.");
                     }
                     else
                     {
-                        throw new UnauthorizedAccessExceptions("You don't have permission to access this endpoint");
+                        throw new InternalServerException($"Failed to delete category with ID {categoryId}");
                     }
+                }
+                else
+                {
+                    // Regular user is not authorized to delete categories
+                    throw new UnauthorizedAccessException("You don't have permission to delete categories");
                 }
             }
             catch (Exception ex)
@@ -204,5 +205,6 @@ namespace Backend.Controllers
                 throw new InternalServerException(ex.Message);
             }
         }
+
     }
 }

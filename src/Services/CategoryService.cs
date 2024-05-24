@@ -17,41 +17,57 @@ namespace Backend.Services
         }
 
         // Converts fetched database data (categories and their products) into DTOs by selecting/mapping specific properties and creating new objects.
-        public async Task<IEnumerable<GetCategoryWithProductDto>> GetAllCategories()
+      public async Task<PaginationResult<GetCategoryWithProductDto>> GetAllCategories(int pageNumber = 1, int pageSize = 10)
+{
+    try
+    {
+        // Calculate the total count of categories before pagination
+        var totalCount = await _dbContext.Categories.CountAsync();
+
+        // Apply pagination to the categories query
+        var categories = await _dbContext.Categories
+            .Include(c => c.Products)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        // Map categories to DTOs
+        var categoryDtos = categories.Select(c => new GetCategoryWithProductDto
         {
-            try
+            CategoryId = c.CategoryId,
+            CategoryName = c.CategoryName,
+            CategorySlug = c.CategorySlug,
+            CategoryDescription = c.CategoryDescription,
+            Products = c.Products.Select(p => new GetProductWithCategoryDto
             {
-                // Fetch categories along with their associated products from the database.
-                var categories = await _dbContext.Categories.Include(c => c.Products).ToListAsync();
+                ProductId = p.ProductId,
+                ProductName = p.ProductName,
+                ProductSlug = p.ProductSlug,
+                ProductPrice = p.ProductPrice,
+                ProductDescription = p.ProductDescription,
+                ProductImage = p.ProductImage,
+                ProductQuantityInStock = p.ProductQuantityInStock
+            }).ToList()
+        }).ToList();
 
-                // Map fetched database entities to DTOs by selecting specific properties
-                var categoryDtos = categories.Select(c => new GetCategoryWithProductDto
-                {
-                    CategoryId = c.CategoryId,
-                    CategoryName = c.CategoryName,
-                    CategorySlug = c.CategorySlug,
-                    CategoryDescription = c.CategoryDescription,
+        // Calculate the total number of pages
+        var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
 
-                    Products = c.Products.Select(p => new GetProductWithCategoryDto
-                    {
-                        ProductId = p.ProductId,
-                        ProductName = p.ProductName,
-                        ProductSlug = p.ProductSlug,
-                        ProductPrice = p.ProductPrice,
-                        ProductDescription = p.ProductDescription,
-                        ProductImage = p.ProductImage,
-                        ProductQuantityInStock = p.ProductQuantityInStock
-                    }).ToList()
-                });
+        // Return paginated result
+        return new PaginationResult<GetCategoryWithProductDto>
+        {
+            Items = categoryDtos,
+            TotalCount = totalCount,
+            PageNumber = pageNumber,
+            PageSize = pageSize,
+        };
+    }
+    catch (Exception ex)
+    {
+        throw new ApplicationException("An error occurred while retrieving categories.", ex);
+    }
+}
 
-                return categoryDtos;
-
-            }
-            catch (Exception ex)
-            {
-                throw new ApplicationException("An error occurred while retrieving categories.", ex);
-            }
-        }
         public async Task<Category?> GetCategoryById(int categoryId)
         {
             try
@@ -68,10 +84,6 @@ namespace Backend.Services
         {
             try
             {
-                // Generate a unique identifier for the category using IdGenerator helper.
-                // category.CategoryId = await IdGenerator.GenerateIdAsync<Category>(_dbContext);
-
-                // Add the category to the database and save changes.
                 _dbContext.Categories.Add(category);
                 await _dbContext.SaveChangesAsync();
                 return category;
