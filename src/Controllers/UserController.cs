@@ -19,45 +19,31 @@ namespace Backend.Controllers
         {
             _userService = userService ?? throw new ArgumentNullException(nameof(userService));
         }
-
-        // Endpoint to retrieve all Users
         [HttpGet]
-        public async Task<IActionResult> GetAllUsers()
+        public async Task<IActionResult> GetAllUsers([FromQuery] int pageNumber = 1, int pageSize = 100)
         {
             try
             {
-                if (!Request.Cookies.ContainsKey("jwt"))
+                // Fetch the non-admin users with pagination
+                var paginationResult = await _userService.GetAllUsersAsync(pageNumber, pageSize);
+
+                // Create the response object including pagination metadata
+                var response = new
                 {
-                    throw new UnauthorizedAccessExceptions("You are not logged in ❗");
-                }
-                else
-                {
-                    var jwt = Request.Cookies["jwt"];
-                    // Validate and decode JWT token to extract claims
-                    var tokenHandler = new JwtSecurityTokenHandler();
-                    var token = tokenHandler.ReadJwtToken(jwt);
+                    Data = paginationResult.Items,
+                    paginationResult.TotalCount,
+                    paginationResult.PageNumber,
+                    paginationResult.PageSize,
+                };
 
-                    var isAdminClaim = token.Claims.FirstOrDefault(c => c.Type == "role" && c.Value == "Admin");
-
-                    bool isAdmin = isAdminClaim != null;
-
-                    if (isAdmin)
-                    {
-                        //"Admin access granted"
-                        var users = await _userService.GetAllUsersAsync();
-                        return ApiResponse.Success(users, "all users are returned successfully");
-                    }
-                    else
-                    {
-                        throw new UnauthorizedAccessExceptions("You don't have permission to access this endpoint");
-                    }
-                }
+                return ApiResponse.Success(response);
             }
             catch (Exception ex)
             {
-                throw new InternalServerException(ex.Message);
+                throw new ApplicationException("An error occurred while retrieving non-admin users.", ex);
             }
         }
+
 
         [HttpGet("{userId}")]
         public async Task<IActionResult> GetUser(int userId)
@@ -154,7 +140,7 @@ namespace Backend.Controllers
             }
         }
 
-         [HttpPut("{userId}")]
+        [HttpPut("{userId}")]
         public async Task<IActionResult> UpdateUser(int userId, UpdateUserDto updateUserDto)
         {
             try
@@ -231,8 +217,8 @@ namespace Backend.Controllers
             }
         }
 
- 
-    
+
+
 
         [HttpDelete("{userId}")]
         public async Task<IActionResult> DeleteUser(int userId)

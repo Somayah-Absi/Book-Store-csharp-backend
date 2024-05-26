@@ -13,13 +13,28 @@ namespace Backend.Services
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
         // Converts fetched database data (users) into DTOs by selecting/mapping specific properties and creating new objects.
-        public async Task<IEnumerable<GetUserDto>> GetAllUsersAsync()
+        public async Task<PaginationResult<GetUserDto>> GetAllUsersAsync(int pageNumber = 1, int pageSize = 100)
         {
             try
             {
-                // fetches all users from the database
-                var users = await _dbContext.Users.ToListAsync();
-                // Map fetched database entities to DTOs by selecting specific properties
+                // Query to get total count of users
+                var totalCountQuery = _dbContext.Users.AsQueryable();
+                var totalCount = await totalCountQuery.CountAsync();
+
+                // Query to filter out admin users and get count of non-admin users
+                var nonAdminUsersQuery = totalCountQuery.Where(u => u.IsAdmin == false || u.IsAdmin == null);
+                var nonAdminCount = await nonAdminUsersQuery.CountAsync();
+
+                // Subtract the count of admin users from the total count of users
+                var totalCountExcludingAdmin = totalCount - nonAdminCount;
+
+                // Apply pagination to the filtered non-admin users query
+                var users = await nonAdminUsersQuery
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToListAsync();
+
+                // Map fetched database entities to DTOs
                 var userDtos = users.Select(u => new GetUserDto
                 {
                     UserId = u.UserId,
@@ -27,16 +42,25 @@ namespace Backend.Services
                     LastName = u.LastName,
                     Email = u.Email,
                     Mobile = u.Mobile,
-                    IsAdmin = u.IsAdmin,
+                    IsAdmin = u.IsAdmin ?? false,
                     IsBanned = u.IsBanned
                 }).ToList();
-                return userDtos;
+
+                return new PaginationResult<GetUserDto>
+                {
+                    Items = userDtos,
+                    TotalCount = totalCountExcludingAdmin, // Corrected total count excluding admin
+                    PageNumber = pageNumber,
+                    PageSize = pageSize
+                };
             }
             catch (Exception ex)
             {
-                throw new ApplicationException("An error occurred while retrieving Users.", ex);
+                throw new ApplicationException("An error occurred while retrieving users.", ex);
             }
         }
+
+
         public async Task<User?> GetUserByIdAsync(int userId)
         {
             try
