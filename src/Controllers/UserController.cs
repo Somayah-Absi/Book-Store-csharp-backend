@@ -50,39 +50,20 @@ namespace Backend.Controllers
         {
             try
             {
-                if (!Request.Cookies.ContainsKey("jwt"))
+
+
+
+                //"Admin access granted"
+                var user = await _userService.GetUserByIdAsync(userId);
+                if (user != null)
                 {
-                    throw new UnauthorizedAccessExceptions("You are not logged in ❗");
+                    return ApiResponse.Success(user);
                 }
                 else
                 {
-                    var jwt = Request.Cookies["jwt"];
-                    // Validate and decode JWT token to extract claims
-                    var tokenHandler = new JwtSecurityTokenHandler();
-                    var token = tokenHandler.ReadJwtToken(jwt);
-
-                    var isAdminClaim = token.Claims.FirstOrDefault(c => c.Type == "role" && c.Value == "Admin");
-
-                    bool isAdmin = isAdminClaim != null;
-
-                    if (isAdmin)
-                    {
-                        //"Admin access granted"
-                        var user = await _userService.GetUserByIdAsync(userId);
-                        if (user != null)
-                        {
-                            return ApiResponse.Success(user);
-                        }
-                        else
-                        {
-                            throw new NotFoundException("User was not found");
-                        }
-                    }
-                    else
-                    {
-                        throw new UnauthorizedAccessExceptions("You don't have permission to access this endpoint");
-                    }
+                    throw new NotFoundException("User was not found");
                 }
+
             }
             catch (Exception ex)
             {
@@ -225,43 +206,23 @@ namespace Backend.Controllers
         {
             try
             {
-                if (!Request.Cookies.ContainsKey("jwt"))
+
+
+                // Check if the User with userId exists
+                var existingUser = await _userService.GetUserByIdAsync(userId) ?? throw new NotFoundException($"User with ID {userId} was not found.");
+
+                //"Admin access granted"
+                var result = await _userService.DeleteUserAsync(userId);
+                if (result)
                 {
-                    throw new UnauthorizedAccessExceptions("You are not logged in ❗");
+                    return ApiResponse.Deleted(existingUser, $"User with ID {userId} successfully deleted.");
                 }
                 else
                 {
-                    var jwt = Request.Cookies["jwt"];
-                    // Validate and decode JWT token to extract claims
-                    var tokenHandler = new JwtSecurityTokenHandler();
-                    var token = tokenHandler.ReadJwtToken(jwt);
-
-                    var isAdminClaim = token.Claims.FirstOrDefault(c => c.Type == "role" && c.Value == "Admin");
-
-                    bool isAdmin = isAdminClaim != null;
-
-                    if (isAdmin)
-                    {
-                        // Check if the User with userId exists
-                        var existingUser = await _userService.GetUserByIdAsync(userId) ?? throw new NotFoundException($"User with ID {userId} was not found.");
-
-                        //"Admin access granted"
-                        var result = await _userService.DeleteUserAsync(userId);
-                        if (result)
-                        {
-                            return ApiResponse.Deleted(existingUser, $"User with ID {userId} successfully deleted.");
-                        }
-                        else
-                        {
-                            // User was not found, return a success response since the deletion operation succeeded (from the client's perspective).
-                            throw new InternalServerException($"Failed to delete user with ID {userId}.");
-                        }
-                    }
-                    else
-                    {
-                        throw new UnauthorizedAccessExceptions("You don't have permission to access this endpoint");
-                    }
+                    // User was not found, return a success response since the deletion operation succeeded (from the client's perspective).
+                    throw new InternalServerException($"Failed to delete user with ID {userId}.");
                 }
+
             }
             catch (Exception ex)
             {

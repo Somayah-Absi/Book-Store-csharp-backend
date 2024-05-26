@@ -99,25 +99,8 @@ namespace Backend.Controllers // Defining namespace for controller
         {
             try
             {
-                if (!Request.Cookies.ContainsKey("jwt")) // Check if JWT token exists in request cookies
-                {
-                    throw new UnauthorizedAccessExceptions("You are not logged in ❗");// Return unauthorized response if token is missing
-                }
-                else
-                {
-                    var jwt = Request.Cookies["jwt"]; // Get JWT token from request cookies
-                    // Validate and decode JWT token to extract claims
-                    var tokenHandler = new JwtSecurityTokenHandler();
-                    var token = tokenHandler.ReadJwtToken(jwt);
-
-                    var isAdminClaim = token.Claims.FirstOrDefault(c =>
-                        c.Type == "role" && c.Value == "Admin"
-                    ); // Check if user is admin
-
-                    bool isAdmin = isAdminClaim != null; // Boolean flag for admin role
-
-                    if (isAdmin) // Check if user is admin
-                    {
+                
+                    
                         //"Admin access granted"
                         if (productDto == null) // Check if product data is null
                         {
@@ -143,12 +126,8 @@ namespace Backend.Controllers // Defining namespace for controller
                             createdProduct
                         ) ?? throw new NotFoundException("Failed to create a product"); // Check if product creation was successful
                         return ApiResponse.Created(productDto, "Product created successfully"); // Return success response with created product
-                    }
-                    else
-                    {
-                        throw new UnauthorizedAccessExceptions("You don't have permission to access this endpoint"); // Return unauthorized response if user is not admin
-                    }
-                }
+                    
+                   
             }
             catch (Exception ex) // Catching any exceptions
             {
@@ -162,25 +141,8 @@ namespace Backend.Controllers // Defining namespace for controller
         {
             try
             {
-                if (!Request.Cookies.ContainsKey("jwt")) // Check if JWT token exists in request cookies
-                {
-                    throw new UnauthorizedAccessExceptions("You are not logged in ❗"); // Return unauthorized response if token is missing
-                }
-                else
-                {
-                    var jwt = Request.Cookies["jwt"]; // Get JWT token from request cookies
-                    // Validate and decode JWT token to extract claims
-                    var tokenHandler = new JwtSecurityTokenHandler();
-                    var token = tokenHandler.ReadJwtToken(jwt);
-
-                    var isAdminClaim = token.Claims.FirstOrDefault(c =>
-                        c.Type == "role" && c.Value == "Admin"
-                    ); // Check if user is admin
-
-                    bool isAdmin = isAdminClaim != null; // Boolean flag for admin role
-
-                    if (isAdmin) // Check if user is admin
-                    {
+                
+                    
                         //"Admin access granted"
                         if (product == null || product.ProductId != ProductId) // Check if product data is null or product ID is not matching
                         {
@@ -194,12 +156,9 @@ namespace Backend.Controllers // Defining namespace for controller
                         ) ?? throw new NotFoundException("Product was not found"); // Update product using service
 
                         return ApiResponse.Success(updatedProduct, "Update product successfully"); // Return success response with updated product
-                    }
-                    else
-                    {
-                        throw new UnauthorizedAccessExceptions("You don't have permission to access this endpoint"); // Return unauthorized response if user is not admin
-                    }
-                }
+                    
+                   
+                
             }
             catch (Exception ex) // Catching any exceptions
             {
@@ -213,25 +172,8 @@ namespace Backend.Controllers // Defining namespace for controller
         {
             try
             {
-                if (!Request.Cookies.ContainsKey("jwt")) // Check if JWT token exists in request cookies
-                {
-                    throw new UnauthorizedAccessExceptions("You are not logged in ❗"); // Return unauthorized response if token is missing
-                }
-                else
-                {
-                    var jwt = Request.Cookies["jwt"]; // Get JWT token from request cookies
-                    // Validate and decode JWT token to extract claims
-                    var tokenHandler = new JwtSecurityTokenHandler();
-                    var token = tokenHandler.ReadJwtToken(jwt);
-
-                    var isAdminClaim = token.Claims.FirstOrDefault(c =>
-                        c.Type == "role" && c.Value == "Admin"
-                    ); // Check if user is admin
-
-                    bool isAdmin = isAdminClaim != null; // Boolean flag for admin role
-
-                    if (isAdmin) // Check if user is admin
-                    {
+                
+                    
                         // Check if the product with productId exists
                         var existingProduct = await _productService.GetProductByIdAsync(ProductId) ?? throw new NotFoundException($"Product with ID {ProductId} was not found.");
 
@@ -245,12 +187,9 @@ namespace Backend.Controllers // Defining namespace for controller
                         {
                             throw new InternalServerException($"Failed to delete product with ID {ProductId}."); // Return not found response if product was not found
                         }
-                    }
-                    else
-                    {
-                        throw new UnauthorizedAccessExceptions("You don't have permission to access this endpoint"); // Return unauthorized response if user is not admin
-                    }
-                }
+                    
+                   
+                
             }
             catch (Exception ex) // Catching any exceptions
             {
