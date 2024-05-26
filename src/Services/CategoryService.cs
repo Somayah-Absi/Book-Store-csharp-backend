@@ -17,56 +17,56 @@ namespace Backend.Services
         }
 
         // Converts fetched database data (categories and their products) into DTOs by selecting/mapping specific properties and creating new objects.
-      public async Task<PaginationResult<GetCategoryWithProductDto>> GetAllCategories(int pageNumber = 1, int pageSize = 10)
-{
-    try
-    {
-        // Calculate the total count of categories before pagination
-        var totalCount = await _dbContext.Categories.CountAsync();
-
-        // Apply pagination to the categories query
-        var categories = await _dbContext.Categories
-            .Include(c => c.Products)
-            .Skip((pageNumber - 1) * pageSize)
-            .Take(pageSize)
-            .ToListAsync();
-
-        // Map categories to DTOs
-        var categoryDtos = categories.Select(c => new GetCategoryWithProductDto
+        public async Task<PaginationResult<GetCategoryWithProductDto>> GetAllCategories(int pageNumber = 1, int pageSize = 10)
         {
-            CategoryId = c.CategoryId,
-            CategoryName = c.CategoryName,
-            CategorySlug = c.CategorySlug,
-            CategoryDescription = c.CategoryDescription,
-            Products = c.Products.Select(p => new GetProductWithCategoryDto
+            try
             {
-                ProductId = p.ProductId,
-                ProductName = p.ProductName,
-                ProductSlug = p.ProductSlug,
-                ProductPrice = p.ProductPrice,
-                ProductDescription = p.ProductDescription,
-                ProductImage = p.ProductImage,
-                ProductQuantityInStock = p.ProductQuantityInStock
-            }).ToList()
-        }).ToList();
+                // Calculate the total count of categories before pagination
+                var totalCount = await _dbContext.Categories.CountAsync();
 
-        // Calculate the total number of pages
-        var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+                // Apply pagination to the categories query
+                var categories = await _dbContext.Categories
+                    .Include(c => c.Products)
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToListAsync();
 
-        // Return paginated result
-        return new PaginationResult<GetCategoryWithProductDto>
-        {
-            Items = categoryDtos,
-            TotalCount = totalCount,
-            PageNumber = pageNumber,
-            PageSize = pageSize,
-        };
-    }
-    catch (Exception ex)
-    {
-        throw new ApplicationException("An error occurred while retrieving categories.", ex);
-    }
-}
+                // Map categories to DTOs
+                var categoryDtos = categories.Select(c => new GetCategoryWithProductDto
+                {
+                    CategoryId = c.CategoryId,
+                    CategoryName = c.CategoryName,
+                    CategorySlug = c.CategorySlug,
+                    CategoryDescription = c.CategoryDescription,
+                    Products = c.Products.Select(p => new GetProductWithCategoryDto
+                    {
+                        ProductId = p.ProductId,
+                        ProductName = p.ProductName,
+                        ProductSlug = p.ProductSlug,
+                        ProductPrice = p.ProductPrice,
+                        ProductDescription = p.ProductDescription,
+                        ProductImage = p.ProductImage,
+                        ProductQuantityInStock = p.ProductQuantityInStock
+                    }).ToList()
+                }).ToList();
+
+                // Calculate the total number of pages
+                var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+                // Return paginated result
+                return new PaginationResult<GetCategoryWithProductDto>
+                {
+                    Items = categoryDtos,
+                    TotalCount = totalCount,
+                    PageNumber = pageNumber,
+                    PageSize = pageSize,
+                };
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException("An error occurred while retrieving categories.", ex);
+            }
+        }
 
         public async Task<Category?> GetCategoryById(int categoryId)
         {
