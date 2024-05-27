@@ -67,7 +67,13 @@ if (app.Environment.IsDevelopment())
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Backend Teamwork API V1");
     });
+
+    
 }
+
+app.MapGet("/", () => {
+    return "welcome to our WebSIte";
+}).WithOpenApi();
 
 // Middleware setup
 app.UseHttpsRedirection();
