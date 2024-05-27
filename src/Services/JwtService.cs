@@ -11,18 +11,19 @@ namespace auth.Helpers
     {
 
 
-        private readonly IConfiguration _configuration;
 
-        public JwtService(IConfiguration configuration)
+        public JwtService()
         {
-            _configuration = configuration;
+            Console.WriteLine($"Jwt__Key: {Environment.GetEnvironmentVariable("Jwt__Key")}");
+
         }
 
         public string GenerateJwt(UserDto user)
         {
             // Retrieve the JWT key from configuration
-            var jwtKey = _configuration["Jwt:Key"];
-
+            var jwtKey = Environment.GetEnvironmentVariable("Jwt__Key") ?? throw new InvalidOperationException("JWT Key is missing in environment variables.");
+            var jwtIssuer = Environment.GetEnvironmentVariable("Jwt__Issuer") ?? throw new InvalidOperationException("JWT Issuer is missing in environment variables.");
+            var jwtAudience = Environment.GetEnvironmentVariable("Jwt__Audience") ?? throw new InvalidOperationException("JWT Audience is missing in environment variables.");
             // Check if the key is null or empty
             if (string.IsNullOrEmpty(jwtKey))
             {
@@ -57,8 +58,8 @@ namespace auth.Helpers
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
 
                 // Set the issuer and audience of the token
-                Issuer = _configuration["Jwt:Issuer"],
-                Audience = _configuration["Jwt:Audience"],
+                Issuer = jwtIssuer,
+                Audience = jwtAudience,
             };
 
             // Create a JWT token handler
