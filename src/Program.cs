@@ -75,6 +75,15 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.UseEndpoints(endpoints =>
+{
+    _ = endpoints.MapGet("/", async context =>
+    {
+        await context.Response.WriteAsync("Hello World!");
+    });
+    // Add other endpoints...
+});
+
 // CORS setup
 app.UseCors("CorsPolicy");
 
