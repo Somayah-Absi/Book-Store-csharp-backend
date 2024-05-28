@@ -45,7 +45,7 @@ builder.Services.AddScoped<JwtService>();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("CorsPolicy",
-        builder => builder.WithOrigins("http://localhost:3000", "http://localhost:8080", "http://localhost:4200", "https://jocular-buttercream-568747.netlify.app")
+        builder => builder.WithOrigins("http://localhost:3000", "http://localhost:8080", "http://localhost:4200", "https://dazzling-marigold-562de4.netlify.app")
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials());
